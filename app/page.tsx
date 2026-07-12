@@ -42,7 +42,7 @@ export default function Page() {
         </h1>
         <div aria-label="Town locations" className="town-grid">
           {towns.map((town) => (
-            <div className="town-column" key={town.name}>
+            <div className="town-column" key={town.name} style={{ gap: 0 }}>
               <div className="town-icon">
                 <Image
                   alt={`${town.name} town`}
@@ -54,9 +54,16 @@ export default function Page() {
               <Image
                 alt={`${town.name} wizard`}
                 className="town-wizard"
-                height={24}
+                height={32}
                 src="/images/z2-wizard.png"
-                width={24}
+                style={{
+                  position: 'static',
+                  width: 32,
+                  height: 32,
+                  marginTop: 6,
+                  transform: 'none',
+                }}
+                width={32}
               />
             </div>
           ))}

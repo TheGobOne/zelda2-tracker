@@ -75,7 +75,7 @@
 
 .town-column {
   flex-direction: column;
-  gap: 6px;
+  gap: 0;
 }
 
 .town-icon img {
