@@ -56,7 +56,7 @@
 
 .town-grid {
   position: absolute;
-  top: 80px;
+  top: 78px;
   left: 50%;
   z-index: 3;
   display: grid;
