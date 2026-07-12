@@ -7,6 +7,7 @@ export default function Page() {
         role="img"
         style={{ width: 600, height: 1200 }}
       >
+        <h1 className="canvas-title">TOWNS</h1>
         <div className="frame-rail frame-rail-top" />
         <div className="frame-rail frame-rail-right" />
         <div className="frame-rail frame-rail-bottom" />
