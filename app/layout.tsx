@@ -7,14 +7,14 @@ const geistSans = Geist({ subsets: ['latin'], variable: '--font-geist-sans' })
 const geistMono = Geist_Mono({ subsets: ['latin'], variable: '--font-geist-mono' })
 
 export const metadata: Metadata = {
-  title: 'Zelda II Randomizer Tracker',
-  description: 'A compact portrait tracker for Zelda II randomizer runs.',
+  title: 'Adventure of Link Randomizer Tracker',
+  description: 'A portrait checklist for Zelda II randomizer items, towns, and overworld caves.',
   generator: 'v0.app',
 }
 
 export const viewport: Viewport = {
-  colorScheme: 'light',
-  themeColor: '#e8e6df',
+  colorScheme: 'dark',
+  themeColor: '#080a12',
   width: 'device-width',
   initialScale: 1,
 }

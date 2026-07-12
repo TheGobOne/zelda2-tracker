@@ -30,38 +30,47 @@
 }
 
 :root {
-  color-scheme: light;
-  --background: #e8e6df;
-  --foreground: #171914;
-  --card: #f7f6f1;
-  --card-foreground: #171914;
-  --primary: #24723b;
-  --primary-foreground: #f7f6f1;
-  --secondary: #d9d7cf;
-  --secondary-foreground: #171914;
-  --muted: #d9d7cf;
-  --muted-foreground: #676960;
-  --accent: #d49a22;
-  --accent-foreground: #171914;
-  --destructive: #a73b2c;
-  --border: #171914;
-  --input: #171914;
-  --ring: #24723b;
-  --shadow: #171914;
+  color-scheme: dark;
+  --background: #080a12;
+  --foreground: #f5f1df;
+  --card: #101426;
+  --card-foreground: #f5f1df;
+  --primary: #d73b2f;
+  --primary-foreground: #f5f1df;
+  --secondary: #1d2338;
+  --secondary-foreground: #f5f1df;
+  --muted: #1d2338;
+  --muted-foreground: #8f98ad;
+  --accent: #e7b83c;
+  --accent-foreground: #080a12;
+  --destructive: #d73b2f;
+  --border: #8f98ad;
+  --input: #8f98ad;
+  --ring: #e7b83c;
   --radius: 0;
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  html {
-    @apply bg-background;
-  }
+  * { @apply border-border outline-ring/70; }
+  html { @apply bg-background; }
   body {
     @apply bg-background text-foreground;
+    background-image: repeating-linear-gradient(0deg, transparent, transparent 3px, rgb(245 241 223 / 0.025) 3px, rgb(245 241 223 / 0.025) 4px);
   }
-  button {
-    cursor: pointer;
-  }
+  button { cursor: pointer; }
+  button:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+}
+
+.pixel-frame {
+  border: 4px solid var(--primary);
+  box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--muted-foreground), 8px 8px 0 rgb(0 0 0 / 0.55);
+  clip-path: polygon(8px 0, calc(100% - 8px) 0, calc(100% - 8px) 4px, 100% 4px, 100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) 100%, 8px 100%, 8px calc(100% - 4px), 0 calc(100% - 4px), 0 8px, 4px 8px, 4px 4px, 8px 4px);
+}
+
+.pixel-button { position: relative; box-shadow: inset -2px -2px 0 rgb(0 0 0 / 0.35), inset 2px 2px 0 rgb(245 241 223 / 0.08); }
+.pixel-button:active { transform: translate(1px, 1px); box-shadow: none; }
+.text-shadow-pixel { text-shadow: 2px 2px 0 #080a12, 4px 4px 0 #6c1c1a; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
 }
