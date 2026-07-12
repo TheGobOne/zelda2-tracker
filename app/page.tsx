@@ -24,7 +24,7 @@ export default function Page() {
           className="canvas-title"
           style={{
             position: 'absolute',
-            top: 40,
+            top: 36,
             left: 0,
             zIndex: 10,
             width: '100%',
