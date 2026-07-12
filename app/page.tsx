@@ -52,6 +52,13 @@ export default function Page() {
             </div>
           ))}
         </div>
+        <Image
+          alt="Zelda II wizard"
+          className="town-wizard"
+          height={24}
+          src="/images/z2-wizard.png"
+          width={24}
+        />
         <div className="frame-rail frame-rail-top" />
         <div className="frame-rail frame-rail-right" />
         <div className="frame-rail frame-rail-bottom" />
