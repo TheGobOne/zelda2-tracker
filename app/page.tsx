@@ -35,6 +35,7 @@ export default function Page() {
             lineHeight: 1.5,
             textAlign: 'center',
             textShadow: '4px 4px 0 #233bea',
+            transform: 'none',
           }}
         >
           TOWNS
