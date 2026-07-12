@@ -11,14 +11,14 @@ export default function Page() {
           className="canvas-title"
           style={{
             position: 'absolute',
-            top: 64,
+            top: 40,
             left: 0,
             zIndex: 10,
             width: '100%',
             margin: 0,
             color: '#f5f5f5',
             fontFamily: 'var(--font-pixel), monospace',
-            fontSize: 28,
+            fontSize: 48,
             lineHeight: 1.5,
             textAlign: 'center',
             textShadow: '4px 4px 0 #233bea',
