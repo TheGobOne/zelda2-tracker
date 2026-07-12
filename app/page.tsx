@@ -18,7 +18,7 @@ export default function Page() {
             margin: 0,
             color: '#f5f5f5',
             fontFamily: 'var(--font-pixel), monospace',
-            fontSize: 48,
+            fontSize: 24,
             lineHeight: 1.5,
             textAlign: 'center',
             textShadow: '4px 4px 0 #233bea',
