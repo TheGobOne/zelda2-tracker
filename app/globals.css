@@ -60,9 +60,9 @@
   left: 50%;
   z-index: 3;
   display: grid;
-  width: 440px;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 28px 24px;
+  width: 520px;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 8px;
   transform: translateX(-50%);
 }
 
@@ -73,8 +73,8 @@
 }
 
 .town-icon img {
-  width: 64px;
-  height: 64px;
+  width: 56px;
+  height: 56px;
   image-rendering: pixelated;
 }
 
