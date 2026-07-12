@@ -60,7 +60,7 @@ export default function Page() {
                   position: 'static',
                   width: 32,
                   height: 32,
-                  marginTop: 6,
+                  marginTop: 8,
                   transform: 'none',
                 }}
                 width={32}
