@@ -66,10 +66,16 @@
   transform: translateX(-50%);
 }
 
+.town-column,
 .town-icon {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.town-column {
+  flex-direction: column;
+  gap: 6px;
 }
 
 .town-icon img {
@@ -79,13 +85,8 @@
 }
 
 .town-wizard {
-  position: absolute;
-  top: 142px;
-  left: 50%;
-  z-index: 3;
-  width: 48px;
-  height: 48px;
-  transform: translateX(-50%);
+  width: 32px;
+  height: 32px;
   image-rendering: pixelated;
 }
 

@@ -42,23 +42,25 @@ export default function Page() {
         </h1>
         <div aria-label="Town locations" className="town-grid">
           {towns.map((town) => (
-            <div className="town-icon" key={town.name}>
+            <div className="town-column" key={town.name}>
+              <div className="town-icon">
+                <Image
+                  alt={`${town.name} town`}
+                  height={32}
+                  src={town.src}
+                  width={32}
+                />
+              </div>
               <Image
-                alt={`${town.name} town`}
-                height={32}
-                src={town.src}
-                width={32}
+                alt={`${town.name} wizard`}
+                className="town-wizard"
+                height={24}
+                src="/images/z2-wizard.png"
+                width={24}
               />
             </div>
           ))}
         </div>
-        <Image
-          alt="Zelda II wizard"
-          className="town-wizard"
-          height={24}
-          src="/images/z2-wizard.png"
-          width={24}
-        />
         <div className="frame-rail frame-rail-top" />
         <div className="frame-rail frame-rail-right" />
         <div className="frame-rail frame-rail-bottom" />
