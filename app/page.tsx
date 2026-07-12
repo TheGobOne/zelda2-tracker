@@ -1,3 +1,16 @@
+import Image from 'next/image'
+
+const towns = [
+  { name: 'Rauru', src: '/images/towns/rauru.png' },
+  { name: 'Ruto', src: '/images/towns/ruto.png' },
+  { name: 'Saria', src: '/images/towns/saria.png' },
+  { name: 'Mido', src: '/images/towns/mido.png' },
+  { name: 'Nabooru', src: '/images/towns/nabooru.png' },
+  { name: 'Darunia', src: '/images/towns/darunia.png' },
+  { name: 'New Kasuto', src: '/images/towns/new-kasuto.png' },
+  { name: 'Old Kasuto', src: '/images/towns/old-kasuto.png' },
+]
+
 export default function Page() {
   return (
     <main className="flex min-h-screen items-center justify-center overflow-auto p-4">
@@ -26,6 +39,18 @@ export default function Page() {
         >
           TOWNS
         </h1>
+        <div aria-label="Town locations" className="town-grid">
+          {towns.map((town) => (
+            <div className="town-icon" key={town.name}>
+              <Image
+                alt={`${town.name} town`}
+                height={32}
+                src={town.src}
+                width={32}
+              />
+            </div>
+          ))}
+        </div>
         <div className="frame-rail frame-rail-top" />
         <div className="frame-rail frame-rail-right" />
         <div className="frame-rail frame-rail-bottom" />
