@@ -5,6 +5,7 @@ export default function Page() {
         aria-label="Blank 600 by 1200 portrait tracker canvas with an eight-bit frame"
         className="game-canvas"
         role="img"
+        style={{ width: 600, height: 1200 }}
       >
         <div className="frame-rail frame-rail-top" />
         <div className="frame-rail frame-rail-right" />
