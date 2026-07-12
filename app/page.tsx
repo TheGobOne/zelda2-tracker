@@ -7,7 +7,25 @@ export default function Page() {
         role="img"
         style={{ width: 600, height: 1200 }}
       >
-        <h1 className="canvas-title">TOWNS</h1>
+        <h1
+          className="canvas-title"
+          style={{
+            position: 'absolute',
+            top: 64,
+            left: 0,
+            zIndex: 10,
+            width: '100%',
+            margin: 0,
+            color: '#f5f5f5',
+            fontFamily: 'var(--font-pixel), monospace',
+            fontSize: 28,
+            lineHeight: 1.5,
+            textAlign: 'center',
+            textShadow: '4px 4px 0 #233bea',
+          }}
+        >
+          TOWNS
+        </h1>
         <div className="frame-rail frame-rail-top" />
         <div className="frame-rail frame-rail-right" />
         <div className="frame-rail frame-rail-bottom" />
