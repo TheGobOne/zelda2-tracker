@@ -31,8 +31,8 @@
 
 .game-canvas {
   position: relative;
-  width: 800px;
-  height: 600px;
+  width: 600px;
+  height: 1200px;
   flex-shrink: 0;
   overflow: hidden;
   background: var(--canvas);
@@ -51,7 +51,7 @@
 .frame-rail-top,
 .frame-rail-bottom {
   left: 24px;
-  width: 752px;
+  width: 552px;
   height: 14px;
   border-width: 4px 0;
 }
@@ -60,7 +60,7 @@
 .frame-rail-right {
   top: 24px;
   width: 14px;
-  height: 552px;
+  height: 1152px;
   border-width: 0 4px;
 }
 
