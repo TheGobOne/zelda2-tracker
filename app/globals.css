@@ -205,10 +205,11 @@
   justify-content: space-between;
 }
 
-/* Grid ends at 476px (3 rows of 56px + 2 gaps); one separation unit below it. */
+/* Centered between the columns, on the middle row with Helmethead and Gooma. */
+/* Grid starts at 280px; the second row sits one 56px icon plus a gap below. */
 .palace-final {
   position: absolute;
-  top: calc(476px + var(--sep));
+  top: calc(280px + 56px + var(--sep));
   left: 50%;
   z-index: 3;
   transform: translateX(-50%);
