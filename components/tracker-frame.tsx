@@ -26,17 +26,17 @@ const palaceColumns = [
     // Mirrored so the left column faces inward, toward the right column.
     flipped: true,
     bosses: [
-      { name: 'Horsehead', src: '/images/palaces/horsehead.png' },
-      { name: 'Helmethead', src: '/images/palaces/helmethead.png' },
-      { name: 'Rebonack', src: '/images/palaces/rebonack.png' },
+      { name: 'Horsehead', src: '/images/palaces/horsehead.png', maxSlots: 2 },
+      { name: 'Helmethead', src: '/images/palaces/helmethead.png', maxSlots: 2 },
+      { name: 'Rebonack', src: '/images/palaces/rebonack.png', maxSlots: 2 },
     ],
   },
   {
     id: 'right',
     bosses: [
-      { name: 'Karock', src: '/images/palaces/karock.png' },
-      { name: 'Gooma', src: '/images/palaces/gooma.png' },
-      { name: 'Barba', src: '/images/palaces/barba.png' },
+      { name: 'Karock', src: '/images/palaces/karock.png', maxSlots: 2 },
+      { name: 'Gooma', src: '/images/palaces/gooma.png', maxSlots: 3 },
+      { name: 'Barba', src: '/images/palaces/barba.png', maxSlots: 3 },
     ],
   },
 ]
@@ -72,6 +72,15 @@ function clampScale(value: number) {
 export function TrackerFrame() {
   const [scale, setScale] = useState(0.85)
   const [activeHandle, setActiveHandle] = useState<string | null>(null)
+  // Every boss starts with a single slot; middle click cycles up to its max.
+  const [slotCounts, setSlotCounts] = useState<Record<string, number>>({})
+
+  function cycleSlots(name: string, maxSlots: number) {
+    setSlotCounts((current) => ({
+      ...current,
+      [name]: ((current[name] ?? 1) % maxSlots) + 1,
+    }))
+  }
   const dragRef = useRef<{
     x: number
     y: number
@@ -182,22 +191,51 @@ export function TrackerFrame() {
                   className={`town-column palace-column-${column.id}${column.flipped ? ' town-column-flipped' : ''}`}
                   key={column.id}
                 >
-                  {column.bosses.map((palace) => (
-                    <div className="palace-row" key={palace.name}>
-                      <div className="town-icon">
-                        <Image
-                          alt={`${palace.name} palace boss`}
-                          height={32}
-                          src={palace.src}
-                          width={32}
-                        />
+                  {column.bosses.map((palace) => {
+                    const slots = slotCounts[palace.name] ?? 1
+
+                    return (
+                      <div className="palace-row" key={palace.name}>
+                        <button
+                          aria-label={`${palace.name} palace boss, ${slots} of ${palace.maxSlots} item slots. Middle click to cycle.`}
+                          className="town-icon boss-toggle"
+                          onAuxClick={(event) => {
+                            if (event.button === 1) {
+                              event.preventDefault()
+                              cycleSlots(palace.name, palace.maxSlots)
+                            }
+                          }}
+                          onKeyDown={(event) => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                              event.preventDefault()
+                              cycleSlots(palace.name, palace.maxSlots)
+                            }
+                          }}
+                          // Middle click otherwise triggers browser autoscroll.
+                          onMouseDown={(event) => {
+                            if (event.button === 1) {
+                              event.preventDefault()
+                            }
+                          }}
+                          type="button"
+                        >
+                          <Image
+                            alt={`${palace.name} palace boss`}
+                            height={32}
+                            src={palace.src}
+                            width={32}
+                          />
+                        </button>
+                        {Array.from({ length: slots }, (_, index) => (
+                          <div
+                            aria-label={`Item slot ${index + 1} for ${palace.name}`}
+                            className="item-slot"
+                            key={`${palace.name}-slot-${index}`}
+                          />
+                        ))}
                       </div>
-                      <div
-                        aria-label={`Item slot for ${palace.name}`}
-                        className="item-slot"
-                      />
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               ))}
             </div>

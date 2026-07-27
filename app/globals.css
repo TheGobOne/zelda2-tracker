@@ -233,7 +233,20 @@
   transform: scaleX(-1) translateZ(0);
 }
 
-/* Each boss is paired with an item slot, both facing the center of the canvas. */
+/* Boss icons are buttons so their slot count can be cycled by middle click. */
+.boss-toggle {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.boss-toggle:focus-visible {
+  outline: 3px solid #e52a08;
+  outline-offset: 2px;
+}
+
+/* Each boss is paired with item slots, filling inward toward the canvas center. */
 .palace-row {
   display: flex;
   align-items: center;
@@ -242,6 +255,15 @@
 
 .palace-column-right .palace-row {
   flex-direction: row-reverse;
+}
+
+/* Pin rows to their outer edge so added slots never shift the boss icons. */
+.palace-grid .town-column.palace-column-left {
+  align-items: flex-start;
+}
+
+.palace-grid .town-column.palace-column-right {
+  align-items: flex-end;
 }
 
 /* Empty holder sized to the boss sprites, ready to receive an item icon. */
