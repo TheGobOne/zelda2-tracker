@@ -335,18 +335,42 @@ export function TrackerFrame() {
                                 aria-haspopup="dialog"
                                 aria-label={
                                   item
-                                    ? `${palace.name} item slot ${index + 1}: ${item.name}. Click to change, right click to clear.`
-                                    : `${palace.name} item slot ${index + 1}: empty. Click to choose an item.`
+                                    ? `${palace.name} item ${index + 1}: ${item.name}. Right click to change, middle click to clear.`
+                                    : `${palace.name} item ${index + 1}: empty. Right click to choose an item.`
                                 }
                                 className="item-slot"
-                                onClick={() =>
+                                // Middle click clears the item.
+                                onAuxClick={(event) => {
+                                  if (event.button === 1) {
+                                    event.preventDefault()
+                                    clearItem(slotKey)
+                                  }
+                                }}
+                                // Right click opens the item menu.
+                                onContextMenu={(event) => {
+                                  event.preventDefault()
                                   setOpenSlot(
                                     openSlot === slotKey ? null : slotKey
                                   )
-                                }
-                                onContextMenu={(event) => {
-                                  event.preventDefault()
-                                  clearItem(slotKey)
+                                }}
+                                onKeyDown={(event) => {
+                                  if (event.key === 'Enter' || event.key === ' ') {
+                                    event.preventDefault()
+                                    setOpenSlot(
+                                      openSlot === slotKey ? null : slotKey
+                                    )
+                                  }
+
+                                  if (event.key === 'Delete' || event.key === 'Backspace') {
+                                    event.preventDefault()
+                                    clearItem(slotKey)
+                                  }
+                                }}
+                                // Middle click otherwise triggers autoscroll.
+                                onMouseDown={(event) => {
+                                  if (event.button === 1) {
+                                    event.preventDefault()
+                                  }
                                 }}
                                 type="button"
                               >
