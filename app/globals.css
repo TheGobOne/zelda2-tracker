@@ -373,16 +373,25 @@
   image-rendering: pixelated;
 }
 
-/* Last cell in the grid: a trash icon that empties the slot. */
-.item-picker-option-clear {
-  color: #e52a08;
-  border-color: #e52a08;
+/* Two sprites split by a slash, sized to fit one slot or one menu cell. */
+.item-pair {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: 1px;
 }
 
-.item-picker-option-clear:hover {
+.item-pair-slash {
   color: #f5f5f5;
-  background: #e52a08;
-  border-color: #e52a08;
+  font-family: var(--font-pixel), monospace;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.item-slot .item-pair img,
+.item-picker-option .item-pair img {
+  width: 22px;
+  height: 22px;
 }
 
 .town-icon img {

@@ -1,6 +1,5 @@
 'use client'
 
-import { Trash2 } from 'lucide-react'
 import Image from 'next/image'
 import {
   type PointerEvent as ReactPointerEvent,
@@ -86,9 +85,30 @@ const items = [
     src: '/images/items/magiccontainer.png',
   },
   { id: 'pbag', name: 'Point Bag', src: '/images/items/pbag.png' },
-  // Sits in the last cell as an icon-only action that empties the slot.
-  { id: 'clear', name: 'Clear Item', src: null },
+  // Two sprites shown side by side to mean "either of these two pickups".
+  {
+    id: '1up-redpotion',
+    name: '1-Up or Red Potion',
+    src: ['/images/items/1up.png', '/images/items/redpotion.png'],
+  },
 ]
+
+/** Draws a single sprite, or two sprites separated by a slash for pairs. */
+function ItemArt({ item }: { item: (typeof items)[number] }) {
+  if (Array.isArray(item.src)) {
+    return (
+      <span className="item-pair">
+        <Image alt="" height={32} src={item.src[0]} width={32} />
+        <span aria-hidden="true" className="item-pair-slash">
+          /
+        </span>
+        <Image alt="" height={32} src={item.src[1]} width={32} />
+      </span>
+    )
+  }
+
+  return <Image alt={item.name} height={32} src={item.src} width={32} />
+}
 
 type Handle = {
   id: string
@@ -330,14 +350,7 @@ export function TrackerFrame() {
                                 }}
                                 type="button"
                               >
-                                {item ? (
-                                  <Image
-                                    alt={item.name}
-                                    height={32}
-                                    src={item.src}
-                                    width={32}
-                                  />
-                                ) : null}
+                                {item ? <ItemArt item={item} /> : null}
                               </button>
                             </div>
                           )
@@ -378,34 +391,17 @@ export function TrackerFrame() {
                     {openSlot.replace(/-(\d+)$/, (_, index) => ` ITEM ${Number(index) + 1}`)}
                   </p>
                   <div className="item-picker-grid">
-                    {items.map((entry) =>
-                      entry.src ? (
-                        <button
-                          aria-label={entry.name}
-                          className="item-picker-option"
-                          key={entry.id}
-                          onClick={() => assignItem(openSlot, entry.id)}
-                          type="button"
-                        >
-                          <Image
-                            alt={entry.name}
-                            height={32}
-                            src={entry.src}
-                            width={32}
-                          />
-                        </button>
-                      ) : (
-                        <button
-                          aria-label={entry.name}
-                          className="item-picker-option item-picker-option-clear"
-                          key={entry.id}
-                          onClick={() => clearItem(openSlot)}
-                          type="button"
-                        >
-                          <Trash2 aria-hidden="true" size={24} />
-                        </button>
-                      )
-                    )}
+                    {items.map((entry) => (
+                      <button
+                        aria-label={entry.name}
+                        className="item-picker-option"
+                        key={entry.id}
+                        onClick={() => assignItem(openSlot, entry.id)}
+                        type="button"
+                      >
+                        <ItemArt item={entry} />
+                      </button>
+                    ))}
                   </div>
                 </div>
               </div>
