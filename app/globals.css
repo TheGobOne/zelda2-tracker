@@ -195,12 +195,14 @@
 }
 
 /* PALACES title ends at 266px; one separation unit below it. */
-/* Six bosses in two columns of three, sized to the 56px icons. */
+/* Two columns of three bosses pinned to the outer edges of the icon area. */
 .palace-grid {
   top: calc(266px + var(--sep));
-  width: fit-content;
-  grid-template-columns: repeat(2, 56px);
-  gap: var(--sep);
+  display: flex;
+  width: 520px;
+  max-width: 520px;
+  align-items: flex-start;
+  justify-content: space-between;
 }
 
 /* Grid ends at 476px (3 rows of 56px + 2 gaps); one separation unit below it. */

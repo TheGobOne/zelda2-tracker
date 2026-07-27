@@ -19,14 +19,24 @@ const towns = [
   { name: 'Old Kasuto', src: '/images/towns/old-kasuto.png' },
 ]
 
-// The six palace bosses fill a 2-column grid, reading left to right, top to bottom.
-const palaces = [
-  { name: 'Horsehead', src: '/images/palaces/horsehead.png' },
-  { name: 'Helmethead', src: '/images/palaces/helmethead.png' },
-  { name: 'Rebonack', src: '/images/palaces/rebonack.png' },
-  { name: 'Karock', src: '/images/palaces/karock.png' },
-  { name: 'Gooma', src: '/images/palaces/gooma.png' },
-  { name: 'Barba', src: '/images/palaces/barba.png' },
+// The six palace bosses sit in two columns of three, pushed to opposite edges.
+const palaceColumns = [
+  {
+    id: 'left',
+    bosses: [
+      { name: 'Horsehead', src: '/images/palaces/horsehead.png' },
+      { name: 'Helmethead', src: '/images/palaces/helmethead.png' },
+      { name: 'Rebonack', src: '/images/palaces/rebonack.png' },
+    ],
+  },
+  {
+    id: 'right',
+    bosses: [
+      { name: 'Karock', src: '/images/palaces/karock.png' },
+      { name: 'Gooma', src: '/images/palaces/gooma.png' },
+      { name: 'Barba', src: '/images/palaces/barba.png' },
+    ],
+  },
 ]
 
 // Thunderbird guards the Great Palace, so it sits centered below the grid.
@@ -165,16 +175,18 @@ export function TrackerFrame() {
             <h2 className="canvas-title canvas-title-palaces">PALACES</h2>
 
             <div aria-label="Palace locations" className="palace-grid">
-              {palaces.map((palace) => (
-                <div className="town-column" key={palace.name}>
-                  <div className="town-icon">
-                    <Image
-                      alt={`${palace.name} palace boss`}
-                      height={32}
-                      src={palace.src}
-                      width={32}
-                    />
-                  </div>
+              {palaceColumns.map((column) => (
+                <div className="town-column" key={column.id}>
+                  {column.bosses.map((palace) => (
+                    <div className="town-icon" key={palace.name}>
+                      <Image
+                        alt={`${palace.name} palace boss`}
+                        height={32}
+                        src={palace.src}
+                        width={32}
+                      />
+                    </div>
+                  ))}
                 </div>
               ))}
             </div>
