@@ -179,16 +179,22 @@ export function TrackerFrame() {
             <div aria-label="Palace locations" className="palace-grid">
               {palaceColumns.map((column) => (
                 <div
-                  className={`town-column${column.flipped ? ' town-column-flipped' : ''}`}
+                  className={`town-column palace-column-${column.id}${column.flipped ? ' town-column-flipped' : ''}`}
                   key={column.id}
                 >
                   {column.bosses.map((palace) => (
-                    <div className="town-icon" key={palace.name}>
-                      <Image
-                        alt={`${palace.name} palace boss`}
-                        height={32}
-                        src={palace.src}
-                        width={32}
+                    <div className="palace-row" key={palace.name}>
+                      <div className="town-icon">
+                        <Image
+                          alt={`${palace.name} palace boss`}
+                          height={32}
+                          src={palace.src}
+                          width={32}
+                        />
+                      </div>
+                      <div
+                        aria-label={`Item slot for ${palace.name}`}
+                        className="item-slot"
                       />
                     </div>
                   ))}
