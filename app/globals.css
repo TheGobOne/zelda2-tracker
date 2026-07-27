@@ -14,7 +14,7 @@
   --foreground: #f5f5f5;
   --canvas: #000000;
 
-  /* Default separation: the gap between the top border rail and the TOWNS title. */
+  /* Default separation: the gap between the top border rail and the town grid. */
   --sep: 14px;
 }
 
@@ -140,31 +140,10 @@
   image-rendering: pixelated;
 }
 
-.canvas-title {
-  position: absolute;
-  /* Top rail ends at 22px; one separation unit below it. */
-  top: calc(22px + var(--sep));
-  left: 0;
-  z-index: 10;
-  width: 100%;
-  margin: 0;
-  color: #f5f5f5;
-  font-family: var(--font-pixel), monospace;
-  font-size: 24px;
-  line-height: 1.5;
-  text-align: center;
-  text-shadow: 4px 4px 0 #233bea;
-}
-
-/* Divider ends at 216px; one separation unit below it. */
-.canvas-title-palaces {
-  top: calc(216px + var(--sep));
-}
-
-/* Towns section ends at 188px; one separation unit below it. */
+/* Towns section ends at 154px; one separation unit below it. */
 .section-divider {
   position: absolute;
-  top: calc(188px + var(--sep));
+  top: calc(154px + var(--sep));
   left: 24px;
   z-index: 3;
   width: 552px;
@@ -185,19 +164,19 @@
   transform: translateX(-50%);
 }
 
-/* TOWNS title ends at 72px; one separation unit below it. */
+/* Top rail ends at 22px; one separation unit below it. */
 .town-grid {
-  top: calc(72px + var(--sep));
+  top: calc(22px + var(--sep));
   width: 520px;
   grid-template-columns: repeat(8, 1fr);
   column-gap: 8px;
   row-gap: var(--sep);
 }
 
-/* PALACES title ends at 266px; one separation unit below it. */
+/* Divider ends at 182px; one separation unit below it. */
 /* Two columns of three bosses pinned to the outer edges of the icon area. */
 .palace-grid {
-  top: calc(266px + var(--sep));
+  top: calc(182px + var(--sep));
   display: flex;
   width: 520px;
   max-width: 520px;
@@ -206,10 +185,10 @@
 }
 
 /* Centered between the columns, on the top row with Palace 1 and Palace 4. */
-/* Grid starts at 280px, so the first row shares that same offset. */
+/* Grid starts at 196px, so the first row shares that same offset. */
 .palace-final {
   position: absolute;
-  top: calc(266px + var(--sep));
+  top: calc(182px + var(--sep));
   left: 50%;
   z-index: 3;
   transform: translateX(-50%);
@@ -366,8 +345,9 @@
 /* Palette of every item. Always opens in the same spot, spanning the tracker. */
 .item-picker {
   position: absolute;
-  /* Aligned with the PALACES grid and the 24px rail inset on each side. */
-  top: 280px;
+  /* Shares the palace grid's anchor so the two never drift apart. */
+  top: calc(182px + var(--sep));
+  /* Matches the 24px rail inset on each side. */
   left: 24px;
   z-index: 1;
   display: flex;

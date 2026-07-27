@@ -347,8 +347,6 @@ export function TrackerFrame() {
             className="game-canvas"
             role="img"
           >
-            <h1 className="canvas-title">TOWNS</h1>
-
             <div aria-label="Town locations" className="town-grid">
               {towns.map((town) => (
                 <div className="town-column" key={town.name}>
@@ -366,8 +364,6 @@ export function TrackerFrame() {
             </div>
 
             <div className="section-divider" />
-
-            <h2 className="canvas-title canvas-title-palaces">PALACES</h2>
 
             <div aria-label="Palace locations" className="palace-grid">
               {palaceColumns.map((column) => (
