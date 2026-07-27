@@ -13,6 +13,9 @@
   --background: #202020;
   --foreground: #f5f5f5;
   --canvas: #000000;
+
+  /* Default separation: the gap between the top border rail and the TOWNS title. */
+  --sep: 14px;
 }
 
 @layer base {
@@ -139,7 +142,8 @@
 
 .canvas-title {
   position: absolute;
-  top: 36px;
+  /* Top rail ends at 22px; one separation unit below it. */
+  top: calc(22px + var(--sep));
   left: 0;
   z-index: 10;
   width: 100%;
@@ -152,13 +156,15 @@
   text-shadow: 4px 4px 0 #233bea;
 }
 
+/* Divider ends at 216px; one separation unit below it. */
 .canvas-title-palaces {
-  top: 216px;
+  top: calc(216px + var(--sep));
 }
 
+/* Towns section ends at 188px; one separation unit below it. */
 .section-divider {
   position: absolute;
-  top: 188px;
+  top: calc(188px + var(--sep));
   left: 24px;
   z-index: 3;
   width: 552px;
@@ -180,13 +186,15 @@
   transform: translateX(-50%);
 }
 
+/* TOWNS title ends at 72px; one separation unit below it. */
 .town-grid {
-  top: 78px;
+  top: calc(72px + var(--sep));
   grid-template-columns: repeat(8, 1fr);
 }
 
+/* PALACES title ends at 266px; one separation unit below it. */
 .palace-grid {
-  top: 258px;
+  top: calc(266px + var(--sep));
   grid-template-columns: repeat(7, 1fr);
 }
 
@@ -197,9 +205,10 @@
   justify-content: center;
 }
 
+/* Icon stacks use the same separation unit as the section spacing. */
 .town-column {
   flex-direction: column;
-  gap: 8px;
+  row-gap: var(--sep);
 }
 
 .town-icon img {
