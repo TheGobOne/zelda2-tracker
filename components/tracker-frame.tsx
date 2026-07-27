@@ -19,17 +19,45 @@ const towns = [
   { name: 'Old Kasuto', src: '/images/towns/old-kasuto.png' },
 ]
 
+type Handle = {
+  id: string
+  label: string
+  x: -1 | 0 | 1
+  y: -1 | 0 | 1
+}
+
+const handles: Handle[] = [
+  { id: 'top', label: 'top edge', x: 0, y: -1 },
+  { id: 'right', label: 'right edge', x: 1, y: 0 },
+  { id: 'bottom', label: 'bottom edge', x: 0, y: 1 },
+  { id: 'left', label: 'left edge', x: -1, y: 0 },
+  { id: 'top-left', label: 'top left corner', x: -1, y: -1 },
+  { id: 'top-right', label: 'top right corner', x: 1, y: -1 },
+  { id: 'bottom-right', label: 'bottom right corner', x: 1, y: 1 },
+  { id: 'bottom-left', label: 'bottom left corner', x: -1, y: 1 },
+]
+
 function clampScale(value: number) {
   return Math.min(MAX_SCALE, Math.max(MIN_SCALE, value))
 }
 
 export function TrackerFrame() {
   const [scale, setScale] = useState(0.85)
-  const dragRef = useRef<{ x: number; y: number; scale: number } | null>(null)
+  const [activeHandle, setActiveHandle] = useState<string | null>(null)
+  const dragRef = useRef<{
+    x: number
+    y: number
+    scale: number
+    handle: Handle
+  } | null>(null)
 
-  function handlePointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
+  function handlePointerDown(
+    event: ReactPointerEvent<HTMLButtonElement>,
+    handle: Handle
+  ) {
     event.preventDefault()
-    dragRef.current = { x: event.clientX, y: event.clientY, scale }
+    dragRef.current = { x: event.clientX, y: event.clientY, scale, handle }
+    setActiveHandle(handle.id)
     event.currentTarget.setPointerCapture(event.pointerId)
   }
 
@@ -40,39 +68,40 @@ export function TrackerFrame() {
       return
     }
 
-    const deltaX = (event.clientX - drag.x) / BASE_WIDTH
-    const deltaY = (event.clientY - drag.y) / BASE_HEIGHT
+    const { handle } = drag
+    // Dragging outward always grows; each active axis contributes evenly.
+    const axes = Math.abs(handle.x) + Math.abs(handle.y)
+    const deltaX = (handle.x * (event.clientX - drag.x)) / BASE_WIDTH
+    const deltaY = (handle.y * (event.clientY - drag.y)) / BASE_HEIGHT
 
-    setScale(clampScale(drag.scale + (deltaX + deltaY)))
+    setScale(clampScale(drag.scale + ((deltaX + deltaY) * 2) / axes))
   }
 
   function handlePointerUp(event: ReactPointerEvent<HTMLButtonElement>) {
     dragRef.current = null
+    setActiveHandle(null)
 
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId)
     }
   }
 
+  function handleKeyDown(event: React.KeyboardEvent<HTMLButtonElement>) {
+    if (event.key === 'ArrowUp' || event.key === 'ArrowRight') {
+      event.preventDefault()
+      setScale((current) => clampScale(current + 0.05))
+    }
+
+    if (event.key === 'ArrowDown' || event.key === 'ArrowLeft') {
+      event.preventDefault()
+      setScale((current) => clampScale(current - 0.05))
+    }
+  }
+
   return (
     <div className="tracker-wrap">
-      <label className="tracker-size-control" htmlFor="tracker-size">
-        <span className="tracker-size-label">Tracker size</span>
-        <input
-          className="tracker-size-range"
-          id="tracker-size"
-          max={MAX_SCALE}
-          min={MIN_SCALE}
-          onChange={(event) => setScale(clampScale(Number(event.target.value)))}
-          step={0.01}
-          type="range"
-          value={scale}
-        />
-        <output className="tracker-size-value">{Math.round(scale * 100)}%</output>
-      </label>
-
       <div
-        className="tracker-stage"
+        className={`tracker-stage${activeHandle ? ' is-resizing' : ''}`}
         style={{
           width: BASE_WIDTH * scale,
           height: BASE_HEIGHT * scale,
@@ -126,17 +155,19 @@ export function TrackerFrame() {
           </div>
         </div>
 
-        <button
-          aria-label="Drag to resize the tracker"
-          className="tracker-resize-handle"
-          onPointerCancel={handlePointerUp}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          type="button"
-        >
-          <span className="sr-only">Drag to resize the tracker</span>
-        </button>
+        {handles.map((handle) => (
+          <button
+            aria-label={`Drag the ${handle.label} to resize the tracker`}
+            className={`tracker-grip tracker-grip-${handle.id}`}
+            key={handle.id}
+            onKeyDown={handleKeyDown}
+            onPointerCancel={handlePointerUp}
+            onPointerDown={(event) => handlePointerDown(event, handle)}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            type="button"
+          />
+        ))}
       </div>
     </div>
   )
