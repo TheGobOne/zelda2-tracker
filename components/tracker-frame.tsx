@@ -20,13 +20,13 @@ const towns = [
 ]
 
 const palaces = [
-  { name: 'Parapa Palace', src: '/images/palaces/palace.png' },
-  { name: 'Midoro Palace', src: '/images/palaces/palace.png' },
-  { name: 'Island Palace', src: '/images/palaces/palace.png' },
-  { name: 'Maze Palace', src: '/images/palaces/palace.png' },
-  { name: 'Palace on the Sea', src: '/images/palaces/palace.png' },
-  { name: 'Three-Eye Rock Palace', src: '/images/palaces/palace.png' },
-  { name: 'Great Palace', src: '/images/palaces/great-palace.png' },
+  { name: 'Gooma', src: '/images/palaces/gooma.png' },
+  { name: 'Rebonack', src: '/images/palaces/rebonack.png' },
+  { name: 'Thunderbird', src: '/images/palaces/thunderbird.png' },
+  { name: 'Karock', src: '/images/palaces/karock.png' },
+  { name: 'Helmethead', src: '/images/palaces/helmethead.png' },
+  { name: 'Horsehead', src: '/images/palaces/horsehead.png' },
+  { name: 'Barba', src: '/images/palaces/barba.png' },
 ]
 
 type Handle = {
@@ -159,11 +159,11 @@ export function TrackerFrame() {
             <h2 className="canvas-title canvas-title-palaces">PALACES</h2>
 
             <div aria-label="Palace locations" className="palace-grid">
-              {palaces.map((palace, index) => (
-                <div className="town-column" key={`${palace.name}-${index}`}>
+              {palaces.map((palace) => (
+                <div className="town-column" key={palace.name}>
                   <div className="town-icon">
                     <Image
-                      alt={palace.name}
+                      alt={`${palace.name} palace boss`}
                       height={32}
                       src={palace.src}
                       width={32}
