@@ -153,12 +153,12 @@
 }
 
 .canvas-title-palaces {
-  top: 248px;
+  top: 216px;
 }
 
 .section-divider {
   position: absolute;
-  top: 206px;
+  top: 188px;
   left: 24px;
   z-index: 3;
   width: 552px;
@@ -186,7 +186,7 @@
 }
 
 .palace-grid {
-  top: 290px;
+  top: 258px;
   grid-template-columns: repeat(7, 1fr);
 }
 
