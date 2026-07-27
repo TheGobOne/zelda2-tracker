@@ -205,7 +205,7 @@
   justify-content: space-between;
 }
 
-/* Centered between the columns, on the top row with Horsehead and Karock. */
+/* Centered between the columns, on the top row with Palace 1 and Palace 4. */
 /* Grid starts at 280px, so the first row shares that same offset. */
 .palace-final {
   position: absolute;

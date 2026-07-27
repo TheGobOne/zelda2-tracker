@@ -31,17 +31,17 @@ const palaceColumns = [
     // Mirrored so the left column faces inward, toward the right column.
     flipped: true,
     bosses: [
-      { name: 'Horsehead', src: '/images/palaces/horsehead.png', maxSlots: 2 },
-      { name: 'Helmethead', src: '/images/palaces/helmethead.png', maxSlots: 2 },
-      { name: 'Rebonack', src: '/images/palaces/rebonack.png', maxSlots: 2 },
+      { name: 'Palace 1', src: '/images/palaces/horsehead.png', maxSlots: 2 },
+      { name: 'Palace 2', src: '/images/palaces/helmethead.png', maxSlots: 2 },
+      { name: 'Palace 3', src: '/images/palaces/rebonack.png', maxSlots: 2 },
     ],
   },
   {
     id: 'right',
     bosses: [
-      { name: 'Karock', src: '/images/palaces/karock.png', maxSlots: 2 },
-      { name: 'Gooma', src: '/images/palaces/gooma.png', maxSlots: 3 },
-      { name: 'Barba', src: '/images/palaces/barba.png', maxSlots: 3 },
+      { name: 'Palace 4', src: '/images/palaces/karock.png', maxSlots: 2 },
+      { name: 'Palace 5', src: '/images/palaces/gooma.png', maxSlots: 3 },
+      { name: 'Palace 6', src: '/images/palaces/barba.png', maxSlots: 3 },
     ],
   },
 ]
