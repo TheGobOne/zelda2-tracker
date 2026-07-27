@@ -1,7 +1,12 @@
 'use client'
 
 import Image from 'next/image'
-import { type PointerEvent as ReactPointerEvent, useRef, useState } from 'react'
+import {
+  type PointerEvent as ReactPointerEvent,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 
 const BASE_WIDTH = 600
 const BASE_HEIGHT = 1200
@@ -110,6 +115,22 @@ export function TrackerFrame() {
   // Which item sits in each slot, keyed by boss name and slot index.
   const [slotItems, setSlotItems] = useState<Record<string, string>>({})
   const [openSlot, setOpenSlot] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!openSlot) {
+      return
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setOpenSlot(null)
+      }
+    }
+
+    window.addEventListener('keydown', handleEscape)
+
+    return () => window.removeEventListener('keydown', handleEscape)
+  }, [openSlot])
 
   function cycleSlots(name: string, maxSlots: number) {
     setSlotCounts((current) => ({
@@ -285,6 +306,7 @@ export function TrackerFrame() {
                           return (
                             <div className="item-slot-wrap" key={slotKey}>
                               <button
+                                aria-haspopup="dialog"
                                 aria-label={
                                   item
                                     ? `${palace.name} item slot ${index + 1}: ${item.name}. Click to change, right click to clear.`
@@ -311,33 +333,6 @@ export function TrackerFrame() {
                                   />
                                 ) : null}
                               </button>
-
-                              {openSlot === slotKey ? (
-                                <div
-                                  aria-label={`Choose an item for ${palace.name} slot ${index + 1}`}
-                                  className="item-picker"
-                                  role="dialog"
-                                >
-                                  {items.map((entry) => (
-                                    <button
-                                      aria-label={entry.name}
-                                      className="item-picker-option"
-                                      key={entry.id}
-                                      onClick={() =>
-                                        assignItem(slotKey, entry.id)
-                                      }
-                                      type="button"
-                                    >
-                                      <Image
-                                        alt={entry.name}
-                                        height={32}
-                                        src={entry.src}
-                                        width={32}
-                                      />
-                                    </button>
-                                  ))}
-                                </div>
-                              ) : null}
                             </div>
                           )
                         })}
@@ -358,6 +353,52 @@ export function TrackerFrame() {
                 />
               </div>
             </div>
+
+            {/* Rendered last so the menu floats over the boss icons and slots. */}
+            {openSlot ? (
+              <div className="item-picker-overlay">
+                <button
+                  aria-label="Close item menu"
+                  className="item-picker-backdrop"
+                  onClick={() => setOpenSlot(null)}
+                  type="button"
+                />
+                <div
+                  aria-label={`Choose an item for ${openSlot.replace(/-(\d+)$/, ' slot $1')}`}
+                  className="item-picker"
+                  role="dialog"
+                >
+                  <p className="item-picker-title">
+                    {openSlot.replace(/-(\d+)$/, (_, index) => ` SLOT ${Number(index) + 1}`)}
+                  </p>
+                  <div className="item-picker-grid">
+                    {items.map((entry) => (
+                      <button
+                        aria-label={entry.name}
+                        className="item-picker-option"
+                        key={entry.id}
+                        onClick={() => assignItem(openSlot, entry.id)}
+                        type="button"
+                      >
+                        <Image
+                          alt={entry.name}
+                          height={32}
+                          src={entry.src}
+                          width={32}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    className="item-picker-clear"
+                    onClick={() => clearItem(openSlot)}
+                    type="button"
+                  >
+                    CLEAR SLOT
+                  </button>
+                </div>
+              </div>
+            ) : null}
 
             <div className="frame-rail frame-rail-top" />
             <div className="frame-rail frame-rail-right" />
