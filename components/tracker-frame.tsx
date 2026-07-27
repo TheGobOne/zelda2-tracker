@@ -19,6 +19,7 @@ const towns = [
   { name: 'Old Kasuto', src: '/images/towns/old-kasuto.png' },
 ]
 
+// The six palace bosses fill a 2-column grid, reading left to right, top to bottom.
 const palaces = [
   { name: 'Horsehead', src: '/images/palaces/horsehead.png' },
   { name: 'Helmethead', src: '/images/palaces/helmethead.png' },
@@ -26,8 +27,13 @@ const palaces = [
   { name: 'Karock', src: '/images/palaces/karock.png' },
   { name: 'Gooma', src: '/images/palaces/gooma.png' },
   { name: 'Barba', src: '/images/palaces/barba.png' },
-  { name: 'Thunderbird', src: '/images/palaces/thunderbird.png' },
 ]
+
+// Thunderbird guards the Great Palace, so it sits centered below the grid.
+const finalBoss = {
+  name: 'Thunderbird',
+  src: '/images/palaces/thunderbird.png',
+}
 
 type Handle = {
   id: string
@@ -171,6 +177,17 @@ export function TrackerFrame() {
                   </div>
                 </div>
               ))}
+            </div>
+
+            <div className="palace-final">
+              <div className="town-icon">
+                <Image
+                  alt={`${finalBoss.name} palace boss`}
+                  height={32}
+                  src={finalBoss.src}
+                  width={32}
+                />
+              </div>
             </div>
 
             <div className="frame-rail frame-rail-top" />

@@ -175,27 +175,41 @@
   border-width: 4px 0;
 }
 
+/* Shared positioning for the horizontally centered icon grids. */
 .town-grid,
 .palace-grid {
   position: absolute;
   left: 50%;
   z-index: 3;
   display: grid;
-  width: 520px;
-  gap: 8px;
   transform: translateX(-50%);
 }
 
 /* TOWNS title ends at 72px; one separation unit below it. */
 .town-grid {
   top: calc(72px + var(--sep));
+  width: 520px;
   grid-template-columns: repeat(8, 1fr);
+  column-gap: 8px;
+  row-gap: var(--sep);
 }
 
 /* PALACES title ends at 266px; one separation unit below it. */
+/* Six bosses in two columns of three, sized to the 56px icons. */
 .palace-grid {
   top: calc(266px + var(--sep));
-  grid-template-columns: repeat(7, 1fr);
+  width: fit-content;
+  grid-template-columns: repeat(2, 56px);
+  gap: var(--sep);
+}
+
+/* Grid ends at 476px (3 rows of 56px + 2 gaps); one separation unit below it. */
+.palace-final {
+  position: absolute;
+  top: calc(476px + var(--sep));
+  left: 50%;
+  z-index: 3;
+  transform: translateX(-50%);
 }
 
 .town-column,
