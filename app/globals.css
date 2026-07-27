@@ -273,7 +273,8 @@
 }
 
 /* Holder sized to the boss sprites; click to choose the item it contains. */
-.palace-row .item-slot {
+.item-slot {
+  position: relative;
   display: flex;
   width: 56px;
   min-height: 56px;
@@ -287,11 +288,11 @@
   cursor: pointer;
 }
 
-.palace-row .item-slot:hover {
+.item-slot:hover {
   border-color: #233bea;
 }
 
-.palace-row .item-slot:focus-visible {
+.item-slot:focus-visible {
   outline: 3px solid #e52a08;
   outline-offset: 2px;
 }
@@ -302,9 +303,25 @@
   image-rendering: pixelated;
 }
 
+/* Eight town slots share one row, so they run smaller than the palace slots. */
+.town-grid .item-slot {
+  width: 48px;
+  min-height: 48px;
+  height: 48px;
+}
+
+.town-grid .item-slot img {
+  width: 32px;
+  height: 32px;
+}
+
+.town-grid .item-slot .item-pair img {
+  width: 18px;
+  height: 18px;
+}
+
 /* Collected: the sprite greys out and a green check sits over it. */
-.palace-row .item-slot-collected {
-  position: relative;
+.item-slot-collected {
   border-color: #3aa63a;
 }
 
@@ -312,6 +329,12 @@
 .item-slot-collected img {
   filter: grayscale(1);
   opacity: 0.45;
+}
+
+/* Smaller slots need a smaller check so the sprite stays readable. */
+.town-grid .item-slot-check {
+  width: 16px;
+  height: 16px;
 }
 
 .item-slot-check {
@@ -419,12 +442,6 @@
 .town-icon img {
   width: 56px;
   height: 56px;
-  image-rendering: pixelated;
-}
-
-.town-wizard {
-  width: 32px;
-  height: 32px;
   image-rendering: pixelated;
 }
 

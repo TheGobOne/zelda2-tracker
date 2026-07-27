@@ -94,6 +94,17 @@ const items = [
   },
 ]
 
+/** Turns a slot key into the heading shown in the item menu. */
+function slotLabel(slotKey: string) {
+  if (slotKey.startsWith('town-')) {
+    return `${slotKey.slice('town-'.length)} ITEM`.toUpperCase()
+  }
+
+  return slotKey
+    .replace(/-(\d+)$/, (_, index) => ` ITEM ${Number(index) + 1}`)
+    .toUpperCase()
+}
+
 /** Draws a single sprite, or two sprites separated by a slash for pairs. */
 function ItemArt({ item }: { item: (typeof items)[number] }) {
   if (Array.isArray(item.src)) {
@@ -160,6 +171,75 @@ export function TrackerFrame() {
 
     return () => window.removeEventListener('keydown', handleEscape)
   }, [openSlot])
+
+  /** One item holder. Left click marks collected, right click opens the menu,
+   *  middle click empties it. Shared by the town and palace grids. */
+  function renderItemSlot(slotKey: string, label: string) {
+    const item = items.find((entry) => entry.id === slotItems[slotKey])
+    const isCollected = Boolean(item && collected[slotKey])
+
+    return (
+      <div className="item-slot-wrap" key={slotKey}>
+        <button
+          aria-haspopup="dialog"
+          aria-label={
+            item
+              ? `${label}: ${item.name}${isCollected ? ', collected' : ''}. Left click to mark collected, right click to change, middle click to clear.`
+              : `${label}: empty. Right click to choose an item.`
+          }
+          aria-pressed={item ? isCollected : undefined}
+          className={isCollected ? 'item-slot item-slot-collected' : 'item-slot'}
+          // Middle click clears the item.
+          onAuxClick={(event) => {
+            if (event.button === 1) {
+              event.preventDefault()
+              clearItem(slotKey)
+            }
+          }}
+          // Left click marks the item as collected.
+          onClick={() => {
+            if (item) {
+              toggleCollected(slotKey)
+            }
+          }}
+          // Right click opens the item menu.
+          onContextMenu={(event) => {
+            event.preventDefault()
+            setOpenSlot(openSlot === slotKey ? null : slotKey)
+          }}
+          onKeyDown={(event) => {
+            // Enter opens the menu, Space marks collected.
+            if (event.key === 'Enter') {
+              event.preventDefault()
+              setOpenSlot(openSlot === slotKey ? null : slotKey)
+            }
+
+            if (event.key === 'Delete' || event.key === 'Backspace') {
+              event.preventDefault()
+              clearItem(slotKey)
+            }
+          }}
+          // Middle click otherwise triggers autoscroll.
+          onMouseDown={(event) => {
+            if (event.button === 1) {
+              event.preventDefault()
+            }
+          }}
+          type="button"
+        >
+          {item ? <ItemArt item={item} /> : null}
+          {isCollected ? (
+            <Check
+              aria-hidden="true"
+              className="item-slot-check"
+              size={22}
+              strokeWidth={4}
+            />
+          ) : null}
+        </button>
+      </div>
+    )
+  }
 
   function cycleSlots(name: string, maxSlots: number) {
     setSlotCounts((current) => ({
@@ -280,13 +360,7 @@ export function TrackerFrame() {
                       width={32}
                     />
                   </div>
-                  <Image
-                    alt={`${town.name} wizard`}
-                    className="town-wizard"
-                    height={32}
-                    src="/images/z2-wizard.png"
-                    width={32}
-                  />
+                  {renderItemSlot(`town-${town.name}`, `${town.name} item`)}
                 </div>
               ))}
             </div>
@@ -336,83 +410,12 @@ export function TrackerFrame() {
                             width={32}
                           />
                         </button>
-                        {Array.from({ length: slots }, (_, index) => {
-                          const slotKey = `${palace.name}-${index}`
-                          const item = items.find(
-                            (entry) => entry.id === slotItems[slotKey]
+                        {Array.from({ length: slots }, (_, index) =>
+                          renderItemSlot(
+                            `${palace.name}-${index}`,
+                            `${palace.name} item ${index + 1}`
                           )
-                          const isCollected = Boolean(item && collected[slotKey])
-
-                          return (
-                            <div className="item-slot-wrap" key={slotKey}>
-                              <button
-                                aria-haspopup="dialog"
-                                aria-label={
-                                  item
-                                    ? `${palace.name} item ${index + 1}: ${item.name}${isCollected ? ', collected' : ''}. Left click to mark collected, right click to change, middle click to clear.`
-                                    : `${palace.name} item ${index + 1}: empty. Right click to choose an item.`
-                                }
-                                aria-pressed={item ? isCollected : undefined}
-                                className={
-                                  isCollected
-                                    ? 'item-slot item-slot-collected'
-                                    : 'item-slot'
-                                }
-                                // Left click marks the item as collected.
-                                onClick={() => {
-                                  if (item) {
-                                    toggleCollected(slotKey)
-                                  }
-                                }}
-                                // Middle click clears the item.
-                                onAuxClick={(event) => {
-                                  if (event.button === 1) {
-                                    event.preventDefault()
-                                    clearItem(slotKey)
-                                  }
-                                }}
-                                // Right click opens the item menu.
-                                onContextMenu={(event) => {
-                                  event.preventDefault()
-                                  setOpenSlot(
-                                    openSlot === slotKey ? null : slotKey
-                                  )
-                                }}
-                                onKeyDown={(event) => {
-                                  // Enter opens the menu, Space marks collected.
-                                  if (event.key === 'Enter') {
-                                    event.preventDefault()
-                                    setOpenSlot(
-                                      openSlot === slotKey ? null : slotKey
-                                    )
-                                  }
-
-                                  if (event.key === 'Delete' || event.key === 'Backspace') {
-                                    event.preventDefault()
-                                    clearItem(slotKey)
-                                  }
-                                }}
-                                // Middle click otherwise triggers autoscroll.
-                                onMouseDown={(event) => {
-                                  if (event.button === 1) {
-                                    event.preventDefault()
-                                  }
-                                }}
-                                type="button"
-                              >
-                                {item ? <ItemArt item={item} /> : null}
-                                {isCollected ? (
-                                  <Check
-                                    aria-hidden="true"
-                                    className="item-slot-check"
-                                    size={22}
-                                    strokeWidth={4}
-                                  />
-                                ) : null}
-                              </button>
-                            </div>
-                          )
-                        })}
+                        )}
                       </div>
                     )
                   })}
@@ -441,13 +444,11 @@ export function TrackerFrame() {
                   type="button"
                 />
                 <div
-                  aria-label={`Choose an item for ${openSlot.replace(/-(\d+)$/, ' item $1')}`}
+                  aria-label={`Choose an item for ${slotLabel(openSlot)}`}
                   className="item-picker"
                   role="dialog"
                 >
-                  <p className="item-picker-title">
-                    {openSlot.replace(/-(\d+)$/, (_, index) => ` ITEM ${Number(index) + 1}`)}
-                  </p>
+                  <p className="item-picker-title">{slotLabel(openSlot)}</p>
                   <div className="item-picker-grid">
                     {items.map((entry) => (
                       <button
