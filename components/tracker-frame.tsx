@@ -19,6 +19,16 @@ const towns = [
   { name: 'Old Kasuto', src: '/images/towns/old-kasuto.png' },
 ]
 
+const palaces = [
+  { name: 'Parapa Palace', src: '/images/palaces/palace.png' },
+  { name: 'Midoro Palace', src: '/images/palaces/palace.png' },
+  { name: 'Island Palace', src: '/images/palaces/palace.png' },
+  { name: 'Maze Palace', src: '/images/palaces/palace.png' },
+  { name: 'Palace on the Sea', src: '/images/palaces/palace.png' },
+  { name: 'Three-Eye Rock Palace', src: '/images/palaces/palace.png' },
+  { name: 'Great Palace', src: '/images/palaces/great-palace.png' },
+]
+
 type Handle = {
   id: string
   label: string
@@ -140,6 +150,25 @@ export function TrackerFrame() {
                     src="/images/z2-wizard.png"
                     width={32}
                   />
+                </div>
+              ))}
+            </div>
+
+            <div className="section-divider" />
+
+            <h2 className="canvas-title canvas-title-palaces">PALACES</h2>
+
+            <div aria-label="Palace locations" className="palace-grid">
+              {palaces.map((palace, index) => (
+                <div className="town-column" key={`${palace.name}-${index}`}>
+                  <div className="town-icon">
+                    <Image
+                      alt={palace.name}
+                      height={32}
+                      src={palace.src}
+                      width={32}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
