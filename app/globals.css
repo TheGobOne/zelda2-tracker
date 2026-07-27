@@ -205,11 +205,11 @@
   justify-content: space-between;
 }
 
-/* Centered between the columns, on the middle row with Helmethead and Gooma. */
-/* Grid starts at 280px; the second row sits one 56px icon plus a gap below. */
+/* Centered between the columns, on the top row with Horsehead and Karock. */
+/* Grid starts at 280px, so the first row shares that same offset. */
 .palace-final {
   position: absolute;
-  top: calc(280px + 56px + var(--sep));
+  top: calc(266px + var(--sep));
   left: 50%;
   z-index: 3;
   transform: translateX(-50%);
