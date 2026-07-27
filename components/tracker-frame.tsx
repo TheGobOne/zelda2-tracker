@@ -87,7 +87,7 @@ const items = [
   },
   { id: 'pbag', name: 'Point Bag', src: '/images/items/pbag.png' },
   // Sits in the last cell as an icon-only action that empties the slot.
-  { id: 'clear', name: 'Clear Slot', src: null },
+  { id: 'clear', name: 'Clear Item', src: null },
 ]
 
 type Handle = {
@@ -370,12 +370,12 @@ export function TrackerFrame() {
                   type="button"
                 />
                 <div
-                  aria-label={`Choose an item for ${openSlot.replace(/-(\d+)$/, ' slot $1')}`}
+                  aria-label={`Choose an item for ${openSlot.replace(/-(\d+)$/, ' item $1')}`}
                   className="item-picker"
                   role="dialog"
                 >
                   <p className="item-picker-title">
-                    {openSlot.replace(/-(\d+)$/, (_, index) => ` SLOT ${Number(index) + 1}`)}
+                    {openSlot.replace(/-(\d+)$/, (_, index) => ` ITEM ${Number(index) + 1}`)}
                   </p>
                   <div className="item-picker-grid">
                     {items.map((entry) =>
