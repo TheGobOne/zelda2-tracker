@@ -47,6 +47,38 @@ const finalBoss = {
   src: '/images/palaces/thunderbird.png',
 }
 
+// Every collectible in the game, available to drop into any palace item slot.
+const items = [
+  { id: 'candle', name: 'Candle', src: '/images/items/candle.png' },
+  { id: 'glove', name: 'Glove', src: '/images/items/glove.png' },
+  { id: 'raft', name: 'Raft', src: '/images/items/raft.png' },
+  { id: 'boots', name: 'Boots', src: '/images/items/boots.png' },
+  { id: 'flute', name: 'Flute', src: '/images/items/flute.png' },
+  { id: 'cross', name: 'Cross', src: '/images/items/cross.png' },
+  { id: 'hammer', name: 'Hammer', src: '/images/items/hammer.png' },
+  { id: 'magickey', name: 'Magic Key', src: '/images/items/magickey.png' },
+  { id: 'upstab', name: 'Upstab', src: '/images/items/upstab.png' },
+  { id: 'downstab', name: 'Downstab', src: '/images/items/downstab.png' },
+  { id: 'trophy', name: 'Trophy', src: '/images/items/trophy.png' },
+  { id: 'kid', name: 'Kid', src: '/images/items/kid.png' },
+  { id: 'mirror', name: 'Mirror', src: '/images/items/mirror.png' },
+  { id: 'water', name: 'Water', src: '/images/items/water.png' },
+  {
+    id: 'noteforriverman',
+    name: 'Note for Riverman',
+    src: '/images/items/noteforriverman.png',
+  },
+  { id: 'wateroflife', name: 'Water of Life', src: '/images/items/wateroflife.png' },
+  { id: 'redpotion', name: 'Red Potion', src: '/images/items/redpotion.png' },
+  {
+    id: 'magiccontainer',
+    name: 'Magic Container',
+    src: '/images/items/magiccontainer.png',
+  },
+  { id: 'pbag', name: 'Point Bag', src: '/images/items/pbag.png' },
+  { id: '1up', name: '1-Up Doll', src: '/images/items/1up.png' },
+]
+
 type Handle = {
   id: string
   label: string
@@ -75,11 +107,29 @@ export function TrackerFrame() {
   // Every boss starts with a single slot; middle click cycles up to its max.
   const [slotCounts, setSlotCounts] = useState<Record<string, number>>({})
 
+  // Which item sits in each slot, keyed by boss name and slot index.
+  const [slotItems, setSlotItems] = useState<Record<string, string>>({})
+  const [openSlot, setOpenSlot] = useState<string | null>(null)
+
   function cycleSlots(name: string, maxSlots: number) {
     setSlotCounts((current) => ({
       ...current,
       [name]: ((current[name] ?? 1) % maxSlots) + 1,
     }))
+  }
+
+  function assignItem(slotKey: string, itemId: string) {
+    setSlotItems((current) => ({ ...current, [slotKey]: itemId }))
+    setOpenSlot(null)
+  }
+
+  function clearItem(slotKey: string) {
+    setSlotItems((current) => {
+      const next = { ...current }
+      delete next[slotKey]
+      return next
+    })
+    setOpenSlot(null)
   }
   const dragRef = useRef<{
     x: number
@@ -226,13 +276,71 @@ export function TrackerFrame() {
                             width={32}
                           />
                         </button>
-                        {Array.from({ length: slots }, (_, index) => (
-                          <div
-                            aria-label={`Item slot ${index + 1} for ${palace.name}`}
-                            className="item-slot"
-                            key={`${palace.name}-slot-${index}`}
-                          />
-                        ))}
+                        {Array.from({ length: slots }, (_, index) => {
+                          const slotKey = `${palace.name}-${index}`
+                          const item = items.find(
+                            (entry) => entry.id === slotItems[slotKey]
+                          )
+
+                          return (
+                            <div className="item-slot-wrap" key={slotKey}>
+                              <button
+                                aria-label={
+                                  item
+                                    ? `${palace.name} item slot ${index + 1}: ${item.name}. Click to change, right click to clear.`
+                                    : `${palace.name} item slot ${index + 1}: empty. Click to choose an item.`
+                                }
+                                className="item-slot"
+                                onClick={() =>
+                                  setOpenSlot(
+                                    openSlot === slotKey ? null : slotKey
+                                  )
+                                }
+                                onContextMenu={(event) => {
+                                  event.preventDefault()
+                                  clearItem(slotKey)
+                                }}
+                                type="button"
+                              >
+                                {item ? (
+                                  <Image
+                                    alt={item.name}
+                                    height={32}
+                                    src={item.src}
+                                    width={32}
+                                  />
+                                ) : null}
+                              </button>
+
+                              {openSlot === slotKey ? (
+                                <div
+                                  aria-label={`Choose an item for ${palace.name} slot ${index + 1}`}
+                                  className="item-picker"
+                                  role="dialog"
+                                >
+                                  {items.map((entry) => (
+                                    <button
+                                      aria-label={entry.name}
+                                      className="item-picker-option"
+                                      key={entry.id}
+                                      onClick={() =>
+                                        assignItem(slotKey, entry.id)
+                                      }
+                                      type="button"
+                                    >
+                                      <Image
+                                        alt={entry.name}
+                                        height={32}
+                                        src={entry.src}
+                                        width={32}
+                                      />
+                                    </button>
+                                  ))}
+                                </div>
+                              ) : null}
+                            </div>
+                          )
+                        })}
                       </div>
                     )
                   })}
