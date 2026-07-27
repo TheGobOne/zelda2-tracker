@@ -20,13 +20,13 @@ const towns = [
 ]
 
 const palaces = [
-  { name: 'Gooma', src: '/images/palaces/gooma.png' },
-  { name: 'Rebonack', src: '/images/palaces/rebonack.png' },
-  { name: 'Thunderbird', src: '/images/palaces/thunderbird.png' },
-  { name: 'Karock', src: '/images/palaces/karock.png' },
-  { name: 'Helmethead', src: '/images/palaces/helmethead.png' },
   { name: 'Horsehead', src: '/images/palaces/horsehead.png' },
+  { name: 'Helmethead', src: '/images/palaces/helmethead.png' },
+  { name: 'Rebonack', src: '/images/palaces/rebonack.png' },
+  { name: 'Karock', src: '/images/palaces/karock.png' },
+  { name: 'Gooma', src: '/images/palaces/gooma.png' },
   { name: 'Barba', src: '/images/palaces/barba.png' },
+  { name: 'Thunderbird', src: '/images/palaces/thunderbird.png' },
 ]
 
 type Handle = {
