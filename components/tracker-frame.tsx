@@ -23,6 +23,8 @@ const towns = [
 const palaceColumns = [
   {
     id: 'left',
+    // Mirrored so the left column faces inward, toward the right column.
+    flipped: true,
     bosses: [
       { name: 'Horsehead', src: '/images/palaces/horsehead.png' },
       { name: 'Helmethead', src: '/images/palaces/helmethead.png' },
@@ -176,7 +178,10 @@ export function TrackerFrame() {
 
             <div aria-label="Palace locations" className="palace-grid">
               {palaceColumns.map((column) => (
-                <div className="town-column" key={column.id}>
+                <div
+                  className={`town-column${column.flipped ? ' town-column-flipped' : ''}`}
+                  key={column.id}
+                >
                   {column.bosses.map((palace) => (
                     <div className="town-icon" key={palace.name}>
                       <Image

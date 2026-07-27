@@ -227,6 +227,11 @@
   row-gap: var(--sep);
 }
 
+/* Mirror the sprites only, leaving column position and spacing unchanged. */
+.palace-grid .town-column-flipped img {
+  transform: scaleX(-1) translateZ(0);
+}
+
 .town-icon img {
   width: 56px;
   height: 56px;
