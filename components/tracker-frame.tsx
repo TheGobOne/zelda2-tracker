@@ -1,5 +1,6 @@
 'use client'
 
+import { Trash2 } from 'lucide-react'
 import Image from 'next/image'
 import {
   type PointerEvent as ReactPointerEvent,
@@ -74,14 +75,19 @@ const items = [
     src: '/images/items/noteforriverman.png',
   },
   { id: 'wateroflife', name: 'Water of Life', src: '/images/items/wateroflife.png' },
-  { id: 'redpotion', name: 'Red Potion', src: '/images/items/redpotion.png' },
+  {
+    id: 'heartcontainer',
+    name: 'Heart Container',
+    src: '/images/items/heartcontainer.png',
+  },
   {
     id: 'magiccontainer',
     name: 'Magic Container',
     src: '/images/items/magiccontainer.png',
   },
   { id: 'pbag', name: 'Point Bag', src: '/images/items/pbag.png' },
-  { id: '1up', name: '1-Up Doll', src: '/images/items/1up.png' },
+  // Sits in the last cell as an icon-only action that empties the slot.
+  { id: 'clear', name: 'Clear Slot', src: null },
 ]
 
 type Handle = {
@@ -372,30 +378,35 @@ export function TrackerFrame() {
                     {openSlot.replace(/-(\d+)$/, (_, index) => ` SLOT ${Number(index) + 1}`)}
                   </p>
                   <div className="item-picker-grid">
-                    {items.map((entry) => (
-                      <button
-                        aria-label={entry.name}
-                        className="item-picker-option"
-                        key={entry.id}
-                        onClick={() => assignItem(openSlot, entry.id)}
-                        type="button"
-                      >
-                        <Image
-                          alt={entry.name}
-                          height={32}
-                          src={entry.src}
-                          width={32}
-                        />
-                      </button>
-                    ))}
+                    {items.map((entry) =>
+                      entry.src ? (
+                        <button
+                          aria-label={entry.name}
+                          className="item-picker-option"
+                          key={entry.id}
+                          onClick={() => assignItem(openSlot, entry.id)}
+                          type="button"
+                        >
+                          <Image
+                            alt={entry.name}
+                            height={32}
+                            src={entry.src}
+                            width={32}
+                          />
+                        </button>
+                      ) : (
+                        <button
+                          aria-label={entry.name}
+                          className="item-picker-option item-picker-option-clear"
+                          key={entry.id}
+                          onClick={() => clearItem(openSlot)}
+                          type="button"
+                        >
+                          <Trash2 aria-hidden="true" size={24} />
+                        </button>
+                      )
+                    )}
                   </div>
-                  <button
-                    className="item-picker-clear"
-                    onClick={() => clearItem(openSlot)}
-                    type="button"
-                  >
-                    CLEAR SLOT
-                  </button>
                 </div>
               </div>
             ) : null}
