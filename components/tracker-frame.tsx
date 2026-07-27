@@ -1,5 +1,6 @@
 'use client'
 
+import { Check } from 'lucide-react'
 import Image from 'next/image'
 import {
   type PointerEvent as ReactPointerEvent,
@@ -140,6 +141,8 @@ export function TrackerFrame() {
 
   // Which item sits in each slot, keyed by boss name and slot index.
   const [slotItems, setSlotItems] = useState<Record<string, string>>({})
+  // Slots marked as collected: their art dims and a green check appears.
+  const [collected, setCollected] = useState<Record<string, boolean>>({})
   const [openSlot, setOpenSlot] = useState<string | null>(null)
 
   useEffect(() => {
@@ -170,8 +173,18 @@ export function TrackerFrame() {
     setOpenSlot(null)
   }
 
+  function toggleCollected(slotKey: string) {
+    setCollected((current) => ({ ...current, [slotKey]: !current[slotKey] }))
+  }
+
   function clearItem(slotKey: string) {
     setSlotItems((current) => {
+      const next = { ...current }
+      delete next[slotKey]
+      return next
+    })
+    // Middle click wipes the slot entirely, checkmark included.
+    setCollected((current) => {
       const next = { ...current }
       delete next[slotKey]
       return next
@@ -328,6 +341,7 @@ export function TrackerFrame() {
                           const item = items.find(
                             (entry) => entry.id === slotItems[slotKey]
                           )
+                          const isCollected = Boolean(item && collected[slotKey])
 
                           return (
                             <div className="item-slot-wrap" key={slotKey}>
@@ -335,10 +349,21 @@ export function TrackerFrame() {
                                 aria-haspopup="dialog"
                                 aria-label={
                                   item
-                                    ? `${palace.name} item ${index + 1}: ${item.name}. Right click to change, middle click to clear.`
+                                    ? `${palace.name} item ${index + 1}: ${item.name}${isCollected ? ', collected' : ''}. Left click to mark collected, right click to change, middle click to clear.`
                                     : `${palace.name} item ${index + 1}: empty. Right click to choose an item.`
                                 }
-                                className="item-slot"
+                                aria-pressed={item ? isCollected : undefined}
+                                className={
+                                  isCollected
+                                    ? 'item-slot item-slot-collected'
+                                    : 'item-slot'
+                                }
+                                // Left click marks the item as collected.
+                                onClick={() => {
+                                  if (item) {
+                                    toggleCollected(slotKey)
+                                  }
+                                }}
                                 // Middle click clears the item.
                                 onAuxClick={(event) => {
                                   if (event.button === 1) {
@@ -354,7 +379,8 @@ export function TrackerFrame() {
                                   )
                                 }}
                                 onKeyDown={(event) => {
-                                  if (event.key === 'Enter' || event.key === ' ') {
+                                  // Enter opens the menu, Space marks collected.
+                                  if (event.key === 'Enter') {
                                     event.preventDefault()
                                     setOpenSlot(
                                       openSlot === slotKey ? null : slotKey
@@ -375,6 +401,14 @@ export function TrackerFrame() {
                                 type="button"
                               >
                                 {item ? <ItemArt item={item} /> : null}
+                                {isCollected ? (
+                                  <Check
+                                    aria-hidden="true"
+                                    className="item-slot-check"
+                                    size={22}
+                                    strokeWidth={4}
+                                  />
+                                ) : null}
                               </button>
                             </div>
                           )

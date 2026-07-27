@@ -302,6 +302,28 @@
   image-rendering: pixelated;
 }
 
+/* Collected: the sprite greys out and a green check sits over it. */
+.palace-row .item-slot-collected {
+  position: relative;
+  border-color: #3aa63a;
+}
+
+.item-slot-collected .item-pair,
+.item-slot-collected img {
+  filter: grayscale(1);
+  opacity: 0.45;
+}
+
+.item-slot-check {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  color: #3aa63a;
+  /* Dark ring so the check reads over any sprite behind it. */
+  filter: drop-shadow(0 0 2px #000000) drop-shadow(0 0 2px #000000);
+  pointer-events: none;
+}
+
 /* The menu covers the whole canvas so it floats above every boss and slot. */
 .item-picker-overlay {
   position: absolute;
