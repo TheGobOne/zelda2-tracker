@@ -94,6 +94,10 @@ const items = [
   },
 ]
 
+// Requirement letters a boss can be tagged with. The empty entry is the
+// starting state, so a full cycle returns the boss to having no letter.
+const BOSS_MARKS = ['', 'W', 'E', 'MI', 'DV']
+
 /** Turns a slot key into the heading shown in the item menu. */
 function slotLabel(slotKey: string) {
   if (slotKey.startsWith('town-')) {
@@ -154,6 +158,8 @@ export function TrackerFrame() {
   const [slotItems, setSlotItems] = useState<Record<string, string>>({})
   // Slots marked as collected: their art dims and a green check appears.
   const [collected, setCollected] = useState<Record<string, boolean>>({})
+  // Requirement letter shown over each boss; right click steps through them.
+  const [bossMarks, setBossMarks] = useState<Record<string, string>>({})
   const [openSlot, setOpenSlot] = useState<string | null>(null)
 
   useEffect(() => {
@@ -246,6 +252,23 @@ export function TrackerFrame() {
       ...current,
       [name]: ((current[name] ?? 1) % maxSlots) + 1,
     }))
+  }
+
+  /** Steps a boss through the requirement letters, then back to none. */
+  function cycleMark(bossName: string) {
+    setBossMarks((current) => {
+      const next = { ...current }
+      const index = BOSS_MARKS.indexOf(current[bossName] ?? '')
+      const mark = BOSS_MARKS[(index + 1) % BOSS_MARKS.length]
+
+      if (mark) {
+        next[bossName] = mark
+      } else {
+        delete next[bossName]
+      }
+
+      return next
+    })
   }
 
   function assignItem(slotKey: string, itemId: string) {
@@ -375,11 +398,12 @@ export function TrackerFrame() {
                     const slots = slotCounts[palace.name] ?? 1
                     const bossKey = `boss-${palace.name}`
                     const isBeaten = Boolean(collected[bossKey])
+                    const mark = bossMarks[palace.name]
 
                     return (
                       <div className="palace-row" key={palace.name}>
                         <button
-                          aria-label={`${palace.name} palace boss${isBeaten ? ', defeated' : ''}, ${slots} of ${palace.maxSlots} item slots. Left click to mark defeated, middle click to cycle slots.`}
+                          aria-label={`${palace.name} palace boss${isBeaten ? ', defeated' : ''}${mark ? `, marked ${mark}` : ''}, ${slots} of ${palace.maxSlots} item slots. Left click to mark defeated, right click to cycle letters, middle click to cycle slots.`}
                           aria-pressed={isBeaten}
                           className={
                             isBeaten
@@ -394,10 +418,23 @@ export function TrackerFrame() {
                           }}
                           // Left click marks the boss as defeated.
                           onClick={() => toggleCollected(bossKey)}
+                          // Right click steps through the requirement letters.
+                          onContextMenu={(event) => {
+                            event.preventDefault()
+                            cycleMark(palace.name)
+                          }}
                           onKeyDown={(event) => {
-                            // Enter cycles slots, Space marks defeated.
-                            if (event.key === 'Enter') {
-                              event.preventDefault()
+                            if (event.key !== 'Enter') {
+                              return
+                            }
+
+                            event.preventDefault()
+
+                            // Shift+Enter steps through the letters, plain
+                            // Enter cycles slots. Space marks defeated.
+                            if (event.shiftKey) {
+                              cycleMark(palace.name)
+                            } else {
                               cycleSlots(palace.name, palace.maxSlots)
                             }
                           }}
@@ -415,6 +452,11 @@ export function TrackerFrame() {
                             src={palace.src}
                             width={32}
                           />
+                          {mark ? (
+                            <span aria-hidden="true" className="boss-mark">
+                              {mark}
+                            </span>
+                          ) : null}
                           {isBeaten ? (
                             <Check
                               aria-hidden="true"
@@ -439,7 +481,7 @@ export function TrackerFrame() {
 
             <div className="palace-final">
               <button
-                aria-label={`${finalBoss.name} palace boss${collected[`boss-${finalBoss.name}`] ? ', defeated' : ''}. Left click to mark defeated.`}
+                aria-label={`${finalBoss.name} palace boss${collected[`boss-${finalBoss.name}`] ? ', defeated' : ''}${bossMarks[finalBoss.name] ? `, marked ${bossMarks[finalBoss.name]}` : ''}. Left click to mark defeated, right click to cycle letters.`}
                 aria-pressed={Boolean(collected[`boss-${finalBoss.name}`])}
                 className={
                   collected[`boss-${finalBoss.name}`]
@@ -447,6 +489,11 @@ export function TrackerFrame() {
                     : 'town-icon boss-toggle'
                 }
                 onClick={() => toggleCollected(`boss-${finalBoss.name}`)}
+                // Right click steps through the requirement letters.
+                onContextMenu={(event) => {
+                  event.preventDefault()
+                  cycleMark(finalBoss.name)
+                }}
                 type="button"
               >
                 <Image
@@ -455,6 +502,11 @@ export function TrackerFrame() {
                   src={finalBoss.src}
                   width={32}
                 />
+                {bossMarks[finalBoss.name] ? (
+                  <span aria-hidden="true" className="boss-mark">
+                    {bossMarks[finalBoss.name]}
+                  </span>
+                ) : null}
                 {collected[`boss-${finalBoss.name}`] ? (
                   <Check
                     aria-hidden="true"

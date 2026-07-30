@@ -228,6 +228,27 @@
   opacity: 0.45;
 }
 
+/* Requirement letter pinned across the top of the boss sprite. */
+.boss-mark {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 1;
+  transform: translateX(-50%);
+  color: #f5f5f5;
+  font-family: var(--font-pixel), monospace;
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+  /* Dark ring keeps the letter legible over the sprite behind it. */
+  text-shadow:
+    1px 1px 0 #101010,
+    -1px 1px 0 #101010,
+    1px -1px 0 #101010,
+    -1px -1px 0 #101010;
+  pointer-events: none;
+}
+
 .boss-toggle:focus-visible {
   outline: 3px solid #e52a08;
   outline-offset: 2px;
