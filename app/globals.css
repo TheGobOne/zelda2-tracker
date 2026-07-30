@@ -214,10 +214,18 @@
 
 /* Boss icons are buttons so their slot count can be cycled by middle click. */
 .boss-toggle {
+  /* Anchors the check, which is absolutely positioned inside the button. */
+  position: relative;
   padding: 0;
   border: 0;
   background: none;
   cursor: pointer;
+}
+
+/* Defeated: the boss sprite greys out and a green check sits over it. */
+.boss-toggle-beaten img {
+  filter: grayscale(1);
+  opacity: 0.45;
 }
 
 .boss-toggle:focus-visible {

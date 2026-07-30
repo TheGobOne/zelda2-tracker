@@ -373,20 +373,30 @@ export function TrackerFrame() {
                 >
                   {column.bosses.map((palace) => {
                     const slots = slotCounts[palace.name] ?? 1
+                    const bossKey = `boss-${palace.name}`
+                    const isBeaten = Boolean(collected[bossKey])
 
                     return (
                       <div className="palace-row" key={palace.name}>
                         <button
-                          aria-label={`${palace.name} palace boss, ${slots} of ${palace.maxSlots} item slots. Middle click to cycle.`}
-                          className="town-icon boss-toggle"
+                          aria-label={`${palace.name} palace boss${isBeaten ? ', defeated' : ''}, ${slots} of ${palace.maxSlots} item slots. Left click to mark defeated, middle click to cycle slots.`}
+                          aria-pressed={isBeaten}
+                          className={
+                            isBeaten
+                              ? 'town-icon boss-toggle boss-toggle-beaten'
+                              : 'town-icon boss-toggle'
+                          }
                           onAuxClick={(event) => {
                             if (event.button === 1) {
                               event.preventDefault()
                               cycleSlots(palace.name, palace.maxSlots)
                             }
                           }}
+                          // Left click marks the boss as defeated.
+                          onClick={() => toggleCollected(bossKey)}
                           onKeyDown={(event) => {
-                            if (event.key === 'Enter' || event.key === ' ') {
+                            // Enter cycles slots, Space marks defeated.
+                            if (event.key === 'Enter') {
                               event.preventDefault()
                               cycleSlots(palace.name, palace.maxSlots)
                             }
@@ -405,6 +415,14 @@ export function TrackerFrame() {
                             src={palace.src}
                             width={32}
                           />
+                          {isBeaten ? (
+                            <Check
+                              aria-hidden="true"
+                              className="item-slot-check"
+                              size={22}
+                              strokeWidth={4}
+                            />
+                          ) : null}
                         </button>
                         {Array.from({ length: slots }, (_, index) =>
                           renderItemSlot(
@@ -420,14 +438,32 @@ export function TrackerFrame() {
             </div>
 
             <div className="palace-final">
-              <div className="town-icon">
+              <button
+                aria-label={`${finalBoss.name} palace boss${collected[`boss-${finalBoss.name}`] ? ', defeated' : ''}. Left click to mark defeated.`}
+                aria-pressed={Boolean(collected[`boss-${finalBoss.name}`])}
+                className={
+                  collected[`boss-${finalBoss.name}`]
+                    ? 'town-icon boss-toggle boss-toggle-beaten'
+                    : 'town-icon boss-toggle'
+                }
+                onClick={() => toggleCollected(`boss-${finalBoss.name}`)}
+                type="button"
+              >
                 <Image
                   alt={`${finalBoss.name} palace boss`}
                   height={32}
                   src={finalBoss.src}
                   width={32}
                 />
-              </div>
+                {collected[`boss-${finalBoss.name}`] ? (
+                  <Check
+                    aria-hidden="true"
+                    className="item-slot-check"
+                    size={22}
+                    strokeWidth={4}
+                  />
+                ) : null}
+              </button>
             </div>
 
             {/* Rendered last so the menu floats over the boss icons and slots. */}
