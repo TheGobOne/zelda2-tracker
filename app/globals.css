@@ -228,24 +228,29 @@
   opacity: 0.45;
 }
 
-/* Requirement letter pinned across the top of the boss sprite. */
+/* Requirement letter stamped across the middle of the boss sprite. Gold sets
+   it apart from the green "defeated" check and the white sprite art. */
 .boss-mark {
   position: absolute;
-  top: 0;
+  top: 50%;
   left: 50%;
   z-index: 1;
-  transform: translateX(-50%);
-  color: #f5f5f5;
+  transform: translate(-50%, -50%);
+  color: #f2b21c;
   font-family: var(--font-pixel), monospace;
-  font-size: 12px;
+  font-size: 22px;
   line-height: 1;
   white-space: nowrap;
   /* Dark ring keeps the letter legible over the sprite behind it. */
   text-shadow:
-    1px 1px 0 #101010,
-    -1px 1px 0 #101010,
-    1px -1px 0 #101010,
-    -1px -1px 0 #101010;
+    2px 2px 0 #101010,
+    -2px 2px 0 #101010,
+    2px -2px 0 #101010,
+    -2px -2px 0 #101010,
+    2px 0 0 #101010,
+    -2px 0 0 #101010,
+    0 2px 0 #101010,
+    0 -2px 0 #101010;
   pointer-events: none;
 }
 
