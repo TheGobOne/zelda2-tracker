@@ -57,6 +57,7 @@ const finalBoss = {
 // palaces these have no separate slot box: the chosen item draws over the art.
 const locations = [
   { name: 'Trophy Cave', src: '/images/locations/trophycave.png' },
+  { name: 'Water of Life Cave', src: '/images/locations/wateroflifecave.png' },
 ]
 
 // Every collectible in the game, available to drop into any palace item slot.
