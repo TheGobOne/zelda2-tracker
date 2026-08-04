@@ -66,6 +66,7 @@ const locations = [
     name: 'Magic Container Cave',
     src: '/images/locations/magiccontainercave.png',
   },
+  { name: 'West P-Bag Cave', src: '/images/locations/westpbagcave.png' },
 ]
 
 // Every collectible in the game, available to drop into any palace item slot.
