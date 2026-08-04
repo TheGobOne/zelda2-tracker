@@ -194,6 +194,59 @@
   justify-content: space-between;
 }
 
+/* Overworld locations, spread evenly across the full icon width. The boss
+   divider ends at 420px; one separation unit below it. */
+.location-row {
+  position: absolute;
+  top: calc(420px + var(--sep));
+  left: 50%;
+  z-index: 3;
+  display: flex;
+  width: 520px;
+  align-items: center;
+  justify-content: space-between;
+  transform: translateX(-50%);
+}
+
+/* Anchors the overlaid item and check inside the location art. */
+.location-icon {
+  position: relative;
+  display: flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.location-icon:focus-visible {
+  outline: 2px solid #f2b21c;
+  outline-offset: 2px;
+}
+
+/* The assigned item sits on top of the location art rather than in a box, so
+   it gets a dark ring to stay legible against the sprite behind it. */
+.location-item {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(1px 0 0 #101010) drop-shadow(-1px 0 0 #101010)
+    drop-shadow(0 1px 0 #101010) drop-shadow(0 -1px 0 #101010);
+  pointer-events: none;
+}
+
+.location-item img {
+  width: 24px;
+  height: 24px;
+}
+
 /* Centered between the columns, on the top row with Palace 1 and Palace 4. */
 /* Grid starts at 196px, so the first row shares that same offset. */
 .palace-final {

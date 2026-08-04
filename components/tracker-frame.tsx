@@ -53,6 +53,12 @@ const finalBoss = {
   src: '/images/palaces/thunderbird.png',
 }
 
+// Overworld item locations, shown in one row in upload order. Unlike towns and
+// palaces these have no separate slot box: the chosen item draws over the art.
+const locations = [
+  { name: 'Trophy Cave', src: '/images/locations/trophycave.png' },
+]
+
 // Every collectible in the game, available to drop into any palace item slot.
 const items = [
   { id: 'candle', name: 'Candle', src: '/images/items/candle.png' },
@@ -102,6 +108,10 @@ const ICON_MARKS = ['', 'W', 'E', 'MI', 'DV']
 function slotLabel(slotKey: string) {
   if (slotKey.startsWith('town-')) {
     return `${slotKey.slice('town-'.length)} ITEM`.toUpperCase()
+  }
+
+  if (slotKey.startsWith('location-')) {
+    return `${slotKey.slice('location-'.length)} ITEM`.toUpperCase()
   }
 
   return slotKey
@@ -545,6 +555,90 @@ export function TrackerFrame() {
             </div>
 
             <div className="section-divider section-divider-bosses" />
+
+            <div aria-label="Overworld item locations" className="location-row">
+              {locations.map((location) => {
+                const slotKey = `location-${location.name}`
+                const item = items.find(
+                  (entry) => entry.id === slotItems[slotKey]
+                )
+                const isCollected = Boolean(item && collected[slotKey])
+
+                return (
+                  <button
+                    aria-haspopup="dialog"
+                    aria-label={
+                      item
+                        ? `${location.name}: ${item.name}${isCollected ? ', collected' : ''}. Left click to mark collected, right click to change, middle click to clear.`
+                        : `${location.name}: empty. Right click to choose an item.`
+                    }
+                    aria-pressed={item ? isCollected : undefined}
+                    className={
+                      isCollected
+                        ? 'location-icon location-icon-collected'
+                        : 'location-icon'
+                    }
+                    key={location.name}
+                    // Middle click clears the item.
+                    onAuxClick={(event) => {
+                      if (event.button === 1) {
+                        event.preventDefault()
+                        clearItem(slotKey)
+                      }
+                    }}
+                    onClick={() => {
+                      if (item) {
+                        toggleCollected(slotKey)
+                      }
+                    }}
+                    // Right click opens the item menu.
+                    onContextMenu={(event) => {
+                      event.preventDefault()
+                      setOpenSlot(openSlot === slotKey ? null : slotKey)
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') {
+                        event.preventDefault()
+                        setOpenSlot(openSlot === slotKey ? null : slotKey)
+                      }
+
+                      if (event.key === 'Delete' || event.key === 'Backspace') {
+                        event.preventDefault()
+                        clearItem(slotKey)
+                      }
+                    }}
+                    // Middle click otherwise triggers autoscroll.
+                    onMouseDown={(event) => {
+                      if (event.button === 1) {
+                        event.preventDefault()
+                      }
+                    }}
+                    type="button"
+                  >
+                    <Image
+                      alt={location.name}
+                      height={32}
+                      src={location.src}
+                      width={32}
+                    />
+                    {/* The item draws over the location art, not beside it. */}
+                    {item ? (
+                      <span aria-hidden="true" className="location-item">
+                        <ItemArt item={item} />
+                      </span>
+                    ) : null}
+                    {isCollected ? (
+                      <Check
+                        aria-hidden="true"
+                        className="item-slot-check"
+                        size={22}
+                        strokeWidth={4}
+                      />
+                    ) : null}
+                  </button>
+                )
+              })}
+            </div>
 
             {/* Rendered last so the menu floats over the boss icons and slots. */}
             {openSlot ? (
