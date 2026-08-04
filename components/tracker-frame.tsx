@@ -73,6 +73,7 @@ const locations = [
     name: 'Heart Container Grass',
     src: '/images/locations/heartcontainergrass.png',
   },
+  { name: 'Downstab Man', src: '/images/locations/downstabman.png' },
 ]
 
 // Every collectible in the game, available to drop into any palace item slot.
