@@ -634,9 +634,9 @@ export function TrackerFrame() {
                   >
                     <Image
                       alt={location.name}
-                      height={32}
+                      height={56}
                       src={location.src}
-                      width={32}
+                      width={56}
                     />
                     {/* The item draws over the location art, not beside it. */}
                     {item ? (
