@@ -266,7 +266,8 @@ export function TrackerFrame() {
             <Check
               aria-hidden="true"
               className="item-slot-check"
-              size={22}
+              // Matches the palace sprite size; CSS scales it down for towns.
+              size={50}
               strokeWidth={4}
             />
           ) : null}

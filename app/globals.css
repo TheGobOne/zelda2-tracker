@@ -418,13 +418,20 @@
   border-color: #3aa63a;
 }
 
-/* Smaller slots need a smaller check so the sprite stays readable. */
-.town-grid .item-slot-check {
-  width: 16px;
-  height: 16px;
+/* The check covers the same box as the sprite it sits over, so it reads as a
+   stamp across the item rather than a badge beside it. */
+.item-slot .item-slot-check {
+  width: 50px;
+  height: 50px;
 }
 
-/* Locations use a larger check than the town and palace slots. */
+/* Smaller town slots hold smaller sprites, so their check follows suit. */
+.town-grid .item-slot .item-slot-check {
+  width: 40px;
+  height: 40px;
+}
+
+/* Locations use their own size, sitting over the 56px overworld art. */
 .location-icon .item-slot-check {
   width: 37px;
   height: 37px;
@@ -603,6 +610,7 @@
 .frame-corner-top-right { top: 4px; right: 4px; }
 .frame-corner-bottom-right { right: 4px; bottom: 4px; }
 .frame-corner-bottom-left { bottom: 4px; left: 4px; }
+
 
 
 
