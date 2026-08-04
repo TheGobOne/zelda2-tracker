@@ -68,6 +68,7 @@ const locations = [
   },
   { name: 'West P-Bag Cave', src: '/images/locations/westpbagcave.png' },
   { name: 'Saria Table', src: '/images/locations/sariatable.png' },
+  { name: 'Bagu', src: '/images/locations/bagu.png' },
 ]
 
 // Every collectible in the game, available to drop into any palace item slot.
