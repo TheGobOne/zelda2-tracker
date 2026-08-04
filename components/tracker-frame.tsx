@@ -89,6 +89,10 @@ const locationRowTwo = [
     src: '/images/locations/heartcontainersea.png',
   },
   { name: 'Nabooru Fountain', src: '/images/locations/naboorufountain.png' },
+  {
+    name: 'New Kasuto Magic Container',
+    src: '/images/locations/magiccontainernewkasuto.png',
+  },
 ]
 
 const locationRows = [locationRowOne, locationRowTwo]
