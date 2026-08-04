@@ -62,6 +62,10 @@ const locations = [
     name: 'Heart Container Cave',
     src: '/images/locations/heartcontainercave.png',
   },
+  {
+    name: 'Magic Container Cave',
+    src: '/images/locations/magiccontainercave.png',
+  },
 ]
 
 // Every collectible in the game, available to drop into any palace item slot.
