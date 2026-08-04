@@ -93,6 +93,10 @@ const locationRowTwo = [
     name: 'New Kasuto Magic Container',
     src: '/images/locations/magiccontainernewkasuto.png',
   },
+  {
+    name: 'New Kasuto Magical Key',
+    src: '/images/locations/magickeynewkasuto.png',
+  },
 ]
 
 const locationRows = [locationRowOne, locationRowTwo]
