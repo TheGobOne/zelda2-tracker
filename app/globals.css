@@ -212,9 +212,10 @@
   transform: scaleX(-1) translateZ(0);
 }
 
-/* Boss icons are buttons so their slot count can be cycled by middle click. */
-.boss-toggle {
-  /* Anchors the check, which is absolutely positioned inside the button. */
+/* Town and boss icons are buttons so right click can cycle their letter, and
+   boss icons additionally cycle slot counts on middle click. */
+.icon-toggle {
+  /* Anchors the letter and check, both absolutely positioned inside. */
   position: relative;
   padding: 0;
   border: 0;
@@ -228,9 +229,9 @@
   opacity: 0.45;
 }
 
-/* Requirement letter stamped across the middle of the boss sprite. Gold sets
-   it apart from the green "defeated" check and the white sprite art. */
-.boss-mark {
+/* Requirement letter stamped across the middle of a town or boss sprite. Gold
+   sets it apart from the green "defeated" check and the white sprite art. */
+.icon-mark {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -254,7 +255,7 @@
   pointer-events: none;
 }
 
-.boss-toggle:focus-visible {
+.icon-toggle:focus-visible {
   outline: 3px solid #e52a08;
   outline-offset: 2px;
 }

@@ -94,9 +94,9 @@ const items = [
   },
 ]
 
-// Requirement letters a boss can be tagged with. The empty entry is the
-// starting state, so a full cycle returns the boss to having no letter.
-const BOSS_MARKS = ['', 'W', 'E', 'MI', 'DV']
+// Requirement letters a town or boss can be tagged with. The empty entry is
+// the starting state, so a full cycle returns the icon to having no letter.
+const ICON_MARKS = ['', 'W', 'E', 'MI', 'DV']
 
 /** Turns a slot key into the heading shown in the item menu. */
 function slotLabel(slotKey: string) {
@@ -158,8 +158,9 @@ export function TrackerFrame() {
   const [slotItems, setSlotItems] = useState<Record<string, string>>({})
   // Slots marked as collected: their art dims and a green check appears.
   const [collected, setCollected] = useState<Record<string, boolean>>({})
-  // Requirement letter shown over each boss; right click steps through them.
-  const [bossMarks, setBossMarks] = useState<Record<string, string>>({})
+  // Requirement letter shown over a town or boss; right click steps through
+  // them. Keys are namespaced ("town-"/"boss-") so names cannot collide.
+  const [iconMarks, setIconMarks] = useState<Record<string, string>>({})
   const [openSlot, setOpenSlot] = useState<string | null>(null)
 
   useEffect(() => {
@@ -254,17 +255,17 @@ export function TrackerFrame() {
     }))
   }
 
-  /** Steps a boss through the requirement letters, then back to none. */
-  function cycleMark(bossName: string) {
-    setBossMarks((current) => {
+  /** Steps an icon through the requirement letters, then back to none. */
+  function cycleMark(iconKey: string) {
+    setIconMarks((current) => {
       const next = { ...current }
-      const index = BOSS_MARKS.indexOf(current[bossName] ?? '')
-      const mark = BOSS_MARKS[(index + 1) % BOSS_MARKS.length]
+      const index = ICON_MARKS.indexOf(current[iconKey] ?? '')
+      const mark = ICON_MARKS[(index + 1) % ICON_MARKS.length]
 
       if (mark) {
-        next[bossName] = mark
+        next[iconKey] = mark
       } else {
-        delete next[bossName]
+        delete next[iconKey]
       }
 
       return next
@@ -371,19 +372,44 @@ export function TrackerFrame() {
             role="img"
           >
             <div aria-label="Town locations" className="town-grid">
-              {towns.map((town) => (
-                <div className="town-column" key={town.name}>
-                  <div className="town-icon">
-                    <Image
-                      alt={`${town.name} town`}
-                      height={32}
-                      src={town.src}
-                      width={32}
-                    />
+              {towns.map((town) => {
+                const townKey = `town-${town.name}`
+                const mark = iconMarks[townKey]
+
+                return (
+                  <div className="town-column" key={town.name}>
+                    <button
+                      aria-label={`${town.name} town${mark ? `, marked ${mark}` : ''}. Right click to cycle letters.`}
+                      className="town-icon icon-toggle"
+                      // Right click steps through the requirement letters.
+                      onContextMenu={(event) => {
+                        event.preventDefault()
+                        cycleMark(townKey)
+                      }}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter') {
+                          event.preventDefault()
+                          cycleMark(townKey)
+                        }
+                      }}
+                      type="button"
+                    >
+                      <Image
+                        alt={`${town.name} town`}
+                        height={32}
+                        src={town.src}
+                        width={32}
+                      />
+                      {mark ? (
+                        <span aria-hidden="true" className="icon-mark">
+                          {mark}
+                        </span>
+                      ) : null}
+                    </button>
+                    {renderItemSlot(townKey, `${town.name} item`)}
                   </div>
-                  {renderItemSlot(`town-${town.name}`, `${town.name} item`)}
-                </div>
-              ))}
+                )
+              })}
             </div>
 
             <div className="section-divider" />
@@ -398,7 +424,7 @@ export function TrackerFrame() {
                     const slots = slotCounts[palace.name] ?? 1
                     const bossKey = `boss-${palace.name}`
                     const isBeaten = Boolean(collected[bossKey])
-                    const mark = bossMarks[palace.name]
+                    const mark = iconMarks[bossKey]
 
                     return (
                       <div className="palace-row" key={palace.name}>
@@ -407,8 +433,8 @@ export function TrackerFrame() {
                           aria-pressed={isBeaten}
                           className={
                             isBeaten
-                              ? 'town-icon boss-toggle boss-toggle-beaten'
-                              : 'town-icon boss-toggle'
+                              ? 'town-icon icon-toggle boss-toggle-beaten'
+                              : 'town-icon icon-toggle'
                           }
                           onAuxClick={(event) => {
                             if (event.button === 1) {
@@ -421,7 +447,7 @@ export function TrackerFrame() {
                           // Right click steps through the requirement letters.
                           onContextMenu={(event) => {
                             event.preventDefault()
-                            cycleMark(palace.name)
+                            cycleMark(bossKey)
                           }}
                           onKeyDown={(event) => {
                             if (event.key !== 'Enter') {
@@ -433,7 +459,7 @@ export function TrackerFrame() {
                             // Shift+Enter steps through the letters, plain
                             // Enter cycles slots. Space marks defeated.
                             if (event.shiftKey) {
-                              cycleMark(palace.name)
+                              cycleMark(bossKey)
                             } else {
                               cycleSlots(palace.name, palace.maxSlots)
                             }
@@ -453,7 +479,7 @@ export function TrackerFrame() {
                             width={32}
                           />
                           {mark ? (
-                            <span aria-hidden="true" className="boss-mark">
+                            <span aria-hidden="true" className="icon-mark">
                               {mark}
                             </span>
                           ) : null}
@@ -481,18 +507,18 @@ export function TrackerFrame() {
 
             <div className="palace-final">
               <button
-                aria-label={`${finalBoss.name} palace boss${collected[`boss-${finalBoss.name}`] ? ', defeated' : ''}${bossMarks[finalBoss.name] ? `, marked ${bossMarks[finalBoss.name]}` : ''}. Left click to mark defeated, right click to cycle letters.`}
+                aria-label={`${finalBoss.name} palace boss${collected[`boss-${finalBoss.name}`] ? ', defeated' : ''}${iconMarks[`boss-${finalBoss.name}`] ? `, marked ${iconMarks[`boss-${finalBoss.name}`]}` : ''}. Left click to mark defeated, right click to cycle letters.`}
                 aria-pressed={Boolean(collected[`boss-${finalBoss.name}`])}
                 className={
                   collected[`boss-${finalBoss.name}`]
-                    ? 'town-icon boss-toggle boss-toggle-beaten'
-                    : 'town-icon boss-toggle'
+                    ? 'town-icon icon-toggle boss-toggle-beaten'
+                    : 'town-icon icon-toggle'
                 }
                 onClick={() => toggleCollected(`boss-${finalBoss.name}`)}
                 // Right click steps through the requirement letters.
                 onContextMenu={(event) => {
                   event.preventDefault()
-                  cycleMark(finalBoss.name)
+                  cycleMark(`boss-${finalBoss.name}`)
                 }}
                 type="button"
               >
@@ -502,9 +528,9 @@ export function TrackerFrame() {
                   src={finalBoss.src}
                   width={32}
                 />
-                {bossMarks[finalBoss.name] ? (
-                  <span aria-hidden="true" className="boss-mark">
-                    {bossMarks[finalBoss.name]}
+                {iconMarks[`boss-${finalBoss.name}`] ? (
+                  <span aria-hidden="true" className="icon-mark">
+                    {iconMarks[`boss-${finalBoss.name}`]}
                   </span>
                 ) : null}
                 {collected[`boss-${finalBoss.name}`] ? (
