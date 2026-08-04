@@ -80,6 +80,10 @@ const locationRowOne = [
 const locationRowTwo = [
   { name: 'East P-Bag Cave', src: '/images/locations/eastpbagcave.png' },
   { name: 'East P-Bag Cave 2', src: '/images/locations/eastpbagcave2.png' },
+  {
+    name: 'Desert Heart Container',
+    src: '/images/locations/heartcontainerdesert.png',
+  },
 ]
 
 const locationRows = [locationRowOne, locationRowTwo]
