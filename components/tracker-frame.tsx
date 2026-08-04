@@ -442,7 +442,11 @@ export function TrackerFrame() {
           style={{
             width: BASE_WIDTH,
             height: BASE_HEIGHT,
-            transform: `scale(${scale})`,
+            // `zoom` scales during layout, so the sprites rasterize at their
+            // final on-screen size. `transform: scale()` instead rasterizes at
+            // the base size and stretches that bitmap, which is why the art
+            // looked soft until an interaction forced a fresh repaint.
+            zoom: scale,
           }}
         >
           <div

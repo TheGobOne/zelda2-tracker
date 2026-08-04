@@ -44,6 +44,8 @@
   flex-shrink: 0;
 }
 
+/* The board is sized with `zoom` rather than `transform: scale()` so pixel art
+   is rasterized at its displayed size and stays crisp at every scale. */
 .tracker-scaler {
   transform-origin: top left;
 }
