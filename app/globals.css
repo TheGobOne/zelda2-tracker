@@ -236,22 +236,30 @@
 
 /* The assigned item sits on top of the location art rather than in a box, so
    it gets a dark ring to stay legible against the sprite behind it. */
+/* Spans the whole 56px icon instead of shrinking to fit from left: 50%, which
+   would cap the item art at 28px through the preflight max-width. */
 .location-item {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  transform: translate(-50%, -50%);
   filter: drop-shadow(1px 0 0 #101010) drop-shadow(-1px 0 0 #101010)
     drop-shadow(0 1px 0 #101010) drop-shadow(0 -1px 0 #101010);
   pointer-events: none;
 }
 
 .location-item img {
-  width: 24px;
-  height: 24px;
+  width: 36px;
+  height: 36px;
+  image-rendering: pixelated;
+}
+
+/* Left click marks the location done, so the sprite and its item both grey out
+   together instead of only the check appearing. */
+.location-icon-collected img {
+  filter: grayscale(1);
+  opacity: 0.45;
 }
 
 /* Centered between the columns, on the top row with Palace 1 and Palace 4. */
@@ -592,3 +600,4 @@
 .frame-corner-top-right { top: 4px; right: 4px; }
 .frame-corner-bottom-right { right: 4px; bottom: 4px; }
 .frame-corner-bottom-left { bottom: 4px; left: 4px; }
+
