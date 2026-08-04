@@ -327,10 +327,14 @@ export function TrackerFrame() {
     )
   }
 
+  /**
+   * Steps a boss through its slot counts. The cycle runs 1 up to the max and
+   * then wraps through zero, so a boss can show no item slots at all.
+   */
   function cycleSlots(name: string, maxSlots: number) {
     setSlotCounts((current) => ({
       ...current,
-      [name]: ((current[name] ?? 1) % maxSlots) + 1,
+      [name]: ((current[name] ?? 1) + 1) % (maxSlots + 1),
     }))
   }
 
