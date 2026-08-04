@@ -140,10 +140,10 @@
   image-rendering: pixelated;
 }
 
-/* Towns section ends at 154px; one separation unit below it. */
+/* Horizontal rule closing off a section of the tracker. Each variant supplies
+   its own offset, one separation unit below the section it follows. */
 .section-divider {
   position: absolute;
-  top: calc(154px + var(--sep));
   left: 24px;
   z-index: 3;
   width: 552px;
@@ -152,6 +152,16 @@
   border-color: #f5f5f5;
   border-style: solid;
   border-width: 4px 0;
+}
+
+/* The towns section ends at 154px. */
+.section-divider-towns {
+  top: calc(154px + var(--sep));
+}
+
+/* The boss rows end at 392px. */
+.section-divider-bosses {
+  top: calc(392px + var(--sep));
 }
 
 /* Shared positioning for the horizontally centered icon grids. */

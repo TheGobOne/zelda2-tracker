@@ -412,7 +412,7 @@ export function TrackerFrame() {
               })}
             </div>
 
-            <div className="section-divider" />
+            <div className="section-divider section-divider-towns" />
 
             <div aria-label="Palace locations" className="palace-grid">
               {palaceColumns.map((column) => (
@@ -543,6 +543,8 @@ export function TrackerFrame() {
                 ) : null}
               </button>
             </div>
+
+            <div className="section-divider section-divider-bosses" />
 
             {/* Rendered last so the menu floats over the boss icons and slots. */}
             {openSlot ? (
