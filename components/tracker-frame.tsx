@@ -84,6 +84,10 @@ const locationRowTwo = [
     name: 'Desert Heart Container',
     src: '/images/locations/heartcontainerdesert.png',
   },
+  {
+    name: 'Sea Heart Container',
+    src: '/images/locations/heartcontainersea.png',
+  },
 ]
 
 const locationRows = [locationRowOne, locationRowTwo]
