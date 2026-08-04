@@ -79,6 +79,7 @@ const locationRowOne = [
 // Second location row, filled in as the remaining sprites are added.
 const locationRowTwo = [
   { name: 'East P-Bag Cave', src: '/images/locations/eastpbagcave.png' },
+  { name: 'East P-Bag Cave 2', src: '/images/locations/eastpbagcave2.png' },
 ]
 
 const locationRows = [locationRowOne, locationRowTwo]
