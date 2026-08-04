@@ -238,7 +238,7 @@
   transform: translate(-50%, -50%);
   color: #f2b21c;
   font-family: var(--font-pixel), monospace;
-  font-size: 22px;
+  font-size: 29px;
   line-height: 1;
   white-space: nowrap;
   /* Dark ring keeps the letter legible over the sprite behind it. */
@@ -398,7 +398,7 @@
   margin: 0;
   color: #f5f5f5;
   font-family: var(--font-pixel), monospace;
-  font-size: 12px;
+  font-size: 16px;
   letter-spacing: 1px;
   text-align: center;
   text-transform: uppercase;
@@ -440,10 +440,11 @@
   column-gap: 1px;
 }
 
+/* Separator between the two sprites of a paired item. */
 .item-pair-slash {
   color: #f5f5f5;
   font-family: var(--font-pixel), monospace;
-  font-size: 12px;
+  font-size: 16px;
   line-height: 1;
 }
 
