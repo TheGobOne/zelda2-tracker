@@ -255,9 +255,9 @@
   image-rendering: pixelated;
 }
 
-/* Left click marks the location done, so the sprite and its item both grey out
-   together instead of only the check appearing. */
-.location-icon-collected img {
+/* Left click marks the location done, so the static sprite greys out. Scoped to
+   the direct child so the assigned item stays in full colour on top. */
+.location-icon-collected > img {
   filter: grayscale(1);
   opacity: 0.45;
 }
@@ -600,4 +600,5 @@
 .frame-corner-top-right { top: 4px; right: 4px; }
 .frame-corner-bottom-right { right: 4px; bottom: 4px; }
 .frame-corner-bottom-left { bottom: 4px; left: 4px; }
+
 
