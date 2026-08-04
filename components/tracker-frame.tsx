@@ -648,7 +648,7 @@ export function TrackerFrame() {
                       <Check
                         aria-hidden="true"
                         className="item-slot-check"
-                        size={22}
+                        size={44}
                         strokeWidth={4}
                       />
                     ) : null}
