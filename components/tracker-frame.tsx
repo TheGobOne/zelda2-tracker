@@ -76,8 +76,18 @@ const locationRowOne = [
   { name: 'Downstab Man', src: '/images/locations/downstabman.png' },
 ]
 
+// Values a counter slot steps through on left click. The empty entry starts the
+// cycle, so clicking past the last number clears the slot again.
+const COUNT_VALUES = ['', '5', '6', '7']
+
+// A location row holds sprite slots plus the occasional numeric counter slot,
+// which takes up one icon of space but shows a chosen number instead of art.
+type LocationEntry =
+  | { name: string; src: string }
+  | { kind: 'count'; name: string }
+
 // Second location row, filled in as the remaining sprites are added.
-const locationRowTwo = [
+const locationRowTwo: LocationEntry[] = [
   { name: 'East P-Bag Cave', src: '/images/locations/eastpbagcave.png' },
   { name: 'East P-Bag Cave 2', src: '/images/locations/eastpbagcave2.png' },
   {
@@ -89,6 +99,7 @@ const locationRowTwo = [
     src: '/images/locations/heartcontainersea.png',
   },
   { name: 'Nabooru Fountain', src: '/images/locations/naboorufountain.png' },
+  { kind: 'count', name: 'Spell Item Count' },
   {
     name: 'New Kasuto Magic Container',
     src: '/images/locations/magiccontainernewkasuto.png',
@@ -99,7 +110,7 @@ const locationRowTwo = [
   },
 ]
 
-const locationRows = [locationRowOne, locationRowTwo]
+const locationRows: LocationEntry[][] = [locationRowOne, locationRowTwo]
 
 // Every collectible in the game, available to drop into any palace item slot.
 const items = [
@@ -213,7 +224,22 @@ export function TrackerFrame() {
   // Requirement letter shown over a town or boss; right click steps through
   // them. Keys are namespaced ("town-"/"boss-") so names cannot collide.
   const [iconMarks, setIconMarks] = useState<Record<string, string>>({})
+  // Number shown in a counter slot, stepped through by left click.
+  const [countValues, setCountValues] = useState<Record<string, string>>({})
   const [openSlot, setOpenSlot] = useState<string | null>(null)
+
+  /** Steps a counter slot to the next value, wrapping back around to empty. */
+  function cycleCount(slotKey: string, step: 1 | -1) {
+    setCountValues((current) => {
+      const index = COUNT_VALUES.indexOf(current[slotKey] ?? '')
+      const next =
+        COUNT_VALUES[
+          (index + step + COUNT_VALUES.length) % COUNT_VALUES.length
+        ]
+
+      return { ...current, [slotKey]: next }
+    })
+  }
 
   useEffect(() => {
     if (!openSlot) {
@@ -611,6 +637,38 @@ export function TrackerFrame() {
               >
                 {row.map((location) => {
                   const slotKey = `location-${location.name}`
+
+                  // Counter slots hold no sprite: they occupy one icon of space
+                  // and cycle through their numbers on left click instead.
+                  if ('kind' in location) {
+                    const value = countValues[slotKey] ?? ''
+
+                    return (
+                      <button
+                        aria-label={
+                          value
+                            ? `${location.name}: ${value}. Left click for the next number.`
+                            : `${location.name}: unset. Left click to choose 5, 6 or 7.`
+                        }
+                        className="location-icon location-count"
+                        key={location.name}
+                        onClick={() => cycleCount(slotKey, 1)}
+                        // Right click steps back through the numbers.
+                        onContextMenu={(event) => {
+                          event.preventDefault()
+                          cycleCount(slotKey, -1)
+                        }}
+                        type="button"
+                      >
+                        {value ? (
+                          <span aria-hidden="true" className="icon-mark">
+                            {value}
+                          </span>
+                        ) : null}
+                      </button>
+                    )
+                  }
+
                   const item = items.find(
                     (entry) => entry.id === slotItems[slotKey]
                   )

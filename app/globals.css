@@ -228,6 +228,12 @@
   cursor: pointer;
 }
 
+/* A counter slot reserves one icon of empty space in the row and shows only its
+   chosen number, so the board reads as a gap until a value is picked. */
+.location-count {
+  background: none;
+}
+
 .location-icon img {
   width: 56px;
   height: 56px;
