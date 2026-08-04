@@ -570,7 +570,8 @@ export function TrackerFrame() {
                             <Check
                               aria-hidden="true"
                               className="item-slot-check"
-                              size={22}
+                              // Same 37px stamp the 56px location sprites use.
+                              size={37}
                               strokeWidth={4}
                             />
                           ) : null}
@@ -617,12 +618,13 @@ export function TrackerFrame() {
                   </span>
                 ) : null}
                 {collected[`boss-${finalBoss.name}`] ? (
-                  <Check
-                    aria-hidden="true"
-                    className="item-slot-check"
-                    size={22}
-                    strokeWidth={4}
-                  />
+                    <Check
+                      aria-hidden="true"
+                      className="item-slot-check"
+                      // Same 37px stamp the 56px location sprites use.
+                      size={37}
+                      strokeWidth={4}
+                    />
                 ) : null}
               </button>
             </div>
