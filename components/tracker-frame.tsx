@@ -58,6 +58,10 @@ const finalBoss = {
 const locations = [
   { name: 'Trophy Cave', src: '/images/locations/trophycave.png' },
   { name: 'Water of Life Cave', src: '/images/locations/wateroflifecave.png' },
+  {
+    name: 'Heart Container Cave',
+    src: '/images/locations/heartcontainercave.png',
+  },
 ]
 
 // Every collectible in the game, available to drop into any palace item slot.
