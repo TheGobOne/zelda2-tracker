@@ -208,6 +208,11 @@
   transform: translateX(-50%);
 }
 
+/* The first row of 56px icons ends at 490px; one separation unit below it. */
+.location-row-second {
+  top: calc(420px + 56px + var(--sep) * 2);
+}
+
 /* Anchors the overlaid item and check inside the location art, and matches the
    56px town and boss sprites so the whole board reads at one scale. */
 .location-icon {
@@ -610,6 +615,7 @@
 .frame-corner-top-right { top: 4px; right: 4px; }
 .frame-corner-bottom-right { right: 4px; bottom: 4px; }
 .frame-corner-bottom-left { bottom: 4px; left: 4px; }
+
 
 
 

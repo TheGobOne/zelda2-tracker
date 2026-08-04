@@ -53,9 +53,9 @@ const finalBoss = {
   src: '/images/palaces/thunderbird.png',
 }
 
-// Overworld item locations, shown in one row in upload order. Unlike towns and
+// Overworld item locations, shown in rows in upload order. Unlike towns and
 // palaces these have no separate slot box: the chosen item draws over the art.
-const locations = [
+const locationRowOne = [
   { name: 'Trophy Cave', src: '/images/locations/trophycave.png' },
   { name: 'Water of Life Cave', src: '/images/locations/wateroflifecave.png' },
   {
@@ -75,6 +75,12 @@ const locations = [
   },
   { name: 'Downstab Man', src: '/images/locations/downstabman.png' },
 ]
+
+// Second location row, filled in as the remaining eight sprites are added. It
+// renders empty until then, so the row reserves its space without placeholders.
+const locationRowTwo: { name: string; src: string }[] = []
+
+const locationRows = [locationRowOne, locationRowTwo]
 
 // Every collectible in the game, available to drop into any palace item slot.
 const items = [
@@ -574,89 +580,102 @@ export function TrackerFrame() {
 
             <div className="section-divider section-divider-bosses" />
 
-            <div aria-label="Overworld item locations" className="location-row">
-              {locations.map((location) => {
-                const slotKey = `location-${location.name}`
-                const item = items.find(
-                  (entry) => entry.id === slotItems[slotKey]
-                )
-                const isCollected = Boolean(item && collected[slotKey])
+            {locationRows.map((row, rowIndex) => (
+              <div
+                aria-label={`Overworld item locations, row ${rowIndex + 1}`}
+                className={
+                  rowIndex === 0
+                    ? 'location-row'
+                    : 'location-row location-row-second'
+                }
+                key={`location-row-${rowIndex}`}
+              >
+                {row.map((location) => {
+                  const slotKey = `location-${location.name}`
+                  const item = items.find(
+                    (entry) => entry.id === slotItems[slotKey]
+                  )
+                  const isCollected = Boolean(item && collected[slotKey])
 
-                return (
-                  <button
-                    aria-haspopup="dialog"
-                    aria-label={
-                      item
-                        ? `${location.name}: ${item.name}${isCollected ? ', collected' : ''}. Left click to mark collected, right click to change, middle click to clear.`
-                        : `${location.name}: empty. Right click to choose an item.`
-                    }
-                    aria-pressed={item ? isCollected : undefined}
-                    className={
-                      isCollected
-                        ? 'location-icon location-icon-collected'
-                        : 'location-icon'
-                    }
-                    key={location.name}
-                    // Middle click clears the item.
-                    onAuxClick={(event) => {
-                      if (event.button === 1) {
-                        event.preventDefault()
-                        clearItem(slotKey)
+                  return (
+                    <button
+                      aria-haspopup="dialog"
+                      aria-label={
+                        item
+                          ? `${location.name}: ${item.name}${isCollected ? ', collected' : ''}. Left click to mark collected, right click to change, middle click to clear.`
+                          : `${location.name}: empty. Right click to choose an item.`
                       }
-                    }}
-                    onClick={() => {
-                      if (item) {
-                        toggleCollected(slotKey)
+                      aria-pressed={item ? isCollected : undefined}
+                      className={
+                        isCollected
+                          ? 'location-icon location-icon-collected'
+                          : 'location-icon'
                       }
-                    }}
-                    // Right click opens the item menu.
-                    onContextMenu={(event) => {
-                      event.preventDefault()
-                      setOpenSlot(openSlot === slotKey ? null : slotKey)
-                    }}
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter') {
+                      key={location.name}
+                      // Middle click clears the item.
+                      onAuxClick={(event) => {
+                        if (event.button === 1) {
+                          event.preventDefault()
+                          clearItem(slotKey)
+                        }
+                      }}
+                      onClick={() => {
+                        if (item) {
+                          toggleCollected(slotKey)
+                        }
+                      }}
+                      // Right click opens the item menu.
+                      onContextMenu={(event) => {
                         event.preventDefault()
                         setOpenSlot(openSlot === slotKey ? null : slotKey)
-                      }
+                      }}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter') {
+                          event.preventDefault()
+                          setOpenSlot(openSlot === slotKey ? null : slotKey)
+                        }
 
-                      if (event.key === 'Delete' || event.key === 'Backspace') {
-                        event.preventDefault()
-                        clearItem(slotKey)
-                      }
-                    }}
-                    // Middle click otherwise triggers autoscroll.
-                    onMouseDown={(event) => {
-                      if (event.button === 1) {
-                        event.preventDefault()
-                      }
-                    }}
-                    type="button"
-                  >
-                    <Image
-                      alt={location.name}
-                      height={56}
-                      src={location.src}
-                      width={56}
-                    />
-                    {/* The item draws over the location art, not beside it. */}
-                    {item ? (
-                      <span aria-hidden="true" className="location-item">
-                        <ItemArt item={item} />
-                      </span>
-                    ) : null}
-                    {isCollected ? (
-                      <Check
-                        aria-hidden="true"
-                        className="item-slot-check"
-                        size={37}
-                        strokeWidth={4}
+                        if (
+                          event.key === 'Delete' ||
+                          event.key === 'Backspace'
+                        ) {
+                          event.preventDefault()
+                          clearItem(slotKey)
+                        }
+                      }}
+                      // Middle click otherwise triggers autoscroll.
+                      onMouseDown={(event) => {
+                        if (event.button === 1) {
+                          event.preventDefault()
+                        }
+                      }}
+                      type="button"
+                    >
+                      <Image
+                        alt={location.name}
+                        height={56}
+                        src={location.src}
+                        width={56}
                       />
-                    ) : null}
-                  </button>
-                )
-              })}
-            </div>
+                      {/* The item draws over the location art, not beside it. */}
+                      {item ? (
+                        <span aria-hidden="true" className="location-item">
+                          <ItemArt item={item} />
+                        </span>
+                      ) : null}
+                      {isCollected ? (
+                        <Check
+                          aria-hidden="true"
+                          className="item-slot-check"
+                          size={37}
+                          strokeWidth={4}
+                        />
+                      ) : null}
+                    </button>
+                  )
+                })}
+              </div>
+            ))}
 
             {/* Rendered last so the menu floats over the boss icons and slots. */}
             {openSlot ? (
