@@ -76,9 +76,10 @@ const locationRowOne = [
   { name: 'Downstab Man', src: '/images/locations/downstabman.png' },
 ]
 
-// Second location row, filled in as the remaining eight sprites are added. It
-// renders empty until then, so the row reserves its space without placeholders.
-const locationRowTwo: { name: string; src: string }[] = []
+// Second location row, filled in as the remaining sprites are added.
+const locationRowTwo = [
+  { name: 'East P-Bag Cave', src: '/images/locations/eastpbagcave.png' },
+]
 
 const locationRows = [locationRowOne, locationRowTwo]
 
