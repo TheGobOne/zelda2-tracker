@@ -193,6 +193,7 @@ const PRESETS: {
   name: string
   collectedIds: string[]
   placements: Record<string, string>
+  counts: Record<string, string>
 }[] = [
   {
     id: 'sgl',
@@ -211,6 +212,10 @@ const PRESETS: {
       'location-Up Stab Man': 'downstab',
       // Bagu always hands over his letter for the river man.
       'location-Bagu': 'noteforriverman',
+    },
+    counts: {
+      // The counter beside the fountain starts on 6 under this ruleset.
+      'location-Spell Item Count': '6',
     },
   },
 ]
@@ -537,7 +542,7 @@ export function TrackerFrame() {
     setCollected(nextCollected)
     setSlotCounts({})
     setIconMarks({})
-    setCountValues({})
+    setCountValues({ ...preset.counts })
     setIsPresetsOpen(false)
   }
 
