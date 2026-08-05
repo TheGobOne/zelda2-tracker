@@ -161,6 +161,7 @@ const spells: { id: string; name: string; src: string | string[] }[] = [
   { id: 'life-spell', name: 'Life', src: '/images/spells/life.png' },
   { id: 'fairy-spell', name: 'Fairy', src: '/images/spells/fairy.png' },
   { id: 'fire-spell', name: 'Fire', src: '/images/spells/fire.png' },
+  { id: 'reflect-spell', name: 'Reflect', src: '/images/spells/reflect.png' },
 ]
 
 // Every pickable entry, used to resolve whatever id a slot is holding.
