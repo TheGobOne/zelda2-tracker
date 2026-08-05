@@ -163,14 +163,15 @@
   top: calc(154px + var(--sep));
 }
 
-/* The boss rows end at 392px. */
+/* The boss columns end at 392px, but the taller connector stack runs to 438px,
+   so the divider clears that instead. */
 .section-divider-bosses {
-  top: calc(392px + var(--sep));
+  top: calc(438px + var(--sep));
 }
 
-/* The second overworld location row ends at 560px. */
+/* The second overworld location row ends at 606px. */
 .section-divider-locations {
-  top: calc(560px + var(--sep));
+  top: calc(606px + var(--sep));
 }
 
 /* Session checklist of every one-off collectible, under the overworld rows. The
@@ -179,7 +180,7 @@
 .collection {
   position: absolute;
   /* One separation unit below the divider that closes the location rows. */
-  top: calc(560px + var(--sep) * 3);
+  top: calc(606px + var(--sep) * 3);
   /* 520px centered inside the 600px canvas, matching the icon grids. */
   left: 40px;
   z-index: 3;
@@ -279,10 +280,10 @@
 }
 
 /* Overworld locations, spread evenly across the full icon width. The boss
-   divider ends at 420px; one separation unit below it. */
+   divider ends at 466px; one separation unit below it. */
 .location-row {
   position: absolute;
-  top: calc(420px + var(--sep));
+  top: calc(466px + var(--sep));
   left: 50%;
   z-index: 3;
   display: flex;
@@ -292,9 +293,9 @@
   transform: translateX(-50%);
 }
 
-/* The first row of 56px icons ends at 490px; one separation unit below it. */
+/* The first row of 56px icons ends at 536px; one separation unit below it. */
 .location-row-second {
-  top: calc(420px + 56px + var(--sep) * 2);
+  top: calc(466px + 56px + var(--sep) * 2);
 }
 
 /* Anchors the overlaid item and check inside the location art, and matches the
@@ -357,24 +358,14 @@
   opacity: 0.45;
 }
 
-/* Centered between the columns, on the top row with Palace 1 and Palace 4. */
-/* Grid starts at 196px, so the first row shares that same offset. */
-.palace-final {
-  position: absolute;
-  top: calc(182px + var(--sep));
-  left: 50%;
-  z-index: 3;
-  transform: translateX(-50%);
-}
-
-/* Connector rows stacked under Thunderbird, sharing its centre line. The
-   palace section runs from the 56px Thunderbird sprite down to 392px, leaving
-   140px, so four 28px rows with 6px gaps (130px) fit inside it. This overlaps
-   the palace columns on purpose, so only the end markers take clicks. */
+/* Connector rows centered between the two boss columns, starting level with
+   them. Four 56px rows with 6px gaps come to 242px, which is why the boss
+   divider sits below the 196px columns rather than tight against them. Sprites
+   are 56px to match the boss icons, so the whole board reads at one scale. */
 .palace-notes {
   position: absolute;
-  /* Thunderbird's own offset plus its 56px height and a 6px gap. */
-  top: calc(182px + var(--sep) + 62px);
+  /* Shares the palace grid's anchor so the two stay level. */
+  top: calc(182px + var(--sep));
   left: 50%;
   z-index: 4;
   display: flex;
@@ -389,8 +380,8 @@
    back on here rather than on the container. */
 .palace-note-end {
   display: block;
-  width: 28px;
-  height: 28px;
+  width: 56px;
+  height: 56px;
   padding: 0;
   border: 0;
   background: none;
@@ -403,8 +394,8 @@
   outline-offset: 1px;
 }
 
-/* One connector flanked by a marker per end: 3 x 28px plus two 6px
-   gaps is 96px wide, so the row stays inside the 200px palace grid. */
+/* One connector flanked by a marker per end: 3 x 56px plus two 6px gaps is
+   180px wide, which clears the 268px gap between the boss columns. */
 .palace-note-row {
   display: flex;
   flex-direction: row;
@@ -413,10 +404,10 @@
   gap: 6px;
 }
 
-/* Sized to keep the stack inside the palace section. */
+/* Matches the 56px boss and town sprites. */
 .palace-note {
-  width: 28px;
-  height: 28px;
+  width: 56px;
+  height: 56px;
   image-rendering: pixelated;
 }
 

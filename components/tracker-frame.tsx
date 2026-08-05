@@ -48,12 +48,6 @@ const palaceColumns = [
   },
 ]
 
-// Thunderbird guards the Great Palace, so it sits centered below the grid.
-const finalBoss = {
-  name: 'Thunderbird',
-  src: '/images/palaces/thunderbird.png',
-}
-
 // Overworld item locations, shown in rows in upload order. Unlike towns and
 // palaces these have no separate slot box: the chosen item draws over the art.
 const locationRowOne = [
@@ -199,7 +193,7 @@ const CONNECTOR_MARKS: { src: string; alt: string }[] = [
 ]
 
 /**
- * Connector art stacked below Thunderbird. Each entry renders one row, flanked
+ * Connector art centered in the palace section. Each entry renders one row, flanked
  * by a right-clickable destination marker per end. Add sprites here as
  * { src, alt } and the column renders them in order. The same src may repeat,
  * so entries are keyed by position rather than by path.
@@ -869,48 +863,8 @@ export function TrackerFrame() {
               ))}
             </div>
 
-            <div className="palace-final">
-              <button
-                aria-label={`${finalBoss.name} palace boss${collected[`boss-${finalBoss.name}`] ? ', defeated' : ''}${iconMarks[`boss-${finalBoss.name}`] ? `, marked ${iconMarks[`boss-${finalBoss.name}`]}` : ''}. Left click to mark defeated, right click to cycle letters.`}
-                aria-pressed={Boolean(collected[`boss-${finalBoss.name}`])}
-                className={
-                  collected[`boss-${finalBoss.name}`]
-                    ? 'town-icon icon-toggle boss-toggle-beaten'
-                    : 'town-icon icon-toggle'
-                }
-                onClick={() => toggleCollected(`boss-${finalBoss.name}`)}
-                // Right click steps through the requirement letters.
-                onContextMenu={(event) => {
-                  event.preventDefault()
-                  cycleMark(`boss-${finalBoss.name}`)
-                }}
-                type="button"
-              >
-                <Image
-                  alt={`${finalBoss.name} palace boss`}
-                  height={32}
-                  src={finalBoss.src}
-                  width={32}
-                />
-                {iconMarks[`boss-${finalBoss.name}`] ? (
-                  <span aria-hidden="true" className="icon-mark">
-                    {iconMarks[`boss-${finalBoss.name}`]}
-                  </span>
-                ) : null}
-                {collected[`boss-${finalBoss.name}`] ? (
-                    <Check
-                      aria-hidden="true"
-                      className="item-slot-check"
-                      // Same 37px stamp the 56px location sprites use.
-                      size={37}
-                      strokeWidth={4}
-                    />
-                ) : null}
-              </button>
-            </div>
-
-            {/* Static art under Thunderbird. Overlaps the palace columns by
-                design, so it is only rendered once sprites are supplied. */}
+            {/* Connector rows fill the space between the boss columns. Only
+                rendered once sprites are supplied. */}
             {PALACE_NOTES.length > 0 ? (
               <div className="palace-notes">
                 {PALACE_NOTES.map((note, index) => (
