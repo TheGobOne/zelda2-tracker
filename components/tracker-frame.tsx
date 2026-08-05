@@ -209,6 +209,8 @@ const PRESETS: {
       // The stab teachers are swapped relative to their names.
       'location-Downstab Man': 'upstab',
       'location-Up Stab Man': 'downstab',
+      // Bagu always hands over his letter for the river man.
+      'location-Bagu': 'noteforriverman',
     },
   },
 ]
