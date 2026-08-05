@@ -514,6 +514,16 @@
   gap: 8px;
 }
 
+/* Closes off the bottom row of sprites with a rule in the menu's accent blue.
+   Scoped to the last grid in the menu so it follows the spells row, and falls
+   back to the items row if the spells section is ever empty. */
+.item-picker .item-picker-grid:last-child {
+  padding-bottom: 12px;
+  border-bottom-width: 4px;
+  border-bottom-style: solid;
+  border-bottom-color: #233bea;
+}
+
 /* Section heading for the spells, matching the menu title at a smaller size. */
 .item-picker-subtitle {
   margin: 0;
