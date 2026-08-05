@@ -1,8 +1,11 @@
 @import 'tailwindcss';
 
 @theme inline {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* The Zelda II tile font is the single family for the whole tracker, so both
+     slots point at it. Anything it lacks falls back to monospace, which keeps
+     the fixed-width rhythm the pixel glyphs already have. */
+  --font-sans: var(--font-pixel);
+  --font-mono: var(--font-pixel);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-canvas: var(--canvas);
@@ -138,7 +141,6 @@
   flex-shrink: 0;
   overflow: hidden;
   background: var(--canvas);
-  font-family: var(--font-pixel), monospace;
   image-rendering: pixelated;
 }
 
@@ -462,7 +464,6 @@
   z-index: 1;
   transform: translate(-50%, -50%);
   color: #f2b21c;
-  font-family: var(--font-pixel), monospace;
   font-size: 29px;
   line-height: 1;
   white-space: nowrap;
@@ -631,7 +632,6 @@
   background: #101010;
   border: 3px solid #f5f5f5;
   color: #f5f5f5;
-  font-family: var(--font-pixel), monospace;
   font-size: 13px;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -679,7 +679,6 @@
   background: transparent;
   border: 0;
   color: #f5f5f5;
-  font-family: var(--font-pixel), monospace;
   font-size: 13px;
   letter-spacing: 1px;
   text-align: center;
@@ -751,7 +750,6 @@
 .item-picker-title {
   margin: 0;
   color: #f5f5f5;
-  font-family: var(--font-pixel), monospace;
   font-size: 16px;
   letter-spacing: 1px;
   text-align: center;
@@ -780,7 +778,6 @@
 .item-picker-subtitle {
   margin: 0;
   color: #233bea;
-  font-family: var(--font-pixel), monospace;
   font-size: 13px;
   letter-spacing: 1px;
   text-align: center;
@@ -838,7 +835,6 @@
   left: 50%;
   transform: translate(-50%, -50%);
   color: #f5f5f5;
-  font-family: var(--font-pixel), monospace;
   font-size: 16px;
   line-height: 1;
 }

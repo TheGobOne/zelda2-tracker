@@ -1,11 +1,8 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
 import localFont from 'next/font/local'
 import './globals.css'
 
-const geistSans = Geist({ subsets: ['latin'], variable: '--font-geist-sans' })
-const geistMono = Geist_Mono({ subsets: ['latin'], variable: '--font-geist-mono' })
 // "Zelda II: The Adventure of Link" by Patrick H. Lauke, a recreation of the
 // NES game's tile set. Licensed CC-BY 3.0; see public/fonts/zelda2-license.txt.
 const pixelFont = localFont({
@@ -14,7 +11,8 @@ const pixelFont = localFont({
     { path: '../public/fonts/zelda2.otf', style: 'normal', weight: '400' },
   ],
   variable: '--font-pixel',
-  // The tracker is the only consumer, so no fallback metrics juggling needed.
+  // This is the app-wide default, but the glyphs are fixed-size tiles, so
+  // scaling a fallback to match them would distort more than it helps.
   adjustFontFallback: false,
   fallback: ['monospace'],
 })
@@ -35,7 +33,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className="bg-background">
-      <body className={`${geistSans.variable} ${geistMono.variable} ${pixelFont.variable} font-sans antialiased`}>
+      <body className={`${pixelFont.variable} font-sans`}>
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
