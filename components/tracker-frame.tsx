@@ -154,6 +154,12 @@ const items = [
   },
 ]
 
+// The eight spells, listed in their own menu section below the items.
+const spells: { id: string; name: string; src: string | string[] }[] = []
+
+// Every pickable entry, used to resolve whatever id a slot is holding.
+const allPickables = [...items, ...spells]
+
 // Requirement letters a town or boss can be tagged with. The empty entry is
 // the starting state, so a full cycle returns the icon to having no letter.
 const ICON_MARKS = ['', 'W', 'E', 'MI', 'DV']
@@ -174,7 +180,7 @@ function slotLabel(slotKey: string) {
 }
 
 /** Draws a single sprite, or two sprites separated by a slash for pairs. */
-function ItemArt({ item }: { item: (typeof items)[number] }) {
+function ItemArt({ item }: { item: (typeof allPickables)[number] }) {
   if (Array.isArray(item.src)) {
     return (
       <span className="item-pair">
@@ -187,7 +193,9 @@ function ItemArt({ item }: { item: (typeof items)[number] }) {
     )
   }
 
-  return <Image alt={item.name} height={32} src={item.src} width={32} />
+  // Asks for the sprite's full resolution so the larger menu boxes stay crisp;
+  // CSS decides the drawn size in each context.
+  return <Image alt={item.name} height={64} src={item.src} width={64} />
 }
 
 type Handle = {
@@ -261,7 +269,7 @@ export function TrackerFrame() {
   /** One item holder. Left click marks collected, right click opens the menu,
    *  middle click empties it. Shared by the town and palace grids. */
   function renderItemSlot(slotKey: string, label: string) {
-    const item = items.find((entry) => entry.id === slotItems[slotKey])
+    const item = allPickables.find((entry) => entry.id === slotItems[slotKey])
     const isCollected = Boolean(item && collected[slotKey])
 
     return (
@@ -680,7 +688,7 @@ export function TrackerFrame() {
                     )
                   }
 
-                  const item = items.find(
+                  const item = allPickables.find(
                     (entry) => entry.id === slotItems[slotKey]
                   )
                   const isCollected = Boolean(item && collected[slotKey])
@@ -793,6 +801,26 @@ export function TrackerFrame() {
                       </button>
                     ))}
                   </div>
+
+                  {/* Spells get their own labelled section under the items. */}
+                  {spells.length > 0 ? (
+                    <>
+                      <p className="item-picker-subtitle">Spells</p>
+                      <div className="item-picker-grid">
+                        {spells.map((entry) => (
+                          <button
+                            aria-label={entry.name}
+                            className="item-picker-option"
+                            key={entry.id}
+                            onClick={() => assignItem(openSlot, entry.id)}
+                            type="button"
+                          >
+                            <ItemArt item={entry} />
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  ) : null}
                 </div>
               </div>
             ) : null}
