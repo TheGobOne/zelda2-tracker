@@ -314,7 +314,8 @@
 }
 
 /* A counter slot reserves one icon of empty space in the row and shows only its
-   chosen number, so the board reads as a gap until a value is picked. */
+   chosen number, so the board reads as a gap until a value is picked. The number
+   itself is an .icon-mark span, so it is styled with the sprite letters. */
 .location-count {
   background: none;
 }
@@ -455,7 +456,9 @@
   z-index: 1;
   transform: translate(-50%, -50%);
   color: #f2b21c;
-  font-size: 29px;
+  /* The tile font is drawn on an 8-unit em grid, so only multiples of 8 land on
+     whole pixels. 32px keeps the stems crisp against the 56px sprite. */
+  font-size: 32px;
   line-height: 1;
   white-space: nowrap;
   /* Dark ring keeps the letter legible over the sprite behind it. */
