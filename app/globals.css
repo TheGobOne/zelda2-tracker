@@ -365,6 +365,31 @@
   transform: translateX(-50%);
 }
 
+/* Static reference art stacked under Thunderbird, sharing its centre line. The
+   palace section runs from the 56px Thunderbird sprite down to 392px, leaving
+   140px, so four 28px sprites with 6px gaps (130px) fit inside it. This sits
+   above the palace columns on purpose and is not interactive. */
+.palace-notes {
+  position: absolute;
+  /* Thunderbird's own offset plus its 56px height and a 6px gap. */
+  top: calc(182px + var(--sep) + 62px);
+  left: 50%;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+/* Sized to keep the stack inside the palace section. */
+.palace-note {
+  width: 28px;
+  height: 28px;
+  image-rendering: pixelated;
+}
+
 .town-column,
 .town-icon {
   display: flex;

@@ -184,6 +184,13 @@ const UNTRACKED_IDS = new Set([
 const collectionItems = items.filter((entry) => !UNTRACKED_IDS.has(entry.id))
 
 /**
+ * Static reference art stacked below Thunderbird. These are labels only: they
+ * hold no run state, so Clear and the presets leave them alone. Add the four
+ * sprites here as { src, alt } and the column renders them in order.
+ */
+const PALACE_NOTES: { src: string; alt: string }[] = []
+
+/**
  * Starting states for known rulesets. A preset both lights pickups Link begins
  * with and fills the checks whose contents that ruleset fixes in advance, so a
  * run only has to record what is actually still unknown.
@@ -823,6 +830,21 @@ export function TrackerFrame() {
                 ) : null}
               </button>
             </div>
+
+            {/* Static art under Thunderbird. Overlaps the palace columns by
+                design, so it is only rendered once sprites are supplied. */}
+            {PALACE_NOTES.length > 0 ? (
+              <div className="palace-notes">
+                {PALACE_NOTES.map((note) => (
+                  <img
+                    alt={note.alt}
+                    className="palace-note"
+                    key={note.src}
+                    src={note.src}
+                  />
+                ))}
+              </div>
+            ) : null}
 
             <div className="section-divider section-divider-bosses" />
 
