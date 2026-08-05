@@ -166,6 +166,94 @@
   top: calc(392px + var(--sep));
 }
 
+/* The second overworld location row ends at 560px. */
+.section-divider-locations {
+  top: calc(560px + var(--sep));
+}
+
+/* Session checklist of every one-off collectible, under the overworld rows. The
+   width and column count mirror the item menu, so a box lands at the same 58px
+   and a sprite reads the same in both places. */
+.collection {
+  position: absolute;
+  /* One separation unit below the divider that closes the location rows. */
+  top: calc(560px + var(--sep) * 3);
+  /* 520px centered inside the 600px canvas, matching the icon grids. */
+  left: 40px;
+  z-index: 3;
+  display: flex;
+  width: 520px;
+  flex-direction: column;
+  row-gap: 8px;
+}
+
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 8px;
+}
+
+/* Same box treatment as an item menu option, plus an anchor for the check. */
+.collection-slot {
+  position: relative;
+  display: flex;
+  aspect-ratio: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: #000000;
+  border: 2px solid #3a3a3a;
+  cursor: pointer;
+}
+
+.collection-slot:hover {
+  border-color: #233bea;
+}
+
+.collection-slot:focus-visible {
+  outline: 2px solid #f2b21c;
+  outline-offset: 2px;
+}
+
+.collection-slot img {
+  width: 46px;
+  height: 46px;
+  image-rendering: pixelated;
+}
+
+/* Paired sprites sit on the diagonal, as they do in the menu. */
+.collection-slot .item-pair img {
+  width: 24px;
+  height: 24px;
+}
+
+/* A found pickup greys out under a green check, the same signal the palace and
+   location slots already use. */
+.collection-slot-collected {
+  border-color: #3aa63a;
+}
+
+.collection-slot-collected img {
+  filter: grayscale(1);
+  opacity: 0.45;
+}
+
+.collection-slot .item-slot-check {
+  width: 46px;
+  height: 46px;
+}
+
+/* Heading over the spell row, matching the item menu's section label. */
+.collection-subtitle {
+  margin: 0;
+  color: #233bea;
+  font-family: var(--font-pixel), monospace;
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
 /* Shared positioning for the horizontally centered icon grids. */
 .town-grid,
 .palace-grid {

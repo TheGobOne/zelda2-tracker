@@ -169,6 +169,19 @@ const spells: { id: string; name: string; src: string | string[] }[] = [
 // Every pickable entry, used to resolve whatever id a slot is holding.
 const allPickables = [...items, ...spells]
 
+// Pickups the collection tracker leaves out. Containers and point bags repeat
+// all over the map, and the 1-Up/Red Jar pair is filler, so none of them are
+// one-off collectibles worth a checkbox.
+const UNTRACKED_IDS = new Set([
+  'heartcontainer',
+  'magiccontainer',
+  'pbag',
+  '1up-redpotion',
+])
+
+// The 16 tracked items, which fill two rows of eight above the spell row.
+const collectionItems = items.filter((entry) => !UNTRACKED_IDS.has(entry.id))
+
 // Requirement letters a town or boss can be tagged with. The empty entry is
 // the starting state, so a full cycle returns the icon to having no letter.
 const ICON_MARKS = ['', 'W', 'E', 'MI', 'DV']
@@ -342,6 +355,38 @@ export function TrackerFrame() {
           ) : null}
         </button>
       </div>
+    )
+  }
+
+  /** One checkbox in the collection section. The sprite is fixed, so a click
+   *  only flips whether it has been found this session. */
+  function renderCollectionSlot(entry: (typeof allPickables)[number]) {
+    const slotKey = `collection-${entry.id}`
+    const isCollected = Boolean(collected[slotKey])
+
+    return (
+      <button
+        aria-label={`${entry.name}${isCollected ? ', collected' : ', not collected'}`}
+        aria-pressed={isCollected}
+        className={
+          isCollected
+            ? 'collection-slot collection-slot-collected'
+            : 'collection-slot'
+        }
+        key={entry.id}
+        onClick={() => toggleCollected(slotKey)}
+        type="button"
+      >
+        <ItemArt item={entry} />
+        {isCollected ? (
+          <Check
+            aria-hidden="true"
+            className="item-slot-check"
+            size={46}
+            strokeWidth={4}
+          />
+        ) : null}
+      </button>
     )
   }
 
@@ -781,6 +826,21 @@ export function TrackerFrame() {
                 })}
               </div>
             ))}
+
+            <div className="section-divider section-divider-locations" />
+
+            {/* Session checklist of every one-off pickup, laid out like the item
+                menu so a sprite reads the same in both places. */}
+            <section aria-label="Item and spell collection" className="collection">
+              <div className="collection-grid">
+                {collectionItems.map((entry) => renderCollectionSlot(entry))}
+              </div>
+
+              <p className="collection-subtitle">Spells</p>
+              <div className="collection-grid">
+                {spells.map((entry) => renderCollectionSlot(entry))}
+              </div>
+            </section>
 
             {/* Rendered last so the menu floats over the boss icons and slots. */}
             {openSlot ? (
