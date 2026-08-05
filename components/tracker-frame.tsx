@@ -194,6 +194,7 @@ const UNKNOWN_NOTE = '/images/notes/unknown.png'
 const CONNECTOR_MARKS: { src: string; alt: string }[] = [
   { src: '/images/notes/w.png', alt: 'W' },
   { src: '/images/notes/e.png', alt: 'E' },
+  { src: '/images/notes/mi.png', alt: 'MI' },
 ]
 
 /**
