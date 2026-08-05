@@ -191,7 +191,9 @@ const UNKNOWN_NOTE = '/images/notes/unknown.png'
  * these in order; the empty entry is the unknown "?" starting state, so a full
  * cycle returns the end to being unmarked.
  */
-const CONNECTOR_MARKS: { src: string; alt: string }[] = []
+const CONNECTOR_MARKS: { src: string; alt: string }[] = [
+  { src: '/images/notes/w.png', alt: 'W' },
+]
 
 /**
  * Connector art stacked below Thunderbird. Each entry renders one row, flanked
