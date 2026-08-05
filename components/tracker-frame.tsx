@@ -108,6 +108,7 @@ const locationRowTwo: LocationEntry[] = [
     name: 'New Kasuto Magical Key',
     src: '/images/locations/magickeynewkasuto.png',
   },
+  { name: 'Up Stab Man', src: '/images/locations/upstabman.png' },
 ]
 
 const locationRows: LocationEntry[][] = [locationRowOne, locationRowTwo]
