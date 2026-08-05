@@ -158,6 +158,7 @@ const items = [
 const spells: { id: string; name: string; src: string | string[] }[] = [
   { id: 'shield-spell', name: 'Shield', src: '/images/spells/shield.png' },
   { id: 'jump-spell', name: 'Jump', src: '/images/spells/jump.png' },
+  { id: 'life-spell', name: 'Life', src: '/images/spells/life.png' },
 ]
 
 // Every pickable entry, used to resolve whatever id a slot is holding.
