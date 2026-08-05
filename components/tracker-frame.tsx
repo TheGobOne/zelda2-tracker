@@ -5,6 +5,7 @@ import Image from 'next/image'
 import {
   type PointerEvent as ReactPointerEvent,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react'
@@ -358,12 +359,52 @@ export function TrackerFrame() {
     )
   }
 
+  /**
+   * Item ids already checked off somewhere on the map. Every placed slot stores
+   * its pickup in slotItems under the same key collected uses, so a slot that
+   * is both filled and checked means that item has been found, wherever it sat.
+   */
+  const placedCollectedIds = useMemo(() => {
+    const found = new Set<string>()
+
+    for (const [slotKey, isChecked] of Object.entries(collected)) {
+      const itemId = slotItems[slotKey]
+
+      if (isChecked && itemId) {
+        found.add(itemId)
+      }
+    }
+
+    return found
+  }, [collected, slotItems])
+
+  /**
+   * Clears an item from the collection row. The row mirrors the map, so undoing
+   * it here also unchecks any placed slot holding that item, otherwise the map
+   * would immediately light the sprite back up.
+   */
+  function clearCollectedItem(itemId: string) {
+    setCollected((current) => {
+      const next = { ...current, [`collection-${itemId}`]: false }
+
+      for (const slotKey of Object.keys(current)) {
+        if (slotItems[slotKey] === itemId) {
+          next[slotKey] = false
+        }
+      }
+
+      return next
+    })
+  }
+
   /** One checkbox in the collection section. The sprite is fixed, so a click
    *  only flips whether it has been found this session. Collecting lights the
    *  art up from grey to full colour, so no check is drawn over it. */
   function renderCollectionSlot(entry: (typeof allPickables)[number]) {
     const slotKey = `collection-${entry.id}`
-    const isCollected = Boolean(collected[slotKey])
+    // Lit either by its own click or by being checked off out on the map.
+    const isCollected =
+      Boolean(collected[slotKey]) || placedCollectedIds.has(entry.id)
 
     return (
       <button
@@ -375,7 +416,9 @@ export function TrackerFrame() {
             : 'collection-slot'
         }
         key={entry.id}
-        onClick={() => toggleCollected(slotKey)}
+        onClick={() =>
+          isCollected ? clearCollectedItem(entry.id) : toggleCollected(slotKey)
+        }
         type="button"
       >
         <ItemArt item={entry} />
