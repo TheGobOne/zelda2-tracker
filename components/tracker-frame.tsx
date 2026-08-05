@@ -1030,18 +1030,14 @@ export function TrackerFrame() {
                   onClick={() => setIsConfirmingClear(false)}
                   type="button"
                 />
+                {/* No copy here, so the dialog carries its own label for
+                    screen readers rather than pointing at a heading. */}
                 <div
-                  aria-labelledby="clear-dialog-title"
+                  aria-label="Clear tracker?"
                   aria-modal="true"
                   className="tracker-dialog"
                   role="dialog"
                 >
-                  <p className="tracker-dialog-title" id="clear-dialog-title">
-                    Clear Tracker?
-                  </p>
-                  <p className="tracker-dialog-body">
-                    Every item, check and letter will be reset.
-                  </p>
                   <div className="tracker-dialog-actions">
                     <button
                       className="tracker-button"
