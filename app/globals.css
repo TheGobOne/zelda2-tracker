@@ -383,6 +383,16 @@
   pointer-events: none;
 }
 
+/* One connector flanked by an unknown marker per end: 3 x 28px plus two 6px
+   gaps is 96px wide, so the row stays inside the 200px palace grid. */
+.palace-note-row {
+  display: flex;
+  flex-direction: row;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+}
+
 /* Sized to keep the stack inside the palace section. */
 .palace-note {
   width: 28px;

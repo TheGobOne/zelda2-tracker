@@ -189,6 +189,9 @@ const collectionItems = items.filter((entry) => !UNTRACKED_IDS.has(entry.id))
  * here as { src, alt } and the column renders them in order. The same
  * src may repeat, so entries are keyed by position rather than by path.
  */
+/** Placeholder sprite marking a connector end whose destination is unknown. */
+const UNKNOWN_NOTE = '/images/notes/unknown.png'
+
 const PALACE_NOTES: { src: string; alt: string }[] = [
   { src: '/images/notes/cave.png', alt: 'Cave entrance' },
   { src: '/images/notes/raft.png', alt: 'Raft' },
@@ -841,12 +844,28 @@ export function TrackerFrame() {
             {PALACE_NOTES.length > 0 ? (
               <div className="palace-notes">
                 {PALACE_NOTES.map((note, index) => (
-                  <img
-                    alt={note.alt}
-                    className="palace-note"
+                  <div
+                    className="palace-note-row"
                     key={`${note.src}-${index}`}
-                    src={note.src}
-                  />
+                  >
+                    {/* Each connector has two ends, so an unknown marker
+                        flanks it on either side. */}
+                    <img
+                      alt={`${note.alt} first side unknown`}
+                      className="palace-note"
+                      src={UNKNOWN_NOTE}
+                    />
+                    <img
+                      alt={note.alt}
+                      className="palace-note"
+                      src={note.src}
+                    />
+                    <img
+                      alt={`${note.alt} second side unknown`}
+                      className="palace-note"
+                      src={UNKNOWN_NOTE}
+                    />
+                  </div>
                 ))}
               </div>
             ) : null}
