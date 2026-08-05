@@ -192,6 +192,7 @@ const collectionItems = items.filter((entry) => !UNTRACKED_IDS.has(entry.id))
 const PALACE_NOTES: { src: string; alt: string }[] = [
   { src: '/images/notes/cave.png', alt: 'Cave entrance' },
   { src: '/images/notes/cave.png', alt: 'Cave entrance' },
+  { src: '/images/notes/raft.png', alt: 'Raft' },
 ]
 
 /**
