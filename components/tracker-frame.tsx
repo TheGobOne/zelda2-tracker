@@ -188,7 +188,9 @@ const collectionItems = items.filter((entry) => !UNTRACKED_IDS.has(entry.id))
  * hold no run state, so Clear and the presets leave them alone. Add the four
  * sprites here as { src, alt } and the column renders them in order.
  */
-const PALACE_NOTES: { src: string; alt: string }[] = []
+const PALACE_NOTES: { src: string; alt: string }[] = [
+  { src: '/images/notes/cave.png', alt: 'Cave entrance' },
+]
 
 /**
  * Starting states for known rulesets. A preset both lights pickups Link begins
