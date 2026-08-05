@@ -183,6 +183,36 @@ const UNTRACKED_IDS = new Set([
 // The 16 tracked items, which fill two rows of eight above the spell row.
 const collectionItems = items.filter((entry) => !UNTRACKED_IDS.has(entry.id))
 
+/**
+ * Starting states for known rulesets. A preset both lights pickups Link begins
+ * with and fills the checks whose contents that ruleset fixes in advance, so a
+ * run only has to record what is actually still unknown.
+ */
+const PRESETS: {
+  id: string
+  name: string
+  collectedIds: string[]
+  placements: Record<string, string>
+}[] = [
+  {
+    id: 'sgl',
+    name: 'SGL',
+    collectedIds: ['candle', 'cross', 'fire-spell'],
+    placements: {
+      // All three P-Bag caves keep their vanilla point bags.
+      'location-West P-Bag Cave': 'pbag',
+      'location-East P-Bag Cave': 'pbag',
+      'location-East P-Bag Cave 2': 'pbag',
+      // These two checks are always filler, tracked as the 1-Up/Red Jar pair.
+      'location-Saria Table': '1up-redpotion',
+      'location-Nabooru Fountain': '1up-redpotion',
+      // The stab teachers are swapped relative to their names.
+      'location-Downstab Man': 'upstab',
+      'location-Up Stab Man': 'downstab',
+    },
+  },
+]
+
 // Requirement letters a town or boss can be tagged with. The empty entry is
 // the starting state, so a full cycle returns the icon to having no letter.
 const ICON_MARKS = ['', 'W', 'E', 'MI', 'DV']
@@ -259,6 +289,9 @@ export function TrackerFrame() {
   // Number shown in a counter slot, stepped through by left click.
   const [countValues, setCountValues] = useState<Record<string, string>>({})
   const [openSlot, setOpenSlot] = useState<string | null>(null)
+  // Clearing is destructive, so it waits on a confirmation dialog.
+  const [isConfirmingClear, setIsConfirmingClear] = useState(false)
+  const [isPresetsOpen, setIsPresetsOpen] = useState(false)
 
   /** Steps a counter slot to the next value, wrapping back around to empty. */
   function cycleCount(slotKey: string, step: 1 | -1) {
@@ -288,6 +321,24 @@ export function TrackerFrame() {
 
     return () => window.removeEventListener('keydown', handleEscape)
   }, [openSlot])
+
+  // Escape backs out of the confirm dialog and the presets menu too.
+  useEffect(() => {
+    if (!(isConfirmingClear || isPresetsOpen)) {
+      return
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setIsConfirmingClear(false)
+        setIsPresetsOpen(false)
+      }
+    }
+
+    window.addEventListener('keydown', handleEscape)
+
+    return () => window.removeEventListener('keydown', handleEscape)
+  }, [isConfirmingClear, isPresetsOpen])
 
   /** One item holder. Left click marks collected, right click opens the menu,
    *  middle click empties it. Shared by the town and palace grids. */
@@ -452,6 +503,40 @@ export function TrackerFrame() {
 
       return next
     })
+  }
+
+  /**
+   * Returns the tracker to a fresh run. Zoom is deliberately left alone, since
+   * it is a display preference rather than run progress.
+   */
+  function clearTracker() {
+    setSlotItems({})
+    setCollected({})
+    setSlotCounts({})
+    setIconMarks({})
+    setCountValues({})
+    setOpenSlot(null)
+    setIsConfirmingClear(false)
+  }
+
+  /**
+   * Applies a ruleset's starting state over a cleared board. Presets are chosen
+   * at the top of a run, so starting clean avoids leaving stale placements from
+   * whatever was on screen before.
+   */
+  function applyPreset(preset: (typeof PRESETS)[number]) {
+    const nextCollected: Record<string, boolean> = {}
+
+    for (const itemId of preset.collectedIds) {
+      nextCollected[`collection-${itemId}`] = true
+    }
+
+    setSlotItems({ ...preset.placements })
+    setCollected(nextCollected)
+    setSlotCounts({})
+    setIconMarks({})
+    setCountValues({})
+    setIsPresetsOpen(false)
   }
 
   function assignItem(slotKey: string, itemId: string) {
@@ -876,6 +961,104 @@ export function TrackerFrame() {
                 {spells.map((entry) => renderCollectionSlot(entry))}
               </div>
             </section>
+
+            {/* Run controls, pinned just inside the bottom rail. */}
+            <div className="tracker-toolbar">
+              <button
+                className="tracker-button"
+                onClick={() => {
+                  setIsPresetsOpen(false)
+                  setIsConfirmingClear(true)
+                }}
+                type="button"
+              >
+                Clear
+              </button>
+
+              {/* The menu opens upward, since the button sits at the frame edge
+                  and there is no room below it. */}
+              <div className="tracker-menu-wrap">
+                {isPresetsOpen ? (
+                  <div
+                    aria-label="Choose a preset"
+                    className="tracker-menu"
+                    role="menu"
+                  >
+                    {PRESETS.map((preset) => (
+                      <button
+                        className="tracker-menu-option"
+                        key={preset.id}
+                        onClick={() => applyPreset(preset)}
+                        role="menuitem"
+                        type="button"
+                      >
+                        {preset.name}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+
+                <button
+                  aria-expanded={isPresetsOpen}
+                  aria-haspopup="menu"
+                  className="tracker-button"
+                  onClick={() => setIsPresetsOpen((current) => !current)}
+                  type="button"
+                >
+                  Presets
+                </button>
+              </div>
+            </div>
+
+            {/* Closes the presets menu on any outside click. */}
+            {isPresetsOpen ? (
+              <button
+                aria-label="Close presets menu"
+                className="tracker-menu-backdrop"
+                onClick={() => setIsPresetsOpen(false)}
+                type="button"
+              />
+            ) : null}
+
+            {isConfirmingClear ? (
+              <div className="tracker-dialog-overlay">
+                <button
+                  aria-label="Cancel clearing the tracker"
+                  className="item-picker-backdrop"
+                  onClick={() => setIsConfirmingClear(false)}
+                  type="button"
+                />
+                <div
+                  aria-labelledby="clear-dialog-title"
+                  aria-modal="true"
+                  className="tracker-dialog"
+                  role="dialog"
+                >
+                  <p className="tracker-dialog-title" id="clear-dialog-title">
+                    Clear Tracker?
+                  </p>
+                  <p className="tracker-dialog-body">
+                    Every item, check and letter will be reset.
+                  </p>
+                  <div className="tracker-dialog-actions">
+                    <button
+                      className="tracker-button"
+                      onClick={() => setIsConfirmingClear(false)}
+                      type="button"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="tracker-button tracker-button-danger"
+                      onClick={clearTracker}
+                      type="button"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : null}
 
             {/* Rendered last so the menu floats over the boss icons and slots. */}
             {openSlot ? (
