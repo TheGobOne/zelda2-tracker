@@ -185,14 +185,13 @@ const collectionItems = items.filter((entry) => !UNTRACKED_IDS.has(entry.id))
 
 /**
  * Static reference art stacked below Thunderbird. These are labels only: they
- * hold no run state, so Clear and the presets leave them alone. Add the four
- * sprites here as { src, alt } and the column renders them in order. The same
+ * hold no run state, so Clear and the presets leave them alone. Add sprites
+ * here as { src, alt } and the column renders them in order. The same
  * src may repeat, so entries are keyed by position rather than by path.
  */
 const PALACE_NOTES: { src: string; alt: string }[] = [
   { src: '/images/notes/cave.png', alt: 'Cave entrance' },
   { src: '/images/notes/raft.png', alt: 'Raft' },
-  { src: '/images/notes/cave.png', alt: 'Cave entrance' },
   { src: '/images/notes/bridge.png', alt: 'Bridge' },
 ]
 
