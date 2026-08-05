@@ -365,10 +365,10 @@
   transform: translateX(-50%);
 }
 
-/* Static reference art stacked under Thunderbird, sharing its centre line. The
+/* Connector rows stacked under Thunderbird, sharing its centre line. The
    palace section runs from the 56px Thunderbird sprite down to 392px, leaving
-   140px, so four 28px sprites with 6px gaps (130px) fit inside it. This sits
-   above the palace columns on purpose and is not interactive. */
+   140px, so four 28px rows with 6px gaps (130px) fit inside it. This overlaps
+   the palace columns on purpose, so only the end markers take clicks. */
 .palace-notes {
   position: absolute;
   /* Thunderbird's own offset plus its 56px height and a 6px gap. */
@@ -383,7 +383,25 @@
   pointer-events: none;
 }
 
-/* One connector flanked by an unknown marker per end: 3 x 28px plus two 6px
+/* The ends are the only interactive part of the column, so clicks are switched
+   back on here rather than on the container. */
+.palace-note-end {
+  display: block;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.palace-note-end:focus-visible {
+  outline: 2px solid var(--tracker-accent, currentColor);
+  outline-offset: 1px;
+}
+
+/* One connector flanked by a marker per end: 3 x 28px plus two 6px
    gaps is 96px wide, so the row stays inside the 200px palace grid. */
 .palace-note-row {
   display: flex;

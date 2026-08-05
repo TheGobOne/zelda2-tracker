@@ -187,10 +187,17 @@ const collectionItems = items.filter((entry) => !UNTRACKED_IDS.has(entry.id))
 const UNKNOWN_NOTE = '/images/notes/unknown.png'
 
 /**
- * Static reference art stacked below Thunderbird. These are labels only: they
- * hold no run state, so Clear and the presets leave them alone. Add sprites
- * here as { src, alt } and the column renders them in order. The same
- * src may repeat, so entries are keyed by position rather than by path.
+ * Destinations a connector end can be tagged with. Right click steps through
+ * these in order; the empty entry is the unknown "?" starting state, so a full
+ * cycle returns the end to being unmarked.
+ */
+const CONNECTOR_MARKS: { src: string; alt: string }[] = []
+
+/**
+ * Connector art stacked below Thunderbird. Each entry renders one row, flanked
+ * by a right-clickable destination marker per end. Add sprites here as
+ * { src, alt } and the column renders them in order. The same src may repeat,
+ * so entries are keyed by position rather than by path.
  */
 const PALACE_NOTES: { src: string; alt: string }[] = [
   { src: '/images/notes/cave.png', alt: 'Cave entrance' },
@@ -311,6 +318,9 @@ export function TrackerFrame() {
   const [iconMarks, setIconMarks] = useState<Record<string, string>>({})
   // Number shown in a counter slot, stepped through by left click.
   const [countValues, setCountValues] = useState<Record<string, string>>({})
+  // Destination tagged on each connector end, keyed by row index and side. An
+  // absent key means the end is still unknown and shows the "?" marker.
+  const [connectorEnds, setConnectorEnds] = useState<Record<string, string>>({})
   const [openSlot, setOpenSlot] = useState<string | null>(null)
   // Clearing is destructive, so it waits on a confirmation dialog.
   const [isConfirmingClear, setIsConfirmingClear] = useState(false)
@@ -529,6 +539,58 @@ export function TrackerFrame() {
   }
 
   /**
+   * Steps a connector end through the destination sprites, then back to the
+   * unknown marker. Each end cycles independently of its partner.
+   */
+  function cycleConnectorEnd(endKey: string) {
+    if (CONNECTOR_MARKS.length === 0) {
+      return
+    }
+
+    setConnectorEnds((current) => {
+      const next = { ...current }
+      const marks = CONNECTOR_MARKS.map((mark) => mark.src)
+      // -1 for an unmarked end steps to index 0, the first destination.
+      const index = marks.indexOf(current[endKey] ?? '')
+      const mark = marks[(index + 1) % (marks.length + 1)]
+
+      if (mark) {
+        next[endKey] = mark
+      } else {
+        delete next[endKey]
+      }
+
+      return next
+    })
+  }
+
+  /** Renders one end of a connector row as a right-clickable marker. */
+  function renderConnectorEnd(
+    index: number,
+    side: 'first' | 'second',
+    noteAlt: string
+  ) {
+    const endKey = `connector-${index}-${side}`
+    const endSrc = connectorEnds[endKey]
+    const endMark = CONNECTOR_MARKS.find((mark) => mark.src === endSrc)
+
+    return (
+      <button
+        aria-label={`${noteAlt} ${side} side: ${endMark?.alt ?? 'unknown'}. Right click to change.`}
+        className="palace-note-end"
+        onContextMenu={(event) => {
+          event.preventDefault()
+          cycleConnectorEnd(endKey)
+        }}
+        type="button"
+      >
+        {/* Labelled by the button, so the sprite itself stays decorative. */}
+        <img alt="" className="palace-note" src={endSrc ?? UNKNOWN_NOTE} />
+      </button>
+    )
+  }
+
+  /**
    * Returns the tracker to a fresh run. Zoom is deliberately left alone, since
    * it is a display preference rather than run progress.
    */
@@ -538,6 +600,7 @@ export function TrackerFrame() {
     setSlotCounts({})
     setIconMarks({})
     setCountValues({})
+    setConnectorEnds({})
     setOpenSlot(null)
     setIsConfirmingClear(false)
   }
@@ -559,6 +622,7 @@ export function TrackerFrame() {
     setSlotCounts({})
     setIconMarks({})
     setCountValues({ ...preset.counts })
+    setConnectorEnds({})
     setIsPresetsOpen(false)
   }
 
@@ -849,23 +913,15 @@ export function TrackerFrame() {
                     className="palace-note-row"
                     key={`${note.src}-${index}`}
                   >
-                    {/* Each connector has two ends, so an unknown marker
-                        flanks it on either side. */}
-                    <img
-                      alt={`${note.alt} first side unknown`}
-                      className="palace-note"
-                      src={UNKNOWN_NOTE}
-                    />
+                    {/* Each connector has two ends, so a destination marker
+                        flanks it on either side. Both cycle independently. */}
+                    {renderConnectorEnd(index, 'first', note.alt)}
                     <img
                       alt={note.alt}
                       className="palace-note"
                       src={note.src}
                     />
-                    <img
-                      alt={`${note.alt} second side unknown`}
-                      className="palace-note"
-                      src={UNKNOWN_NOTE}
-                    />
+                    {renderConnectorEnd(index, 'second', note.alt)}
                   </div>
                 ))}
               </div>
