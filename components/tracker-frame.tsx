@@ -157,6 +157,7 @@ const items = [
 // The eight spells, listed in their own menu section below the items.
 const spells: { id: string; name: string; src: string | string[] }[] = [
   { id: 'shield-spell', name: 'Shield', src: '/images/spells/shield.png' },
+  { id: 'jump-spell', name: 'Jump', src: '/images/spells/jump.png' },
 ]
 
 // Every pickable entry, used to resolve whatever id a slot is holding.
