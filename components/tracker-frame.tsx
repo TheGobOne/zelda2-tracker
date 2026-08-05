@@ -359,7 +359,8 @@ export function TrackerFrame() {
   }
 
   /** One checkbox in the collection section. The sprite is fixed, so a click
-   *  only flips whether it has been found this session. */
+   *  only flips whether it has been found this session. Collecting lights the
+   *  art up from grey to full colour, so no check is drawn over it. */
   function renderCollectionSlot(entry: (typeof allPickables)[number]) {
     const slotKey = `collection-${entry.id}`
     const isCollected = Boolean(collected[slotKey])
@@ -378,14 +379,6 @@ export function TrackerFrame() {
         type="button"
       >
         <ItemArt item={entry} />
-        {isCollected ? (
-          <Check
-            aria-hidden="true"
-            className="item-slot-check"
-            size={46}
-            strokeWidth={4}
-          />
-        ) : null}
       </button>
     )
   }
@@ -836,7 +829,6 @@ export function TrackerFrame() {
                 {collectionItems.map((entry) => renderCollectionSlot(entry))}
               </div>
 
-              <p className="collection-subtitle">Spells</p>
               <div className="collection-grid">
                 {spells.map((entry) => renderCollectionSlot(entry))}
               </div>

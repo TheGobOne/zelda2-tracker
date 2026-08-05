@@ -219,6 +219,16 @@
   width: 46px;
   height: 46px;
   image-rendering: pixelated;
+  transition: filter 120ms steps(2), opacity 120ms steps(2);
+}
+
+/* Unfound pickups sit greyed and dim, so the section reads as a checklist of
+   what is still missing rather than a wall of finished art. Scoped to the
+   un-collected slot rather than overridden later, so the lit state cannot lose
+   to source order. */
+.collection-slot:not(.collection-slot-collected) img {
+  filter: grayscale(1) brightness(0.65);
+  opacity: 0.5;
 }
 
 /* Paired sprites sit on the diagonal, as they do in the menu. */
@@ -227,32 +237,14 @@
   height: 24px;
 }
 
-/* A found pickup greys out under a green check, the same signal the palace and
-   location slots already use. */
+/* Collecting lights the sprite back to full colour, which is the whole signal
+   here, so no check is stamped over the art. */
 .collection-slot-collected {
   border-color: #3aa63a;
 }
 
-.collection-slot-collected img {
-  filter: grayscale(1);
-  opacity: 0.45;
-}
-
-.collection-slot .item-slot-check {
-  width: 46px;
-  height: 46px;
-}
-
-/* Heading over the spell row, matching the item menu's section label. */
-.collection-subtitle {
-  margin: 0;
-  color: #233bea;
-  font-family: var(--font-pixel), monospace;
-  font-size: 13px;
-  letter-spacing: 1px;
-  text-align: center;
-  text-transform: uppercase;
-}
+/* Collected art needs no rules of its own: it simply keeps the sprite's own
+   colour at full opacity once the dimming selector stops matching. */
 
 /* Shared positioning for the horizontally centered icon grids. */
 .town-grid,
