@@ -193,6 +193,7 @@ const PALACE_NOTES: { src: string; alt: string }[] = [
   { src: '/images/notes/cave.png', alt: 'Cave entrance' },
   { src: '/images/notes/cave.png', alt: 'Cave entrance' },
   { src: '/images/notes/raft.png', alt: 'Raft' },
+  { src: '/images/notes/bridge.png', alt: 'Bridge' },
 ]
 
 /**
