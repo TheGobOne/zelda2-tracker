@@ -183,16 +183,17 @@ const UNTRACKED_IDS = new Set([
 // The 16 tracked items, which fill two rows of eight above the spell row.
 const collectionItems = items.filter((entry) => !UNTRACKED_IDS.has(entry.id))
 
+/** Placeholder sprite marking a connector end whose destination is unknown. */
+const UNKNOWN_NOTE = '/images/notes/unknown.png'
+
 /**
  * Static reference art stacked below Thunderbird. These are labels only: they
  * hold no run state, so Clear and the presets leave them alone. Add sprites
  * here as { src, alt } and the column renders them in order. The same
  * src may repeat, so entries are keyed by position rather than by path.
  */
-/** Placeholder sprite marking a connector end whose destination is unknown. */
-const UNKNOWN_NOTE = '/images/notes/unknown.png'
-
 const PALACE_NOTES: { src: string; alt: string }[] = [
+  { src: '/images/notes/cave.png', alt: 'Cave entrance' },
   { src: '/images/notes/cave.png', alt: 'Cave entrance' },
   { src: '/images/notes/raft.png', alt: 'Raft' },
   { src: '/images/notes/bridge.png', alt: 'Bridge' },
