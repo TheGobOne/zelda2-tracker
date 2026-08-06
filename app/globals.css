@@ -474,6 +474,28 @@
   pointer-events: none;
 }
 
+/* Letter plate stamped on a marked boss, using the uploaded art instead of a
+   font glyph. Centred with inset/margin rather than a transform so the mirrored
+   boss columns below can cancel their flip without fighting the centring. The
+   class is qualified to outrank `.town-icon img`, which would size it to 56px
+   and bury the boss sprite entirely. */
+.town-icon img.icon-mark-sprite {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 32px;
+  height: 32px;
+  margin: auto;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+/* The flipped columns mirror every sprite inside them, which would render the
+   letters backwards, so the plate opts out of that flip. */
+.palace-grid .town-column-flipped .town-icon img.icon-mark-sprite {
+  transform: none;
+}
+
 .icon-toggle:focus-visible {
   outline: 3px solid #e52a08;
   outline-offset: 2px;

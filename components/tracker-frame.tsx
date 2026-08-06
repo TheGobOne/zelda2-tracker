@@ -244,7 +244,19 @@ const PRESETS: {
 
 // Requirement letters a town or boss can be tagged with. The empty entry is
 // the starting state, so a full cycle returns the icon to having no letter.
-const ICON_MARKS = ['', 'W', 'E', 'MI', 'DV']
+const ICON_MARKS = ['', 'W', 'E', 'MI', 'DM']
+
+/**
+ * Letter art stamped on a marked boss. These are the same uploaded plates the
+ * connector ends use, so both places read identically. Keyed by the ICON_MARKS
+ * label, which stays the stored value so the cycle and labels are unaffected.
+ */
+const MARK_SPRITES: Record<string, string> = {
+  W: '/images/notes/w.png',
+  E: '/images/notes/e.png',
+  MI: '/images/notes/mi.png',
+  DM: '/images/notes/dm.png',
+}
 
 /** Turns a slot key into the heading shown in the item menu. */
 function slotLabel(slotKey: string) {
@@ -782,6 +794,8 @@ export function TrackerFrame() {
                     const bossKey = `boss-${palace.name}`
                     const isBeaten = Boolean(collected[bossKey])
                     const mark = iconMarks[bossKey]
+                    // Falls back to the font glyph if a letter has no art yet.
+                    const markSprite = mark ? MARK_SPRITES[mark] : undefined
 
                     return (
                       <div className="palace-row" key={palace.name}>
@@ -835,7 +849,16 @@ export function TrackerFrame() {
                             src={palace.src}
                             width={32}
                           />
-                          {mark ? (
+                          {markSprite ? (
+                            <Image
+                              alt=""
+                              aria-hidden="true"
+                              className="icon-mark-sprite"
+                              height={32}
+                              src={markSprite}
+                              width={32}
+                            />
+                          ) : mark ? (
                             <span aria-hidden="true" className="icon-mark">
                               {mark}
                             </span>
