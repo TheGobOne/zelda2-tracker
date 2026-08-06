@@ -245,7 +245,7 @@ const PRESETS: {
 
 // Requirement letters a town or boss can be tagged with. The empty entry is
 // the starting state, so a full cycle returns the icon to having no letter.
-const ICON_MARKS = ['', 'W', 'E', 'MI', 'DM']
+const ICON_MARKS = ['', 'W', 'E', 'MI', 'DV']
 
 /** Turns a slot key into the heading shown in the item menu. */
 function slotLabel(slotKey: string) {
