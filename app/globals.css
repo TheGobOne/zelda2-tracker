@@ -268,10 +268,14 @@
   row-gap: var(--sep);
 }
 
-/* Divider ends at 182px; one separation unit below it. */
-/* Two columns of three bosses pinned to the outer edges of the icon area. */
+/* Two columns of three bosses pinned to the outer edges of the icon area.
+   The section runs from the divider above (ending at 182px) to the one below
+   (starting at 452px), so it is 270px tall. The columns are 196px, which leaves
+   74px of slack; half of that centres them, and 37px works out to one
+   separation unit plus 23px. The taller connector stack still sets the section
+   height, so this only moves the bosses down to meet its middle. */
 .palace-grid {
-  top: calc(182px + var(--sep));
+  top: calc(205px + var(--sep));
   display: flex;
   width: 520px;
   max-width: 520px;
@@ -764,7 +768,7 @@
 .item-picker {
   position: absolute;
   /* Shares the palace grid's anchor so the two never drift apart. */
-  top: calc(182px + var(--sep));
+  top: calc(205px + var(--sep));
   /* Matches the 24px rail inset on each side. */
   left: 24px;
   z-index: 1;
