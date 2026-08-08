@@ -474,9 +474,8 @@
   pointer-events: none;
 }
 
-/* A run of glyphs sliced out of the uploaded font sheet. Each cell carries its
-   own size and background offset inline, since those depend on the scale the
-   caller asks for. */
+/* A run of glyphs traced from the uploaded font sheet. Each cell carries its own
+   size inline, since that depends on the scale the caller asks for. */
 .glyph-text {
   display: flex;
   align-items: center;
@@ -485,21 +484,30 @@
 .glyph-text-cell {
   display: block;
   flex: none;
-  background-repeat: no-repeat;
-  /* Keeps the 8x8 source pixels square instead of smoothing them. */
-  image-rendering: pixelated;
+  overflow: visible;
 }
 
-/* Letters stamped across a marked boss. These are background-image spans rather
-   than `img` elements, so the mirror rule on the flipped columns does not reach
-   them and the glyphs stay the right way round. */
+/* Gold body with a black keyline, matching the font-based mark on the towns.
+   `paint-order: stroke` puts the stroke under the fill so the seams between
+   neighbouring pixels stay hidden and only the outer edge reads as an outline. */
+.glyph-text-cell path {
+  fill: #f2b21c;
+  stroke: #101010;
+  stroke-width: 2;
+  stroke-linejoin: miter;
+  paint-order: stroke;
+  /* The glyphs are pixel art, so keep the edges hard instead of anti-aliased. */
+  shape-rendering: crispEdges;
+}
+
+/* Letters stamped across a marked boss. These are inline SVG rather than `img`
+   elements, so the mirror rule on the flipped columns does not reach them and
+   the glyphs stay the right way round. */
 .icon-mark-glyph {
   position: absolute;
   inset: 0;
   z-index: 1;
   justify-content: center;
-  /* The sheet cells bring their own dark background, which does the same job as
-     the outline on the font-based mark. */
   pointer-events: none;
 }
 
