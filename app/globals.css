@@ -137,11 +137,11 @@
 .game-canvas {
   position: relative;
   width: 600px;
-  /* 1138px, not 1200px: the sections below the towns each shed 62px of dead
-     space, so the frame closes up by the same amount and keeps the margin under
-     the last divider what it was before. Mirrored by BASE_HEIGHT in
-     tracker-frame.tsx, which scales the board to fit. */
-  height: 1138px;
+  /* The collection is the last block and ends at 846px. The rule that used to
+     close it off is gone, so the canvas ends a bottom-rail's clearance below
+     that, instead of running on to 1138px and leaving ~270px of dead space.
+     Mirrored by BASE_HEIGHT in tracker-frame.tsx, which scales the board. */
+  height: 876px;
   flex-shrink: 0;
   overflow: hidden;
   background: var(--canvas);
@@ -181,14 +181,6 @@
   top: calc(614px + var(--sep));
 }
 
-/* Closes the collection checklist. That block starts at `614px + var(--sep) * 3`
-   and is 190px tall, so 804px carries both fixed parts and the fourth `--sep` is
-   this divider's own gap, which lands it at 860px. Written out rather than
-   flattened so the rule keeps following the collection if `--sep` changes. */
-.section-divider-collection {
-  top: calc(804px + var(--sep) * 4);
-}
-
 /* Session checklist of every one-off collectible, under the overworld rows. The
    width and column count mirror the item menu, so a box lands at the same 58px
    and a sprite reads the same in both places. */
@@ -210,28 +202,6 @@
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   gap: 8px;
-}
-
-/* Thin rule splitting the item rows from the spell row. The column's row-gap
-   already leaves 8px between the two grids, so this is drawn inside that gap as
-   a pseudo element: nothing joins the flow and the collection stays 190px tall,
-   which the divider below it is measured against. Keyed off the sibling gap
-   rather than a page coordinate, so it tracks the grids if the block moves or
-   the item count changes the row above. */
-.collection-grid + .collection-grid {
-  position: relative;
-}
-
-/* Kept to 2px against the 14px section rules, since this subdivides the
-   collector rather than closing it off. Centered in the gap, at -5px to -3px. */
-.collection-grid + .collection-grid::before {
-  position: absolute;
-  top: -5px;
-  right: 0;
-  left: 0;
-  height: 2px;
-  background: #233bea;
-  content: '';
 }
 
 /* Same box treatment as an item menu option, plus an anchor for the check. */
