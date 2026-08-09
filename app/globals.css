@@ -137,7 +137,11 @@
 .game-canvas {
   position: relative;
   width: 600px;
-  height: 1200px;
+  /* 1138px, not 1200px: the sections below the towns each shed 62px of dead
+     space, so the frame closes up by the same amount and keeps the margin under
+     the last divider what it was before. Mirrored by BASE_HEIGHT in
+     tracker-frame.tsx, which scales the board to fit. */
+  height: 1138px;
   flex-shrink: 0;
   overflow: hidden;
   background: var(--canvas);
@@ -158,28 +162,31 @@
   border-width: 4px 0;
 }
 
-/* The towns section ends at 154px. */
+/* The towns are a single 56px row starting at `22px + var(--sep)`, so the section
+   ends at 92px. This used to read 154px, from back when the block was taller,
+   which left 62px of dead canvas between the towns and this rule. Every offset
+   below is chained off it, so all of them shed the same 62px. */
 .section-divider-towns {
-  top: calc(154px + var(--sep));
+  top: calc(92px + var(--sep));
 }
 
-/* The boss columns end at 392px, but the taller connector stack runs to 438px,
+/* The boss columns end at 330px, but the taller connector stack runs to 376px,
    so the divider clears that instead. */
 .section-divider-bosses {
-  top: calc(438px + var(--sep));
+  top: calc(376px + var(--sep));
 }
 
-/* The third overworld location row ends at 676px. */
+/* The third overworld location row ends at 614px. */
 .section-divider-locations {
-  top: calc(676px + var(--sep));
+  top: calc(614px + var(--sep));
 }
 
-/* Closes the collection checklist. That block starts at `676px + var(--sep) * 3`
-   and is 190px tall, so 866px carries both fixed parts and the fourth `--sep` is
-   this divider's own gap, which lands it at 922px. Written out rather than
+/* Closes the collection checklist. That block starts at `614px + var(--sep) * 3`
+   and is 190px tall, so 804px carries both fixed parts and the fourth `--sep` is
+   this divider's own gap, which lands it at 860px. Written out rather than
    flattened so the rule keeps following the collection if `--sep` changes. */
 .section-divider-collection {
-  top: calc(866px + var(--sep) * 4);
+  top: calc(804px + var(--sep) * 4);
 }
 
 /* Session checklist of every one-off collectible, under the overworld rows. The
@@ -188,8 +195,8 @@
 .collection {
   position: absolute;
   /* One separation unit below the divider that closes the location rows, which
-     now sits after the third row and so ends at 676px. */
-  top: calc(676px + var(--sep) * 3);
+     now sits after the third row and so ends at 614px. */
+  top: calc(614px + var(--sep) * 3);
   /* 520px centered inside the 600px canvas, matching the icon grids. */
   left: 40px;
   z-index: 3;
@@ -303,9 +310,9 @@
    - four on the left, three on the right - so `center` puts both on the same
    midline. The grid is only as tall as its tallest child, which is the 242px
    left column, so sharing the connector stack's anchor makes all three span an
-   identical 196px to 438px and share the 317px midline. */
+   identical 134px to 376px and share the 255px midline. */
 .palace-grid {
-  top: calc(182px + var(--sep));
+  top: calc(120px + var(--sep));
   display: flex;
   width: 520px;
   max-width: 520px;
@@ -314,10 +321,10 @@
 }
 
 /* Overworld locations, spread evenly across the full icon width. The boss
-   divider ends at 466px; one separation unit below it. */
+   divider ends at 404px; one separation unit below it. */
 .location-row {
   position: absolute;
-  top: calc(466px + var(--sep));
+  top: calc(404px + var(--sep));
   left: 50%;
   z-index: 3;
   display: flex;
@@ -327,9 +334,9 @@
   transform: translateX(-50%);
 }
 
-/* The first row of 56px icons ends at 536px; one separation unit below it. */
+/* The first row of 56px icons ends at 474px; one separation unit below it. */
 .location-row-second {
-  top: calc(466px + 56px + var(--sep) * 2);
+  top: calc(404px + 56px + var(--sep) * 2);
 }
 
 /* Only four icons, so `space-between` would fling them to the outer edges. Packed
@@ -338,7 +345,7 @@
    the columns above: the rows share a 40px left edge and a 58px stride, so these
    four land on the first four positions rather than floating mid row. */
 .location-row-third {
-  top: calc(466px + 56px * 2 + var(--sep) * 3);
+  top: calc(404px + 56px * 2 + var(--sep) * 3);
   gap: 2px;
   justify-content: flex-start;
 }
@@ -462,12 +469,12 @@
 
 /* Connector rows centered between the two boss columns, starting level with
    them. Four 56px rows with 6px gaps come to 242px, which is why the boss
-   divider sits below the 196px columns rather than tight against them. Sprites
+   divider sits below the 134px columns rather than tight against them. Sprites
    are 56px to match the boss icons, so the whole board reads at one scale. */
 .palace-notes {
   position: absolute;
   /* Shares the palace grid's anchor so the two stay level. */
-  top: calc(182px + var(--sep));
+  top: calc(120px + var(--sep));
   left: 50%;
   z-index: 4;
   display: flex;
@@ -892,8 +899,8 @@
 /* Palette of every item. Always opens in the same spot, spanning the tracker. */
 .item-picker {
   position: absolute;
-  /* Shares the palace grid's anchor so the two never drift apart. */
-  top: calc(182px + var(--sep));
+  /* Shares the palace grid's anchor, so the two never drift apart. */
+  top: calc(120px + var(--sep));
   /* Matches the 24px rail inset on each side. */
   left: 24px;
   z-index: 1;
@@ -1077,7 +1084,10 @@
 .frame-rail-right {
   top: 24px;
   width: 14px;
-  height: 1152px;
+  /* Was a hardcoded 1152px, the canvas height less the 24px inset at each end.
+     Derived from the canvas instead, so the rails cannot fall out of sync with
+     its height the way this one did. */
+  height: calc(100% - 48px);
   border-width: 0 4px;
 }
 
