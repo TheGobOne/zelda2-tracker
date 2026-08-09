@@ -336,7 +336,10 @@
 .location-flags-label {
   flex: 1;
   color: #f5f5f5;
-  font-size: 11px;
+  /* 33% up from the 11px the frame's other labels use, rounded to a whole pixel
+     so this bitmap-style face keeps its stems on the pixel grid. Centring is
+     `flex: 1` plus `text-align`, so the wider glyphs re-centre on their own. */
+  font-size: 15px;
   letter-spacing: 1px;
   text-align: center;
   text-transform: uppercase;
