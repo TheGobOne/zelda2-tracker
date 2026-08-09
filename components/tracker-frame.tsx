@@ -109,7 +109,26 @@ const locationRowTwo: LocationEntry[] = [
   { name: 'Up Stab Man', src: '/images/locations/upstabman.png' },
 ]
 
-const locationRows: LocationEntry[][] = [locationRowOne, locationRowTwo]
+// Third location row. Only four entries, so it is centred rather than spread
+// across the full icon width like the two full rows above it.
+const locationRowThree: LocationEntry[] = [
+  { name: 'Hammer Cave', src: '/images/locations/hammercave.png' },
+  {
+    name: 'Maze Magic Container',
+    src: '/images/locations/magiccontainermaze.png',
+  },
+  {
+    name: 'Boulder Magic Container',
+    src: '/images/locations/magiccontainerboulder.png',
+  },
+  { name: 'Maze Kid', src: '/images/locations/kidmaze.png' },
+]
+
+const locationRows: LocationEntry[][] = [
+  locationRowOne,
+  locationRowTwo,
+  locationRowThree,
+]
 
 // Every collectible in the game, available to drop into any palace item slot.
 const items = [
@@ -951,9 +970,13 @@ export function TrackerFrame() {
               <div
                 aria-label={`Overworld item locations, row ${rowIndex + 1}`}
                 className={
-                  rowIndex === 0
-                    ? 'location-row'
-                    : 'location-row location-row-second'
+                  [
+                    'location-row',
+                    rowIndex === 1 ? 'location-row-second' : '',
+                    rowIndex === 2 ? 'location-row-third' : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')
                 }
                 key={`location-row-${rowIndex}`}
               >

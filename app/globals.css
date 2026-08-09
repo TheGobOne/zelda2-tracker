@@ -169,9 +169,9 @@
   top: calc(438px + var(--sep));
 }
 
-/* The second overworld location row ends at 606px. */
+/* The third overworld location row ends at 676px. */
 .section-divider-locations {
-  top: calc(606px + var(--sep));
+  top: calc(676px + var(--sep));
 }
 
 /* Session checklist of every one-off collectible, under the overworld rows. The
@@ -179,8 +179,9 @@
    and a sprite reads the same in both places. */
 .collection {
   position: absolute;
-  /* One separation unit below the divider that closes the location rows. */
-  top: calc(606px + var(--sep) * 3);
+  /* One separation unit below the divider that closes the location rows, which
+     now sits after the third row and so ends at 676px. */
+  top: calc(676px + var(--sep) * 3);
   /* 520px centered inside the 600px canvas, matching the icon grids. */
   left: 40px;
   z-index: 3;
@@ -299,6 +300,15 @@
 /* The first row of 56px icons ends at 536px; one separation unit below it. */
 .location-row-second {
   top: calc(466px + 56px + var(--sep) * 2);
+}
+
+/* Only four icons, so `space-between` would fling them to the outer edges.
+   Centre them instead, with the 2px gap the full rows work out to (520px less
+   nine 56px icons, split across eight gaps) so the density still matches. */
+.location-row-third {
+  top: calc(466px + 56px * 2 + var(--sep) * 3);
+  gap: 2px;
+  justify-content: center;
 }
 
 /* Anchors the overlaid item and check inside the location art, and matches the
