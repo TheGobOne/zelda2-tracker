@@ -834,7 +834,17 @@ export function TrackerFrame() {
       // stray Enter or Space re-fire the last icon clicked. Cancelling the
       // default on mousedown keeps focus off without touching the click itself,
       // and it suppresses text selection while dragging a resize grip.
-      onMouseDown={(event) => event.preventDefault()}
+      onMouseDown={(event) => {
+        // A native select opens as mousedown's default action, so cancelling it
+        // board-wide stopped the flags dropdown from ever opening. Selects are
+        // exempt: they need focus to be keyboard-operable anyway, and they are
+        // not icons that a stray Enter could re-fire.
+        if ((event.target as HTMLElement).closest('select')) {
+          return
+        }
+
+        event.preventDefault()
+      }}
       ref={rootRef}
     >
       <div
