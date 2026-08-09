@@ -343,6 +343,13 @@
   letter-spacing: 1px;
   text-align: center;
   text-transform: uppercase;
+  /* `align-items: center` centres the line box, but this face carries a 21px
+     ascent against a 2px descent, and an all-caps word has no descenders to fill
+     that space, so the ink lands ~2.5px below the row's midline. Nudged back up
+     so the letters read centred rather than the invisible box around them. This
+     offset comes from the font metrics, not the line height, so it cannot be
+     fixed with `line-height`. A transform, so it shifts nothing else in the row */
+  transform: translateY(-2px);
 }
 
 /* Framed like the tracker's other controls. `appearance: none` drops the OS
