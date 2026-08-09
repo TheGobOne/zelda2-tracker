@@ -180,6 +180,15 @@
   top: calc(614px + var(--sep));
 }
 
+/* Closes off the collection, so the open space below it reads as its own section
+   rather than as slack at the foot of the board. The collection starts at
+   `614px + var(--sep) * 3` and is 190px tall, so 804px carries both fixed parts
+   and the fourth `--sep` is this rule's own gap. Written out rather than
+   flattened, so it keeps tracking the collection if `--sep` changes. */
+.section-divider-collection {
+  top: calc(804px + var(--sep) * 4);
+}
+
 /* Session checklist of every one-off collectible, under the overworld rows. The
    width and column count mirror the item menu, so a box lands at the same 58px
    and a sprite reads the same in both places. */
@@ -201,19 +210,6 @@
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   gap: 8px;
-}
-
-/* Rule under the item rows, dividing them from the spells. Same blue and
-   white-edged treatment as the section rules, so it reads as one of the board's
-   separators, but it spans the collection's own 520px instead of their 552px:
-   it subdivides the collector rather than closing it off, so it lines up with the
-   item boxes above it. The column's 8px row-gap falls either side of it. */
-.collection-divider {
-  height: 14px;
-  background: #233bea;
-  border-color: #f5f5f5;
-  border-style: solid;
-  border-width: 4px 0;
 }
 
 /* Same box treatment as an item menu option, plus an anchor for the check. */
