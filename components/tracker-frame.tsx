@@ -324,7 +324,9 @@ export function TrackerFrame() {
   const [openSlot, setOpenSlot] = useState<string | null>(null)
   // Clearing is destructive, so it waits on a confirmation dialog.
   const [isConfirmingClear, setIsConfirmingClear] = useState(false)
-  const [isPresetsOpen, setIsPresetsOpen] = useState(false)
+  // Clear and the presets now live behind one hamburger button, so a single
+  // flag covers the whole menu rather than just the preset list.
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   /** Steps a counter slot to the next value, wrapping back around to empty. */
   function cycleCount(slotKey: string, step: 1 | -1) {
@@ -355,23 +357,23 @@ export function TrackerFrame() {
     return () => window.removeEventListener('keydown', handleEscape)
   }, [openSlot])
 
-  // Escape backs out of the confirm dialog and the presets menu too.
+  // Escape backs out of the confirm dialog and the hamburger menu too.
   useEffect(() => {
-    if (!(isConfirmingClear || isPresetsOpen)) {
+    if (!(isConfirmingClear || isMenuOpen)) {
       return
     }
 
     function handleEscape(event: KeyboardEvent) {
       if (event.key === 'Escape') {
         setIsConfirmingClear(false)
-        setIsPresetsOpen(false)
+        setIsMenuOpen(false)
       }
     }
 
     window.addEventListener('keydown', handleEscape)
 
     return () => window.removeEventListener('keydown', handleEscape)
-  }, [isConfirmingClear, isPresetsOpen])
+  }, [isConfirmingClear, isMenuOpen])
 
   /** One item holder. Left click marks collected, right click opens the menu,
    *  middle click empties it. Shared by the town and palace grids. */
@@ -623,7 +625,7 @@ export function TrackerFrame() {
     setIconMarks({})
     setCountValues({ ...preset.counts })
     setConnectorEnds({})
-    setIsPresetsOpen(false)
+    setIsMenuOpen(false)
   }
 
   function assignItem(slotKey: string, itemId: string) {
@@ -1032,25 +1034,15 @@ export function TrackerFrame() {
               </div>
             </section>
 
-            {/* Run controls, pinned just inside the bottom rail. */}
+            {/* Run controls, collapsed behind one hamburger button in the
+                bottom-left corner so they stay clear of the board. */}
             <div className="tracker-toolbar">
-              <button
-                className="tracker-button"
-                onClick={() => {
-                  setIsPresetsOpen(false)
-                  setIsConfirmingClear(true)
-                }}
-                type="button"
-              >
-                Clear
-              </button>
-
               {/* The menu opens upward, since the button sits at the frame edge
                   and there is no room below it. */}
               <div className="tracker-menu-wrap">
-                {isPresetsOpen ? (
+                {isMenuOpen ? (
                   <div
-                    aria-label="Choose a preset"
+                    aria-label="Tracker options"
                     className="tracker-menu"
                     role="menu"
                   >
@@ -1065,27 +1057,46 @@ export function TrackerFrame() {
                         {preset.name}
                       </button>
                     ))}
+
+                    {/* Clearing wipes the board, so it is set apart from the
+                        presets above it and tinted with the frame's red. */}
+                    <button
+                      className="tracker-menu-option tracker-menu-option-danger"
+                      onClick={() => {
+                        setIsMenuOpen(false)
+                        setIsConfirmingClear(true)
+                      }}
+                      role="menuitem"
+                      type="button"
+                    >
+                      Clear
+                    </button>
                   </div>
                 ) : null}
 
                 <button
-                  aria-expanded={isPresetsOpen}
+                  aria-expanded={isMenuOpen}
                   aria-haspopup="menu"
-                  className="tracker-button"
-                  onClick={() => setIsPresetsOpen((current) => !current)}
+                  aria-label="Tracker options"
+                  className="tracker-menu-toggle"
+                  onClick={() => setIsMenuOpen((current) => !current)}
                   type="button"
                 >
-                  Presets
+                  {/* Three chunky bars, drawn as blocks to match the pixel art
+                      rather than a thin vector icon. */}
+                  <span aria-hidden="true" className="tracker-menu-bar" />
+                  <span aria-hidden="true" className="tracker-menu-bar" />
+                  <span aria-hidden="true" className="tracker-menu-bar" />
                 </button>
               </div>
             </div>
 
-            {/* Closes the presets menu on any outside click. */}
-            {isPresetsOpen ? (
+            {/* Closes the menu on any outside click. */}
+            {isMenuOpen ? (
               <button
-                aria-label="Close presets menu"
+                aria-label="Close tracker options"
                 className="tracker-menu-backdrop"
-                onClick={() => setIsPresetsOpen(false)}
+                onClick={() => setIsMenuOpen(false)}
                 type="button"
               />
             ) : null}

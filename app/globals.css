@@ -647,8 +647,10 @@
   cursor: pointer;
 }
 
-/* Run controls, pinned inside the bottom rail. Sits above the collection rows
-   with the same 24px inset the rails use, so it reads as part of the frame. */
+/* Run controls, collapsed to a single hamburger button in the bottom-left
+   corner. Uses the same 24px inset the rails use, so it reads as part of the
+   frame. No width, so it only covers the button and leaves the rest of the
+   bottom strip clickable. */
 .tracker-toolbar {
   position: absolute;
   /* Clears the 22px bottom rail plus its 8px inset. */
@@ -656,9 +658,6 @@
   left: 24px;
   z-index: 4;
   display: flex;
-  width: 552px;
-  justify-content: center;
-  gap: 12px;
 }
 
 /* Chunky 8-bit button, matching the menu's white-on-dark frame treatment. */
@@ -688,10 +687,43 @@
   background: #e52a08;
 }
 
-/* Anchor for the upward-opening presets menu. */
+/* Anchor for the upward-opening options menu. */
 .tracker-menu-wrap {
   position: relative;
   display: flex;
+}
+
+/* Square hamburger button, sized to match the 40px item slots and framed like
+   the other controls. */
+.tracker-menu-toggle {
+  display: flex;
+  width: 40px;
+  height: 40px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: #101010;
+  border: 3px solid #f5f5f5;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.tracker-menu-toggle:hover {
+  background: #233bea;
+}
+
+.tracker-menu-toggle:focus-visible {
+  outline: 3px solid #e52a08;
+  outline-offset: 2px;
+}
+
+/* Blocks rather than borders, so the bars stay crisp at any zoom. */
+.tracker-menu-bar {
+  display: block;
+  width: 20px;
+  height: 4px;
+  background: #f5f5f5;
 }
 
 /* Opens above the button, since it sits hard against the bottom rail. */
@@ -724,6 +756,18 @@
 
 .tracker-menu-option:hover {
   background: #233bea;
+}
+
+/* Separated from the presets above it, since it throws the board away. */
+.tracker-menu-option-danger {
+  margin-top: 4px;
+  border-top: 3px solid #f5f5f5;
+  color: #f2b21c;
+}
+
+.tracker-menu-option-danger:hover {
+  background: #e52a08;
+  color: #f5f5f5;
 }
 
 /* Invisible catcher so clicking anywhere else dismisses the menu. */
