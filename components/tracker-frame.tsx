@@ -436,9 +436,22 @@ export function TrackerFrame() {
 
   /** One item holder. Left click marks collected, right click opens the menu,
    *  middle click empties it. Shared by the town and palace grids. */
-  function renderItemSlot(slotKey: string, label: string) {
+  /**
+   * `onCycleMark` is for slots that sit directly on top of an icon that has its
+   * own right click action, which is the towns. The slot covers the icon
+   * completely, so the icon can no longer be clicked and its letter cycle moves
+   * here onto shift + right click.
+   */
+  function renderItemSlot(
+    slotKey: string,
+    label: string,
+    options?: { onCycleMark?: () => void },
+  ) {
     const item = allPickables.find((entry) => entry.id === slotItems[slotKey])
     const isCollected = Boolean(item && collected[slotKey])
+    const cycleHint = options?.onCycleMark
+      ? ' Shift right click to cycle letters.'
+      : ''
 
     return (
       <div className="item-slot-wrap" key={slotKey}>
@@ -446,8 +459,8 @@ export function TrackerFrame() {
           aria-haspopup="dialog"
           aria-label={
             item
-              ? `${label}: ${item.name}${isCollected ? ', collected' : ''}. Left click to mark collected, right click to change, middle click to clear.`
-              : `${label}: empty. Right click to choose an item.`
+              ? `${label}: ${item.name}${isCollected ? ', collected' : ''}. Left click to mark collected, right click to change, middle click to clear.${cycleHint}`
+              : `${label}: empty. Right click to choose an item.${cycleHint}`
           }
           aria-pressed={item ? isCollected : undefined}
           className={isCollected ? 'item-slot item-slot-collected' : 'item-slot'}
@@ -464,9 +477,16 @@ export function TrackerFrame() {
               toggleCollected(slotKey)
             }
           }}
-          // Right click opens the item menu.
+          // Right click opens the item menu, and shift + right click cycles the
+          // underlying icon's letter where the slot covers one.
           onContextMenu={(event) => {
             event.preventDefault()
+
+            if (options?.onCycleMark && event.shiftKey) {
+              options.onCycleMark()
+              return
+            }
+
             setOpenSlot(openSlot === slotKey ? null : slotKey)
           }}
           // Middle click otherwise triggers autoscroll.
@@ -847,7 +867,9 @@ export function TrackerFrame() {
                         </GlyphText>
                       ) : null}
                     </button>
-                    {renderItemSlot(townKey, `${town.name} item`)}
+                    {renderItemSlot(townKey, `${town.name} item`, {
+                      onCycleMark: () => cycleMark(townKey, TOWN_MARKS),
+                    })}
                   </div>
                 )
               })}

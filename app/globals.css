@@ -593,11 +593,44 @@
   image-rendering: pixelated;
 }
 
-/* Eight town slots share one row, so they run smaller than the palace slots. */
+/* Town slots sit directly on their own town sprite rather than below it, so the
+   column is just the 56px icon and the slot is lifted out of flow on top of it.
+   The wrap anchors to the column, which is the icon's own box once the slot no
+   longer takes part in layout. */
+.town-grid .town-column {
+  position: relative;
+}
+
+.town-grid .item-slot-wrap {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  /* Over the sprite (3) but under its requirement letter (6). */
+  z-index: 5;
+  transform: translateX(-50%);
+}
+
+/* Matched to the 56px town sprite it covers, and transparent so the town art
+   stays visible underneath the item. The border is dropped for the same reason:
+   at this size a box outline would read as a tile sitting over the town rather
+   than an item held by it. Hover and collected states still tint it. */
 .town-grid .item-slot {
-  width: 48px;
-  min-height: 48px;
-  height: 48px;
+  width: 56px;
+  min-height: 56px;
+  height: 56px;
+  background: none;
+  border-color: transparent;
+}
+
+/* Without a solid fill the item art needs its own dark edge to stay legible
+   against the sprite behind it. */
+.town-grid .item-slot img {
+  filter: drop-shadow(0 0 2px #000000) drop-shadow(0 0 2px #000000);
+}
+
+/* The letter is the town's own state, so it stays above the item art. */
+.town-grid .icon-mark-glyph {
+  z-index: 6;
 }
 
 .town-grid .item-slot img {
