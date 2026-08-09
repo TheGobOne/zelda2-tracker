@@ -1151,7 +1151,19 @@ export function TrackerFrame() {
                   className="item-picker"
                   role="dialog"
                 >
-                  <p className="item-picker-title">{slotLabel(openSlot)}</p>
+                  {/* The title stays optically centred because the close button
+                      is taken out of flow rather than sharing the row. */}
+                  <div className="item-picker-header">
+                    <p className="item-picker-title">{slotLabel(openSlot)}</p>
+                    <button
+                      aria-label="Close item menu"
+                      className="item-picker-close"
+                      onClick={() => setOpenSlot(null)}
+                      type="button"
+                    >
+                      <span aria-hidden="true">X</span>
+                    </button>
+                  </div>
                   <div className="item-picker-grid">
                     {items.map((entry) => (
                       <button

@@ -829,6 +829,45 @@
   box-shadow: 0 0 0 4px #233bea;
 }
 
+/* Title row for the item menu. The close button is taken out of flow against
+   the right edge, so the centred title stays centred rather than being pushed
+   off by the button's width. */
+.item-picker-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Square X button, framed like the tracker's other pixel-art controls. */
+.item-picker-close {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  display: flex;
+  width: 26px;
+  height: 26px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: #101010;
+  border: 3px solid #f5f5f5;
+  color: #f5f5f5;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.item-picker-close:hover {
+  background: #e52a08;
+}
+
+.item-picker-close:focus-visible {
+  outline: 3px solid #233bea;
+  outline-offset: 2px;
+}
+
 .item-picker-title {
   margin: 0;
   color: #f5f5f5;
