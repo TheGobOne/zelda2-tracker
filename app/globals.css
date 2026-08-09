@@ -761,6 +761,17 @@
   z-index: 6;
 }
 
+/* Once a town's item is collected the town itself is spent, so its sprite drops
+   to greyscale. `:has()` is what makes this possible in CSS alone: the collected
+   flag lives on the slot, which is a later sibling of the icon, so the state is
+   read from the shared column instead. Scoped to `.town-grid` because the boss
+   columns reuse `.town-icon` and are not finished by handing over an item.
+   The item art on top keeps its colour, so a greyed town under a bright item
+   reads as "cleared, and this is what came out of it". */
+.town-grid .town-column:has(.item-slot-collected) .town-icon img {
+  filter: grayscale(1) brightness(0.7);
+}
+
 .town-grid .item-slot img {
   width: 40px;
   height: 40px;
