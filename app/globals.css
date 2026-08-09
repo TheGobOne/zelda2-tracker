@@ -647,15 +647,15 @@
   cursor: pointer;
 }
 
-/* Run controls, collapsed to a single hamburger button in the bottom-left
-   corner. Uses the same 24px inset the rails use, so it reads as part of the
-   frame. No width, so it only covers the button and leaves the rest of the
-   bottom strip clickable. */
+/* Run controls, collapsed to a single hamburger button wedged into the very
+   bottom-left corner of the frame. No width, so it only covers the button and
+   leaves the rest of the bottom strip clickable. */
 .tracker-toolbar {
   position: absolute;
-  /* Clears the 22px bottom rail plus its 8px inset. */
-  bottom: 46px;
-  left: 24px;
+  /* Tucked into the corner, flush against the inner edge of both rails. Each
+     rail sits 8px in and is 14px thick, so 22px lands right against them. */
+  bottom: 22px;
+  left: 22px;
   z-index: 4;
   display: flex;
 }
