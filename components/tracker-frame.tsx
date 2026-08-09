@@ -1156,7 +1156,7 @@ export function TrackerFrame() {
                 {rowIndex === 2 ? (
                   <div className="location-flags">
                     <label className="location-flags-label" htmlFor="flag-set">
-                      Flags
+                      Flagset
                     </label>
                     <select
                       className="location-flags-select"
