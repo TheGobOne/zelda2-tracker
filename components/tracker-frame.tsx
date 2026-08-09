@@ -297,6 +297,10 @@ const ICON_MARKS = ['', 'W', 'E', 'MI', 'DV']
 // DV, so the two cycles cannot share one constant.
 const COLLECTION_MARKS = ['', 'W', 'E', 'MI', 'DM']
 
+// Towns only ever gate on W or E, so their cycle stops short of the MI and DV
+// the bosses use.
+const TOWN_MARKS = ['', 'W', 'E']
+
 /** Turns a slot key into the heading shown in the item menu. */
 function slotLabel(slotKey: string) {
   if (slotKey.startsWith('town-')) {
@@ -827,7 +831,7 @@ export function TrackerFrame() {
                       // Right click steps through the requirement letters.
                       onContextMenu={(event) => {
                         event.preventDefault()
-                        cycleMark(townKey)
+                        cycleMark(townKey, TOWN_MARKS)
                       }}
                       type="button"
                     >
