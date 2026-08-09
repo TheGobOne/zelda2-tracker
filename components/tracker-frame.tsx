@@ -46,10 +46,35 @@ const palaceColumns = [
     bosses: [
       { name: 'Palace 5', src: '/images/palaces/gooma.png', maxSlots: 3 },
       { name: 'Palace 6', src: '/images/palaces/barba.png', maxSlots: 3 },
-      { name: 'Palace 7', src: '/images/palaces/thunderbird.png', maxSlots: 2 },
+      {
+        name: 'Palace 7',
+        src: '/images/palaces/thunderbird.png',
+        maxSlots: 2,
+        // Thunderbird holds no items on a fresh tracker, so it starts empty and
+        // middle click reveals its slots when a run actually places something.
+        startSlots: 0,
+      },
     ],
   },
 ]
+
+/**
+ * Slot count a boss shows before anything is tracked. Every boss opens with a
+ * single slot unless its data overrides that, so this is read by the renderer,
+ * by the slot cycle, and after a clear or preset load, which all reset the
+ * stored counts back to empty.
+ */
+function startSlotsFor(name: string) {
+  for (const column of palaceColumns) {
+    for (const boss of column.bosses) {
+      if (boss.name === name) {
+        return 'startSlots' in boss ? boss.startSlots : 1
+      }
+    }
+  }
+
+  return 1
+}
 
 // Overworld item locations, shown in rows in upload order. Unlike towns and
 // palaces these have no separate slot box: the chosen item draws over the art.
@@ -331,7 +356,8 @@ function clampScale(value: number) {
 export function TrackerFrame() {
   const [scale, setScale] = useState(0.85)
   const [activeHandle, setActiveHandle] = useState<string | null>(null)
-  // Every boss starts with a single slot; middle click cycles up to its max.
+  // Only bosses whose count has been changed are stored here; the rest fall back
+  // to `startSlotsFor`. Middle click cycles a boss up to its max, then to zero.
   const [slotCounts, setSlotCounts] = useState<Record<string, number>>({})
 
   // Which item sits in each slot, keyed by boss name and slot index.
@@ -557,12 +583,14 @@ export function TrackerFrame() {
 
   /**
    * Steps a boss through its slot counts. The cycle runs 1 up to the max and
-   * then wraps through zero, so a boss can show no item slots at all.
+   * then wraps through zero, so a boss can show no item slots at all. Starting
+   * from the boss's own default keeps the first click relative to what is on
+   * screen, so a boss that opens empty steps up to one slot rather than two.
    */
   function cycleSlots(name: string, maxSlots: number) {
     setSlotCounts((current) => ({
       ...current,
-      [name]: ((current[name] ?? 1) + 1) % (maxSlots + 1),
+      [name]: ((current[name] ?? startSlotsFor(name)) + 1) % (maxSlots + 1),
     }))
   }
 
@@ -830,7 +858,8 @@ export function TrackerFrame() {
                   key={column.id}
                 >
                   {column.bosses.map((palace) => {
-                    const slots = slotCounts[palace.name] ?? 1
+                    const slots =
+                  slotCounts[palace.name] ?? startSlotsFor(palace.name)
                     const bossKey = `boss-${palace.name}`
                     const isBeaten = Boolean(collected[bossKey])
                     const mark = iconMarks[bossKey]
