@@ -133,15 +133,14 @@
   cursor: nesw-resize;
 }
 
-/* Fixed 600x1200 tracker surface; all sections position against it. */
+/* Fixed 600x1138 tracker surface; all sections position against it. */
 .game-canvas {
   position: relative;
   width: 600px;
-  /* The collection is the last block and ends at 846px. The rule that used to
-     close it off is gone, so the canvas ends a bottom-rail's clearance below
-     that, instead of running on to 1138px and leaving ~270px of dead space.
-     Mirrored by BASE_HEIGHT in tracker-frame.tsx, which scales the board. */
-  height: 876px;
+  /* The collection is the last block and ends at 846px, so everything past that
+     is deliberate free space kept for future sections. Mirrored by BASE_HEIGHT in
+     tracker-frame.tsx, which scales the board to fit. */
+  height: 1138px;
   flex-shrink: 0;
   overflow: hidden;
   background: var(--canvas);

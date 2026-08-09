@@ -14,7 +14,7 @@ import { GlyphText } from '@/components/glyph-text'
 const BASE_WIDTH = 600
 // Must match the `.game-canvas` height in globals.css, since the board is scaled
 // to fit against these dimensions.
-const BASE_HEIGHT = 876
+const BASE_HEIGHT = 1138
 const MIN_SCALE = 0.35
 const MAX_SCALE = 1.75
 
