@@ -495,10 +495,10 @@ export function TrackerFrame() {
     // Lit either by its own click or by being checked off out on the map.
     const isCollected =
       Boolean(collected[slotKey]) || placedCollectedIds.has(entry.id)
-    // Requirement letter tagged on this pickup, independent of whether it has
-    // been found. Shares the iconMarks record, which is keyed separately from
-    // the collected flags.
-    const mark = iconMarks[slotKey]
+    // The letter is a reminder of what is still needed, so it is dropped once
+    // the pickup is found. Collecting via the map only flips a derived flag, so
+    // the letter is gated on isCollected here as well as cleared on click.
+    const mark = isCollected ? undefined : iconMarks[slotKey]
 
     return (
       <button
@@ -510,18 +510,30 @@ export function TrackerFrame() {
             : 'collection-slot'
         }
         key={entry.id}
-        onClick={() =>
-          isCollected ? clearCollectedItem(entry.id) : toggleCollected(slotKey)
-        }
-        // Right click steps through the requirement letters.
+        onClick={() => {
+          if (isCollected) {
+            clearCollectedItem(entry.id)
+            return
+          }
+
+          toggleCollected(slotKey)
+          // Drop the letter for good, so un-collecting later does not bring a
+          // stale requirement back.
+          clearMark(slotKey)
+        }}
+        // Right click steps through the requirement letters. Ignored once the
+        // pickup is found, so no hidden letter can build up behind the lit art.
         onContextMenu={(event) => {
           event.preventDefault()
-          cycleMark(slotKey, COLLECTION_MARKS)
+
+          if (!isCollected) {
+            cycleMark(slotKey, COLLECTION_MARKS)
+          }
         }}
         onKeyDown={(event) => {
           // Shift+Enter steps the letters, leaving plain clicks and Space for
           // the collected toggle.
-          if (event.key === 'Enter' && event.shiftKey) {
+          if (event.key === 'Enter' && event.shiftKey && !isCollected) {
             event.preventDefault()
             cycleMark(slotKey, COLLECTION_MARKS)
           }
@@ -563,6 +575,20 @@ export function TrackerFrame() {
       } else {
         delete next[iconKey]
       }
+
+      return next
+    })
+  }
+
+  /** Drops an icon's requirement letter without stepping the cycle. */
+  function clearMark(iconKey: string) {
+    setIconMarks((current) => {
+      if (!current[iconKey]) {
+        return current
+      }
+
+      const next = { ...current }
+      delete next[iconKey]
 
       return next
     })
