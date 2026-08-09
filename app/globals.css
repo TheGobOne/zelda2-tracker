@@ -268,18 +268,17 @@
   row-gap: var(--sep);
 }
 
-/* Two columns of three bosses pinned to the outer edges of the icon area.
-   The section runs from the divider above (ending at 182px) to the one below
-   (starting at 452px), so it is 270px tall. The columns are 196px, which leaves
-   74px of slack; half of that centres them, and 37px works out to one
-   separation unit plus 23px. The taller connector stack still sets the section
-   height, so this only moves the bosses down to meet its middle. */
+/* The boss columns, pinned to the outer edges of the icon area. They are uneven
+   now - four on the left, three on the right - so `center` puts both on the same
+   midline as the connector stack between them (196px to 438px, so 317px). The
+   left column is the tallest at 266px (four 56px rows plus three gaps), which
+   centres to 184px and ends at 450px, just clearing the divider at 452px. */
 .palace-grid {
-  top: calc(205px + var(--sep));
+  top: calc(170px + var(--sep));
   display: flex;
   width: 520px;
   max-width: 520px;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
 }
 
@@ -815,7 +814,7 @@
 .item-picker {
   position: absolute;
   /* Shares the palace grid's anchor so the two never drift apart. */
-  top: calc(205px + var(--sep));
+  top: calc(170px + var(--sep));
   /* Matches the 24px rail inset on each side. */
   left: 24px;
   z-index: 1;

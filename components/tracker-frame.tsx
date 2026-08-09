@@ -27,7 +27,8 @@ const towns = [
   { name: 'Old Kasuto', src: '/images/towns/old-kasuto.png' },
 ]
 
-// The six palace bosses sit in two columns of three, pushed to opposite edges.
+// The seven palace bosses sit in two columns pushed to opposite edges: four on
+// the left, three on the right.
 const palaceColumns = [
   {
     id: 'left',
@@ -37,14 +38,15 @@ const palaceColumns = [
       { name: 'Palace 1', src: '/images/palaces/horsehead.png', maxSlots: 2 },
       { name: 'Palace 2', src: '/images/palaces/helmethead.png', maxSlots: 2 },
       { name: 'Palace 3', src: '/images/palaces/rebonack.png', maxSlots: 2 },
+      { name: 'Palace 4', src: '/images/palaces/karock.png', maxSlots: 2 },
     ],
   },
   {
     id: 'right',
     bosses: [
-      { name: 'Palace 4', src: '/images/palaces/karock.png', maxSlots: 2 },
       { name: 'Palace 5', src: '/images/palaces/gooma.png', maxSlots: 3 },
       { name: 'Palace 6', src: '/images/palaces/barba.png', maxSlots: 3 },
+      { name: 'Palace 7', src: '/images/palaces/thunderbird.png', maxSlots: 2 },
     ],
   },
 ]
