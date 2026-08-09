@@ -366,39 +366,43 @@ export function TrackerFrame() {
     })
   }
 
+  const rootRef = useRef<HTMLDivElement>(null)
+
+  // The tracker is mouse-only: it sits beside a game or emulator, so it must
+  // never consume a keystroke. That rules out the window-level Escape listeners
+  // this used to have, which fired page-wide, and it also means nothing inside
+  // can hold focus or sit in the tab order - a focused control would turn a
+  // stray Enter or Space into an unintended toggle. Overlays are closed by
+  // their backdrops, the close button, and Cancel instead of Escape.
   useEffect(() => {
-    if (!openSlot) {
+    const root = rootRef.current
+
+    if (!root) {
       return
     }
 
-    function handleEscape(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        setOpenSlot(null)
+    // The picker, dialog, and menu all mount on demand, so their controls have
+    // to be stripped as they appear rather than only on the first pass.
+    function stripFocusability() {
+      const focusable = root?.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [contenteditable], [tabindex]:not([tabindex="-1"])',
+      )
+
+      for (const node of focusable ?? []) {
+        node.tabIndex = -1
       }
     }
 
-    window.addEventListener('keydown', handleEscape)
+    stripFocusability()
 
-    return () => window.removeEventListener('keydown', handleEscape)
-  }, [openSlot])
+    // Only childList is observed. The callback sets attributes, so watching
+    // attributes too would retrigger it in a loop.
+    const observer = new MutationObserver(stripFocusability)
 
-  // Escape backs out of the confirm dialog and the hamburger menu too.
-  useEffect(() => {
-    if (!(isConfirmingClear || isMenuOpen)) {
-      return
-    }
+    observer.observe(root, { childList: true, subtree: true })
 
-    function handleEscape(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        setIsConfirmingClear(false)
-        setIsMenuOpen(false)
-      }
-    }
-
-    window.addEventListener('keydown', handleEscape)
-
-    return () => window.removeEventListener('keydown', handleEscape)
-  }, [isConfirmingClear, isMenuOpen])
+    return () => observer.disconnect()
+  }, [])
 
   /** One item holder. Left click marks collected, right click opens the menu,
    *  middle click empties it. Shared by the town and palace grids. */
@@ -434,18 +438,6 @@ export function TrackerFrame() {
           onContextMenu={(event) => {
             event.preventDefault()
             setOpenSlot(openSlot === slotKey ? null : slotKey)
-          }}
-          onKeyDown={(event) => {
-            // Enter opens the menu, Space marks collected.
-            if (event.key === 'Enter') {
-              event.preventDefault()
-              setOpenSlot(openSlot === slotKey ? null : slotKey)
-            }
-
-            if (event.key === 'Delete' || event.key === 'Backspace') {
-              event.preventDefault()
-              clearItem(slotKey)
-            }
           }}
           // Middle click otherwise triggers autoscroll.
           onMouseDown={(event) => {
@@ -548,14 +540,6 @@ export function TrackerFrame() {
           event.preventDefault()
 
           if (!isCollected) {
-            cycleMark(slotKey, COLLECTION_MARKS)
-          }
-        }}
-        onKeyDown={(event) => {
-          // Shift+Enter steps the letters, leaving plain clicks and Space for
-          // the collected toggle.
-          if (event.key === 'Enter' && event.shiftKey && !isCollected) {
-            event.preventDefault()
             cycleMark(slotKey, COLLECTION_MARKS)
           }
         }}
@@ -768,20 +752,16 @@ export function TrackerFrame() {
     }
   }
 
-  function handleKeyDown(event: React.KeyboardEvent<HTMLButtonElement>) {
-    if (event.key === 'ArrowUp' || event.key === 'ArrowRight') {
-      event.preventDefault()
-      setScale((current) => clampScale(current + 0.05))
-    }
-
-    if (event.key === 'ArrowDown' || event.key === 'ArrowLeft') {
-      event.preventDefault()
-      setScale((current) => clampScale(current - 0.05))
-    }
-  }
-
   return (
-    <div className="tracker-wrap">
+    <div
+      className="tracker-wrap"
+      // Clicking a button focuses it by default, which is what let a later
+      // stray Enter or Space re-fire the last icon clicked. Cancelling the
+      // default on mousedown keeps focus off without touching the click itself,
+      // and it suppresses text selection while dragging a resize grip.
+      onMouseDown={(event) => event.preventDefault()}
+      ref={rootRef}
+    >
       <div
         className={`tracker-stage${activeHandle ? ' is-resizing' : ''}`}
         style={{
@@ -820,12 +800,6 @@ export function TrackerFrame() {
                       onContextMenu={(event) => {
                         event.preventDefault()
                         cycleMark(townKey)
-                      }}
-                      onKeyDown={(event) => {
-                        if (event.key === 'Enter') {
-                          event.preventDefault()
-                          cycleMark(townKey)
-                        }
                       }}
                       type="button"
                     >
@@ -883,21 +857,6 @@ export function TrackerFrame() {
                           onContextMenu={(event) => {
                             event.preventDefault()
                             cycleMark(bossKey)
-                          }}
-                          onKeyDown={(event) => {
-                            if (event.key !== 'Enter') {
-                              return
-                            }
-
-                            event.preventDefault()
-
-                            // Shift+Enter steps through the letters, plain
-                            // Enter cycles slots. Space marks defeated.
-                            if (event.shiftKey) {
-                              cycleMark(bossKey)
-                            } else {
-                              cycleSlots(palace.name, palace.maxSlots)
-                            }
                           }}
                           // Middle click otherwise triggers browser autoscroll.
                           onMouseDown={(event) => {
@@ -1050,20 +1009,6 @@ export function TrackerFrame() {
                       onContextMenu={(event) => {
                         event.preventDefault()
                         setOpenSlot(openSlot === slotKey ? null : slotKey)
-                      }}
-                      onKeyDown={(event) => {
-                        if (event.key === 'Enter') {
-                          event.preventDefault()
-                          setOpenSlot(openSlot === slotKey ? null : slotKey)
-                        }
-
-                        if (
-                          event.key === 'Delete' ||
-                          event.key === 'Backspace'
-                        ) {
-                          event.preventDefault()
-                          clearItem(slotKey)
-                        }
                       }}
                       // Middle click otherwise triggers autoscroll.
                       onMouseDown={(event) => {
@@ -1296,8 +1241,7 @@ export function TrackerFrame() {
             aria-label={`Drag the ${handle.label} to resize the tracker`}
             className={`tracker-grip tracker-grip-${handle.id}`}
             key={handle.id}
-            onKeyDown={handleKeyDown}
-            onPointerCancel={handlePointerUp}
+              onPointerCancel={handlePointerUp}
             onPointerDown={(event) => handlePointerDown(event, handle)}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
