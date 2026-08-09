@@ -656,6 +656,9 @@
      rail sits 8px in and is 14px thick, so 22px lands right against them. */
   bottom: 22px;
   left: 22px;
+  /* Stays above the menu's click-catching backdrop (3). The frame is lifted
+     over this instead, so the rails paint on top of the button without burying
+     the pop-up menu as well. */
   z-index: 4;
   display: flex;
 }
@@ -937,7 +940,9 @@
 
 .frame-rail {
   position: absolute;
-  z-index: 1;
+  /* Above the corner-tucked menu button (4) so the frame reads as a solid
+     border in front of it, but below the dialogs and pickers (40). */
+  z-index: 5;
   background: #233bea;
   border-color: #f5f5f5;
   border-style: solid;
@@ -966,7 +971,9 @@
 
 .frame-corner {
   position: absolute;
-  z-index: 2;
+  /* One above the rails (5), keeping the corner blocks on top where the two
+     meet, and above the menu button (4) tucked into the bottom-left corner. */
+  z-index: 6;
   width: 24px;
   height: 24px;
   background: #e52a08;
