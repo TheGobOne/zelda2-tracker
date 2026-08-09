@@ -321,12 +321,14 @@
 
 /* Flag picker, filling the width the third row's four tiles leave over. `flex: 1`
    claims that remainder rather than a fixed width, so it cannot collide with the
-   tiles if the row ever gains one. Centred vertically against the 56px tiles. */
+   tiles if the row ever gains one. Packed to the right inside that remainder so
+   the select's edge lines up with the right edge of the rows above, rather than
+   floating mid gap. Centred vertically against the 56px tiles. */
 .location-flags {
   display: flex;
   flex: 1;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   gap: 8px;
 }
 
