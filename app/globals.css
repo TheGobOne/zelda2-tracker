@@ -270,12 +270,12 @@
 }
 
 /* The boss columns, pinned to the outer edges of the icon area. They are uneven
-   now - four on the left, three on the right - so `center` puts both on the same
-   midline as the connector stack between them (196px to 438px, so 317px). The
-   left column is the tallest at 266px (four 56px rows plus three gaps), which
-   centres to 184px and ends at 450px, just clearing the divider at 452px. */
+   - four on the left, three on the right - so `center` puts both on the same
+   midline. The grid is only as tall as its tallest child, which is the 242px
+   left column, so sharing the connector stack's anchor makes all three span an
+   identical 196px to 438px and share the 317px midline. */
 .palace-grid {
-  top: calc(170px + var(--sep));
+  top: calc(182px + var(--sep));
   display: flex;
   width: 520px;
   max-width: 520px;
@@ -540,9 +540,14 @@
   flex-direction: row-reverse;
 }
 
-/* Pin rows to their outer edge so added slots never shift the boss icons. */
+/* Pin rows to their outer edge so added slots never shift the boss icons. The
+   left column carries a fourth boss, so at the shared 14px gap it grew to 266px
+   and came within 2px of the dividers above and below. A 6px gap brings it to
+   242px - the exact height of the connector stack between the columns - so it
+   now spans the same 196px to 438px and clears the divider at 452px. */
 .palace-grid .town-column.palace-column-left {
   align-items: flex-start;
+  row-gap: 6px;
 }
 
 .palace-grid .town-column.palace-column-right {
@@ -824,7 +829,7 @@
 .item-picker {
   position: absolute;
   /* Shares the palace grid's anchor so the two never drift apart. */
-  top: calc(170px + var(--sep));
+  top: calc(182px + var(--sep));
   /* Matches the 24px rail inset on each side. */
   left: 24px;
   z-index: 1;
