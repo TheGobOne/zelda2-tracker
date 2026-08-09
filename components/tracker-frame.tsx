@@ -1192,6 +1192,11 @@ export function TrackerFrame() {
                 {collectionItems.map((entry) => renderCollectionSlot(entry))}
               </div>
 
+              {/* Separates the item rows from the spells. In flow between the two
+                  grids rather than positioned, so it tracks them if the item count
+                  ever changes the row above it. */}
+              <div className="collection-divider" />
+
               <div className="collection-grid">
                 {spells.map((entry) => renderCollectionSlot(entry))}
               </div>
