@@ -975,19 +975,22 @@ export function TrackerFrame() {
                     )
                   })}
 
-                  {/* Clear sits at the foot of the right column, under
-                      Thunderbird. The right column is the shorter of the two, so
-                      it has room below its last boss that the left column does
-                      not. Still routed through the confirmation dialog, since it
-                      is now far easier to reach than it was inside the menu. */}
+                  {/* Clear takes the right column's empty fourth row: that column
+                      holds three bosses against the left column's four, so the
+                      band the missing row would occupy is free. The wrapper is
+                      that band, sized like a `.palace-row`, which is what centres
+                      the button on the row rather than parking it just below the
+                      last boss. Still routed through the confirmation dialog. */}
                   {column.id === 'right' ? (
-                    <button
-                      className="palace-clear"
-                      onClick={() => setIsConfirmingClear(true)}
-                      type="button"
-                    >
-                      Clear
-                    </button>
+                    <div className="palace-clear-row">
+                      <button
+                        className="palace-clear"
+                        onClick={() => setIsConfirmingClear(true)}
+                        type="button"
+                      >
+                        Clear
+                      </button>
+                    </div>
                   ) : null}
                 </div>
               ))}

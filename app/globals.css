@@ -627,24 +627,34 @@
   row-gap: 6px;
 }
 
-/* Clear, moved out of the hamburger menu onto the foot of the right boss column,
-   under Thunderbird. The right column is the shorter of the two, so the space
-   below its last boss is free. Width is pinned to the 56px sprite above it to
-   keep the column edge straight, and `align-self` is needed because the column
-   otherwise stretches its children. Gold on the frame's red is the same pairing
-   the menu entry used on hover, so it still reads as the destructive control now
-   that it sits out in the open on the board. */
+/* The empty fourth row of the right column, standing in for the boss row that
+   column does not have. Height matches a `.palace-row` so the band lines up with
+   the left column's fourth row, and centring inside it puts the button on that
+   row's midline instead of tight under the last boss. `stretch` overrides the
+   column's `flex-end`, giving the band the full column width to work with. */
+.palace-clear-row {
+  display: flex;
+  height: 56px;
+  align-self: stretch;
+  align-items: center;
+}
+
+/* Clear, moved out of the hamburger menu onto the right boss column's free
+   fourth row. Full width of its band, which spans from the outer edge of the boss
+   sprite across the 14px gap to the far edge of the item slot, so it lines up with
+   both columns of icons above it. Gold on the frame's red is the same pairing the
+   menu entry used on hover, so it still reads as the destructive control now that
+   it sits out in the open on the board. */
 .palace-clear {
-  align-self: flex-end;
-  width: 56px;
+  width: 100%;
   padding: 3px 0;
   background: #e52a08;
   border: 2px solid #f5f5f5;
   color: #f2b21c;
-  /* At 11px the label measured 60px wide against a 54px inner box and spilled
-     past the border. The tile font is drawn on an 8-unit em grid, so 8px both
-     fits "CLEAR" inside the 56px width and keeps the stems on whole pixels. */
-  font-size: 8px;
+  /* Back to the 11px the frame's other labels use. It was dropped to 8px only
+     because the button was 56px wide then and the label overflowed; at the full
+     column width it measures 60px inside a 122px box, with room to spare. */
+  font-size: 11px;
   letter-spacing: 1px;
   text-align: center;
   text-transform: uppercase;
