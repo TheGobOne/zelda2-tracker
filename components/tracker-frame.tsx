@@ -114,12 +114,12 @@ const locationRowTwo: LocationEntry[] = [
 const locationRowThree: LocationEntry[] = [
   { name: 'Hammer Cave', src: '/images/locations/hammercave.png' },
   {
-    name: 'Maze Magic Container',
-    src: '/images/locations/magiccontainermaze.png',
-  },
-  {
     name: 'Boulder Magic Container',
     src: '/images/locations/magiccontainerboulder.png',
+  },
+  {
+    name: 'Maze Magic Container',
+    src: '/images/locations/magiccontainermaze.png',
   },
   { name: 'Maze Kid', src: '/images/locations/kidmaze.png' },
 ]
