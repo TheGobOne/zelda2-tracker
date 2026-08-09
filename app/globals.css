@@ -582,8 +582,14 @@
   row-gap: 6px;
 }
 
+/* The right column holds three bosses to the left column's four, so the grid's
+   `center` left it sitting 23px lower than its neighbour. `flex-start` anchors it
+   to the top of the grid instead, which is the left column's own top, and the
+   matching 6px gap puts its three rows at exactly the left column's first three. */
 .palace-grid .town-column.palace-column-right {
   align-items: flex-end;
+  align-self: flex-start;
+  row-gap: 6px;
 }
 
 /* Anchor for the item picker so it can float over the canvas. */
