@@ -379,8 +379,8 @@ export function TrackerFrame() {
   const [openSlot, setOpenSlot] = useState<string | null>(null)
   // Clearing is destructive, so it waits on a confirmation dialog.
   const [isConfirmingClear, setIsConfirmingClear] = useState(false)
-  // Clear and the presets now live behind one hamburger button, so a single
-  // flag covers the whole menu rather than just the preset list.
+  // The hamburger menu now holds only the presets; Clear moved out onto the
+  // board, under the right boss column.
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   /** Steps a counter slot to the next value, wrapping back around to empty. */
@@ -951,6 +951,21 @@ export function TrackerFrame() {
                       </div>
                     )
                   })}
+
+                  {/* Clear sits at the foot of the right column, under
+                      Thunderbird. The right column is the shorter of the two, so
+                      it has room below its last boss that the left column does
+                      not. Still routed through the confirmation dialog, since it
+                      is now far easier to reach than it was inside the menu. */}
+                  {column.id === 'right' ? (
+                    <button
+                      className="palace-clear"
+                      onClick={() => setIsConfirmingClear(true)}
+                      type="button"
+                    >
+                      Clear
+                    </button>
+                  ) : null}
                 </div>
               ))}
             </div>
@@ -1137,22 +1152,8 @@ export function TrackerFrame() {
                       >
                         {preset.name}
                       </button>
-                    ))}
-
-                    {/* Clearing wipes the board, so it is set apart from the
-                        presets above it and tinted with the frame's red. */}
-                    <button
-                      className="tracker-menu-option tracker-menu-option-danger"
-                      onClick={() => {
-                        setIsMenuOpen(false)
-                        setIsConfirmingClear(true)
-                      }}
-                      role="menuitem"
-                      type="button"
-                    >
-                      Clear
-                    </button>
-                  </div>
+                  ))}
+                </div>
                 ) : null}
 
                 <button
