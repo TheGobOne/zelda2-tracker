@@ -810,9 +810,9 @@ export function TrackerFrame() {
                         width={32}
                       />
                       {mark ? (
-                        <span aria-hidden="true" className="icon-mark">
+                        <GlyphText className="icon-mark-glyph" scale={3}>
                           {mark}
-                        </span>
+                        </GlyphText>
                       ) : null}
                     </button>
                     {renderItemSlot(townKey, `${town.name} item`)}

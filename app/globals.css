@@ -460,8 +460,10 @@
   opacity: 0.45;
 }
 
-/* Requirement letter stamped across the middle of a town or boss sprite. Gold
-   sets it apart from the green "defeated" check and the white sprite art. */
+/* Font-based number stamped across the spell count tile. The towns and bosses
+   both draw their requirement letters with `.icon-mark-glyph` instead, so this
+   is now only the count. Gold sets it apart from the green "collected" check and
+   the white sprite art; the glyph rule below matches these colours. */
 .icon-mark {
   position: absolute;
   top: 50%;
