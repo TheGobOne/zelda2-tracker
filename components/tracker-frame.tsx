@@ -247,6 +247,10 @@ const PRESETS: {
 // the starting state, so a full cycle returns the icon to having no letter.
 const ICON_MARKS = ['', 'W', 'E', 'MI', 'DV']
 
+// The collection row keeps its own list: it ends on DM where the bosses end on
+// DV, so the two cycles cannot share one constant.
+const COLLECTION_MARKS = ['', 'W', 'E', 'MI', 'DM']
+
 /** Turns a slot key into the heading shown in the item menu. */
 function slotLabel(slotKey: string) {
   if (slotKey.startsWith('town-')) {
@@ -491,10 +495,14 @@ export function TrackerFrame() {
     // Lit either by its own click or by being checked off out on the map.
     const isCollected =
       Boolean(collected[slotKey]) || placedCollectedIds.has(entry.id)
+    // Requirement letter tagged on this pickup, independent of whether it has
+    // been found. Shares the iconMarks record, which is keyed separately from
+    // the collected flags.
+    const mark = iconMarks[slotKey]
 
     return (
       <button
-        aria-label={`${entry.name}${isCollected ? ', collected' : ', not collected'}`}
+        aria-label={`${entry.name}${isCollected ? ', collected' : ', not collected'}${mark ? `, marked ${mark}` : ''}. Right click to cycle letters.`}
         aria-pressed={isCollected}
         className={
           isCollected
@@ -505,9 +513,27 @@ export function TrackerFrame() {
         onClick={() =>
           isCollected ? clearCollectedItem(entry.id) : toggleCollected(slotKey)
         }
+        // Right click steps through the requirement letters.
+        onContextMenu={(event) => {
+          event.preventDefault()
+          cycleMark(slotKey, COLLECTION_MARKS)
+        }}
+        onKeyDown={(event) => {
+          // Shift+Enter steps the letters, leaving plain clicks and Space for
+          // the collected toggle.
+          if (event.key === 'Enter' && event.shiftKey) {
+            event.preventDefault()
+            cycleMark(slotKey, COLLECTION_MARKS)
+          }
+        }}
         type="button"
       >
         <ItemArt item={entry} />
+        {mark ? (
+          <GlyphText className="icon-mark-glyph" scale={3}>
+            {mark}
+          </GlyphText>
+        ) : null}
       </button>
     )
   }
@@ -523,12 +549,14 @@ export function TrackerFrame() {
     }))
   }
 
-  /** Steps an icon through the requirement letters, then back to none. */
-  function cycleMark(iconKey: string) {
+  /** Steps an icon through the requirement letters, then back to none. Takes the
+   *  letter list so the collection row can end on DM while the bosses end on
+   *  DV. */
+  function cycleMark(iconKey: string, marks: string[] = ICON_MARKS) {
     setIconMarks((current) => {
       const next = { ...current }
-      const index = ICON_MARKS.indexOf(current[iconKey] ?? '')
-      const mark = ICON_MARKS[(index + 1) % ICON_MARKS.length]
+      const index = marks.indexOf(current[iconKey] ?? '')
+      const mark = marks[(index + 1) % marks.length]
 
       if (mark) {
         next[iconKey] = mark
