@@ -332,13 +332,15 @@
   top: calc(466px + 56px + var(--sep) * 2);
 }
 
-/* Only four icons, so `space-between` would fling them to the outer edges.
-   Centre them instead, with the 2px gap the full rows work out to (520px less
-   nine 56px icons, split across eight gaps) so the density still matches. */
+/* Only four icons, so `space-between` would fling them to the outer edges. Packed
+   to the left instead, on the 2px gap the full rows work out to (520px less nine
+   56px icons, split across eight gaps). That gap is what lines these four up with
+   the columns above: the rows share a 40px left edge and a 58px stride, so these
+   four land on the first four positions rather than floating mid row. */
 .location-row-third {
   top: calc(466px + 56px * 2 + var(--sep) * 3);
   gap: 2px;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 /* Anchors the overlaid item and check inside the location art, and matches the
