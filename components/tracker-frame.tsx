@@ -112,11 +112,11 @@ const locationRowTwo: LocationEntry[] = [
 // Third location row. Only four entries, so it is centred rather than spread
 // across the full icon width like the two full rows above it.
 const locationRowThree: LocationEntry[] = [
-  { name: 'Hammer Cave', src: '/images/locations/hammercave.png' },
   {
     name: 'Boulder Magic Container',
     src: '/images/locations/magiccontainerboulder.png',
   },
+  { name: 'Hammer Cave', src: '/images/locations/hammercave.png' },
   {
     name: 'Maze Magic Container',
     src: '/images/locations/magiccontainermaze.png',
