@@ -343,6 +343,62 @@
   justify-content: flex-start;
 }
 
+/* Flag picker, filling the width the third row's four tiles leave over. `flex: 1`
+   claims that remainder rather than a fixed width, so it cannot collide with the
+   tiles if the row ever gains one. Centred vertically against the 56px tiles. */
+.location-flags {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.location-flags-label {
+  color: #f5f5f5;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Framed like the tracker's other controls. `appearance: none` drops the OS
+   chrome, which would otherwise read as a rounded native widget against the
+   pixel art, and the arrow is redrawn as two flat wedges. */
+.location-flags-select {
+  padding: 5px 26px 5px 8px;
+  appearance: none;
+  background-color: #101010;
+  /* Solid triangle, built from two clipped gradients so it stays crisp. */
+  background-image: linear-gradient(45deg, transparent 50%, #f2b21c 50%),
+    linear-gradient(135deg, #f2b21c 50%, transparent 50%);
+  background-position: right 12px center, right 6px center;
+  background-repeat: no-repeat;
+  background-size: 6px 6px, 6px 6px;
+  border: 3px solid #f5f5f5;
+  color: #f5f5f5;
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.location-flags-select:hover {
+  background-color: #233bea;
+}
+
+.location-flags-select:focus-visible {
+  outline: 3px solid #e52a08;
+  outline-offset: 2px;
+}
+
+/* The dropdown list itself is drawn by the OS, so it only takes the colours. */
+
+.location-flags-select option {
+  background: #101010;
+  color: #f5f5f5;
+}
+
 /* Anchors the overlaid item and check inside the location art, and matches the
    56px town and boss sprites so the whole board reads at one scale. */
 .location-icon {
@@ -768,23 +824,7 @@
   cursor: pointer;
 }
 
-/* Run controls, collapsed to a single hamburger button wedged into the very
-   bottom-left corner of the frame. No width, so it only covers the button and
-   leaves the rest of the bottom strip clickable. */
-.tracker-toolbar {
-  position: absolute;
-  /* Tucked into the corner, flush against the inner edge of both rails. Each
-     rail sits 8px in and is 14px thick, so 22px lands right against them. */
-  bottom: 22px;
-  left: 22px;
-  /* Stays above the menu's click-catching backdrop (3). The frame is lifted
-     over this instead, so the rails paint on top of the button without burying
-     the pop-up menu as well. */
-  z-index: 4;
-  display: flex;
-}
-
-/* Chunky 8-bit button, matching the menu's white-on-dark frame treatment. */
+/* Chunky 8-bit button, matching the frame's white-on-dark treatment. */
 .tracker-button {
   padding: 8px 18px;
   background: #101010;
@@ -809,100 +849,6 @@
 /* The confirm dialog's destructive action, flagged in the frame's red. */
 .tracker-button-danger:hover {
   background: #e52a08;
-}
-
-/* Anchor for the upward-opening options menu. */
-.tracker-menu-wrap {
-  position: relative;
-  display: flex;
-}
-
-/* Square hamburger button, sized to match the 40px item slots and framed like
-   the other controls. */
-.tracker-menu-toggle {
-  display: flex;
-  width: 40px;
-  height: 40px;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  background: #101010;
-  border: 3px solid #f5f5f5;
-  gap: 5px;
-  cursor: pointer;
-}
-
-.tracker-menu-toggle:hover {
-  background: #233bea;
-}
-
-.tracker-menu-toggle:focus-visible {
-  outline: 3px solid #e52a08;
-  outline-offset: 2px;
-}
-
-/* Blocks rather than borders, so the bars stay crisp at any zoom. */
-.tracker-menu-bar {
-  display: block;
-  width: 20px;
-  height: 4px;
-  background: #f5f5f5;
-}
-
-/* Opens above the button, since it sits hard against the bottom rail. */
-.tracker-menu {
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 0;
-  z-index: 5;
-  display: flex;
-  min-width: 100%;
-  flex-direction: column;
-  padding: 6px;
-  background: #101010;
-  border: 3px solid #f5f5f5;
-  box-shadow: 0 0 0 3px #233bea;
-}
-
-.tracker-menu-option {
-  padding: 8px 14px;
-  background: transparent;
-  border: 0;
-  color: #f5f5f5;
-  font-size: 13px;
-  letter-spacing: 1px;
-  text-align: center;
-  text-transform: uppercase;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.tracker-menu-option:hover {
-  background: #233bea;
-}
-
-/* Separated from the presets above it, since it throws the board away. */
-.tracker-menu-option-danger {
-  margin-top: 4px;
-  border-top: 3px solid #f5f5f5;
-  color: #f2b21c;
-}
-
-.tracker-menu-option-danger:hover {
-  background: #e52a08;
-  color: #f5f5f5;
-}
-
-/* Invisible catcher so clicking anywhere else dismisses the menu. */
-.tracker-menu-backdrop {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  padding: 0;
-  background: transparent;
-  border: 0;
-  cursor: default;
 }
 
 /* The clear confirmation covers the whole canvas, like the item menu. */

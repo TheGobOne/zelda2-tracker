@@ -265,6 +265,15 @@ const PRESETS: {
   counts: Record<string, string>
 }[] = [
   {
+    // Vanilla flags: Link only ever starts with the candle, and nothing on the
+    // board is known in advance, so both placement maps stay empty.
+    id: 'standard',
+    name: 'Standard',
+    collectedIds: ['candle'],
+    placements: {},
+    counts: {},
+  },
+  {
     id: 'sgl',
     name: 'SGL',
     collectedIds: ['candle', 'cross', 'fire-spell'],
@@ -288,6 +297,21 @@ const PRESETS: {
     },
   },
 ]
+
+/**
+ * Turns a preset's item list into the `collected` map the board holds. Shared by
+ * the initial state and the flags dropdown so the default Standard board is built
+ * the same way as one picked by hand.
+ */
+function collectedFromPreset(preset: (typeof PRESETS)[number]) {
+  const next: Record<string, boolean> = {}
+
+  for (const itemId of preset.collectedIds) {
+    next[`collection-${itemId}`] = true
+  }
+
+  return next
+}
 
 // Requirement letters a town or boss can be tagged with. The empty entry is
 // the starting state, so a full cycle returns the icon to having no letter.
@@ -366,8 +390,11 @@ export function TrackerFrame() {
 
   // Which item sits in each slot, keyed by boss name and slot index.
   const [slotItems, setSlotItems] = useState<Record<string, string>>({})
-  // Slots marked as collected: their art dims and a green check appears.
-  const [collected, setCollected] = useState<Record<string, boolean>>({})
+  // Slots marked as collected: their art dims and a green check appears. Seeded
+  // from Standard, the flag set the dropdown starts on.
+  const [collected, setCollected] = useState<Record<string, boolean>>(() =>
+    collectedFromPreset(PRESETS[0]),
+  )
   // Requirement letter shown over a town or boss; right click steps through
   // them. Keys are namespaced ("town-"/"boss-") so names cannot collide.
   const [iconMarks, setIconMarks] = useState<Record<string, string>>({})
@@ -379,9 +406,9 @@ export function TrackerFrame() {
   const [openSlot, setOpenSlot] = useState<string | null>(null)
   // Clearing is destructive, so it waits on a confirmation dialog.
   const [isConfirmingClear, setIsConfirmingClear] = useState(false)
-  // The hamburger menu now holds only the presets; Clear moved out onto the
-  // board, under the right boss column.
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  // Which ruleset the flags dropdown is showing. Standard is the default, so the
+  // board opens matching it rather than needing the preset picked by hand.
+  const [activeFlags, setActiveFlags] = useState(PRESETS[0].id)
 
   /** Steps a counter slot to the next value, wrapping back around to empty. */
   function cycleCount(slotKey: string, step: 1 | -1) {
@@ -724,19 +751,13 @@ export function TrackerFrame() {
    * whatever was on screen before.
    */
   function applyPreset(preset: (typeof PRESETS)[number]) {
-    const nextCollected: Record<string, boolean> = {}
-
-    for (const itemId of preset.collectedIds) {
-      nextCollected[`collection-${itemId}`] = true
-    }
-
     setSlotItems({ ...preset.placements })
-    setCollected(nextCollected)
+    setCollected(collectedFromPreset(preset))
     setSlotCounts({})
     setIconMarks({})
     setCountValues({ ...preset.counts })
     setConnectorEnds({})
-    setIsMenuOpen(false)
+    setActiveFlags(preset.id)
   }
 
   function assignItem(slotKey: string, itemId: string) {
@@ -1111,6 +1132,39 @@ export function TrackerFrame() {
                     </button>
                   )
                 })}
+
+                {/* The third row is the short one, so the space its four tiles
+                    leave free is where the flag picker goes. A native select is
+                    used deliberately: the board already spends left, right and
+                    middle click on tracking, and a custom pop-up would have to
+                    compete with that. */}
+                {rowIndex === 2 ? (
+                  <div className="location-flags">
+                    <label className="location-flags-label" htmlFor="flag-set">
+                      Flags
+                    </label>
+                    <select
+                      className="location-flags-select"
+                      id="flag-set"
+                      onChange={(event) => {
+                        const preset = PRESETS.find(
+                          (entry) => entry.id === event.target.value,
+                        )
+
+                        if (preset) {
+                          applyPreset(preset)
+                        }
+                      }}
+                      value={activeFlags}
+                    >
+                      {PRESETS.map((preset) => (
+                        <option key={preset.id} value={preset.id}>
+                          {preset.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ) : null}
               </div>
             ))}
 
@@ -1129,59 +1183,6 @@ export function TrackerFrame() {
             </section>
 
             <div className="section-divider section-divider-collection" />
-
-            {/* Run controls, collapsed behind one hamburger button in the
-                bottom-left corner so they stay clear of the board. */}
-            <div className="tracker-toolbar">
-              {/* The menu opens upward, since the button sits at the frame edge
-                  and there is no room below it. */}
-              <div className="tracker-menu-wrap">
-                {isMenuOpen ? (
-                  <div
-                    aria-label="Tracker options"
-                    className="tracker-menu"
-                    role="menu"
-                  >
-                    {PRESETS.map((preset) => (
-                      <button
-                        className="tracker-menu-option"
-                        key={preset.id}
-                        onClick={() => applyPreset(preset)}
-                        role="menuitem"
-                        type="button"
-                      >
-                        {preset.name}
-                      </button>
-                  ))}
-                </div>
-                ) : null}
-
-                <button
-                  aria-expanded={isMenuOpen}
-                  aria-haspopup="menu"
-                  aria-label="Tracker options"
-                  className="tracker-menu-toggle"
-                  onClick={() => setIsMenuOpen((current) => !current)}
-                  type="button"
-                >
-                  {/* Three chunky bars, drawn as blocks to match the pixel art
-                      rather than a thin vector icon. */}
-                  <span aria-hidden="true" className="tracker-menu-bar" />
-                  <span aria-hidden="true" className="tracker-menu-bar" />
-                  <span aria-hidden="true" className="tracker-menu-bar" />
-                </button>
-              </div>
-            </div>
-
-            {/* Closes the menu on any outside click. */}
-            {isMenuOpen ? (
-              <button
-                aria-label="Close tracker options"
-                className="tracker-menu-backdrop"
-                onClick={() => setIsMenuOpen(false)}
-                type="button"
-              />
-            ) : null}
 
             {isConfirmingClear ? (
               <div className="tracker-dialog-overlay">
