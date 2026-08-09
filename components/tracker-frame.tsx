@@ -1113,6 +1113,8 @@ export function TrackerFrame() {
               </div>
             </section>
 
+            <div className="section-divider section-divider-collection" />
+
             {/* Run controls, collapsed behind one hamburger button in the
                 bottom-left corner so they stay clear of the board. */}
             <div className="tracker-toolbar">
