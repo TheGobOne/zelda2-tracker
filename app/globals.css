@@ -205,6 +205,28 @@
   gap: 8px;
 }
 
+/* Thin rule splitting the item rows from the spell row. The column's row-gap
+   already leaves 8px between the two grids, so this is drawn inside that gap as
+   a pseudo element: nothing joins the flow and the collection stays 190px tall,
+   which the divider below it is measured against. Keyed off the sibling gap
+   rather than a page coordinate, so it tracks the grids if the block moves or
+   the item count changes the row above. */
+.collection-grid + .collection-grid {
+  position: relative;
+}
+
+/* Kept to 2px against the 14px section rules, since this subdivides the
+   collector rather than closing it off. Centered in the gap, at -5px to -3px. */
+.collection-grid + .collection-grid::before {
+  position: absolute;
+  top: -5px;
+  right: 0;
+  left: 0;
+  height: 2px;
+  background: #233bea;
+  content: '';
+}
+
 /* Same box treatment as an item menu option, plus an anchor for the check. */
 .collection-slot {
   position: relative;
