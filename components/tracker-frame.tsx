@@ -392,21 +392,33 @@ const OVERWORLDS = [
 const OVERWORLD_SIZE = 9
 
 /**
- * Icons that can be dropped onto a grid, laid out as three vertical columns
- * between the two of them. Empty until the art is added: the palette renders
- * straight off this list, so adding an entry with its sprite path is all that is
- * needed to make it placeable.
+ * Icons that can be dropped onto a grid, as the three vertical columns they are
+ * laid out in between the two maps. Columns are written out rather than filled by
+ * splitting one flat list, because which icons group together is a deliberate
+ * choice: the palaces belong in a column of their own, in numbered order, and an
+ * even split would scatter them across all three. Add an entry with its sprite
+ * path to the column it belongs in and it becomes placeable.
  */
-const OVERWORLD_ICONS: { id: string; name: string; src: string }[] = []
+const OVERWORLD_ICON_COLUMNS: { id: string; name: string; src: string }[][] = [
+  [
+    { id: 'palace-1', name: 'Palace 1', src: '/images/overworld/palace1.png' },
+    { id: 'palace-2', name: 'Palace 2', src: '/images/overworld/palace2.png' },
+    { id: 'palace-3', name: 'Palace 3', src: '/images/overworld/palace3.png' },
+    { id: 'palace-4', name: 'Palace 4', src: '/images/overworld/palace4.png' },
+    { id: 'palace-5', name: 'Palace 5', src: '/images/overworld/palace5.png' },
+    { id: 'palace-6', name: 'Palace 6', src: '/images/overworld/palace6.png' },
+    { id: 'palace-7', name: 'Palace 7', src: '/images/overworld/palace7.png' },
+  ],
+  [],
+  [],
+]
 
-/** Splits the palette into its three columns, however many icons it holds. */
+/** Every palette icon, flattened, for resolving whatever id a map cell holds. */
+const OVERWORLD_ICONS = OVERWORLD_ICON_COLUMNS.flat()
+
+/** The palette's columns, as laid out above. */
 function overworldIconColumns() {
-  const columnCount = 3
-  const perColumn = Math.ceil(OVERWORLD_ICONS.length / columnCount)
-
-  return Array.from({ length: columnCount }, (_, index) =>
-    OVERWORLD_ICONS.slice(index * perColumn, (index + 1) * perColumn),
-  )
+  return OVERWORLD_ICON_COLUMNS
 }
 
 function clampScale(value: number) {
@@ -799,8 +811,8 @@ export function TrackerFrame() {
    * The three columns of placeable icons. Rendered between the two maps, so it is
    * defined here and called from inside the map loop rather than being laid out by
    * CSS `order` - it needs to sit at the DOM position it is read at, so keyboard
-   * order matches what is on screen. Empty until sprites are added to
-   * OVERWORLD_ICONS; its width is reserved in CSS so the maps do not shift then.
+   * order matches what is on screen. Its width is reserved in CSS, so the maps
+   * stay put as the remaining two columns fill in.
    */
   function renderOverworldPalette() {
     return (
@@ -830,7 +842,11 @@ export function TrackerFrame() {
                 }
                 type="button"
               >
-                <Image alt="" height={24} src={icon.src} width={24} />
+                {/* Drawn at the sprite's native 16px rather than stretched to
+                    fill the box. These markers carry a palace number, and a
+                    fractional scale smears the digit's strokes to uneven widths,
+                    which is exactly the detail that has to stay readable. */}
+                <Image alt="" height={16} src={icon.src} width={16} />
               </button>
             ))}
           </div>
@@ -1383,9 +1399,9 @@ export function TrackerFrame() {
                                 <Image
                                   alt=""
                                   className="overworld-cell-icon"
-                                  height={20}
+                                  height={16}
                                   src={icon.src}
-                                  width={20}
+                                  width={16}
                                 />
                               ) : null}
                             </button>
