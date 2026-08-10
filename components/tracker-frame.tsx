@@ -443,15 +443,16 @@ const OVERWORLD_ICON_COLUMNS: { id: string; name: string; src: string }[][] = [
   ],
   // Terrain and connectors. Eight entries, so they still stack in one column of
   // nine rows now that the lettered markers have moved out of this group. Mountain
-  // sits next to Boulder, the other impassable rock.
+  // sits next to Boulder, the other impassable rock, and the three ground-surface
+  // fills - Water, Desert, Lava - close the column as a run.
   [
     { id: 'river-devil', name: 'River Devil', src: '/images/overworld/riverdevil.png' },
-    { id: 'desert', name: 'Desert', src: '/images/overworld/desert.png' },
     { id: 'bridge', name: 'Bridge', src: '/images/overworld/bridge.png' },
     { id: 'boulder', name: 'Boulder', src: '/images/overworld/boulder.png' },
     { id: 'mountain', name: 'Mountain', src: '/images/overworld/mountain.png' },
     { id: 'forest', name: 'Forest', src: '/images/overworld/forest.png' },
     { id: 'water', name: 'Water', src: '/images/overworld/water.png' },
+    { id: 'desert', name: 'Desert', src: '/images/overworld/desert.png' },
     { id: 'lava', name: 'Lava', src: '/images/overworld/lava.png' },
   ],
 ]
