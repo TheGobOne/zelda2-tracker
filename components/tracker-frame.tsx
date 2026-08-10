@@ -402,7 +402,12 @@ const OVERWORLD_SIZE = 9
  * Every column must stay within nine icons, the height of a grid beside it.
  */
 const OVERWORLD_ICON_COLUMNS: { id: string; name: string; src: string }[][] = [
+  // Palaces. The unnumbered one leads, above the seven numbered ones: it is the
+  // generic marker for a palace whose number is not known yet, so it belongs before
+  // 1 rather than at any position within the count. Eight entries, one short of the
+  // nine-row cap.
   [
+    { id: 'palace', name: 'Palace', src: '/images/overworld/palace.png' },
     { id: 'palace-1', name: 'Palace 1', src: '/images/overworld/palace1.png' },
     { id: 'palace-2', name: 'Palace 2', src: '/images/overworld/palace2.png' },
     { id: 'palace-3', name: 'Palace 3', src: '/images/overworld/palace3.png' },
