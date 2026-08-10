@@ -392,12 +392,14 @@ const OVERWORLDS = [
 const OVERWORLD_SIZE = 9
 
 /**
- * Icons that can be dropped onto a grid, as the three vertical columns they are
+ * Icons that can be dropped onto a grid, as the four vertical columns they are
  * laid out in between the two maps. Columns are written out rather than filled by
  * splitting one flat list, because which icons group together is a deliberate
  * choice: the palaces belong in a column of their own, in numbered order, and an
- * even split would scatter them across all three. Add an entry with its sprite
+ * even split would scatter them across all four. Add an entry with its sprite
  * path to the column it belongs in and it becomes placeable.
+ *
+ * Every column must stay within nine icons, the height of a grid beside it.
  */
 const OVERWORLD_ICON_COLUMNS: { id: string; name: string; src: string }[][] = [
   [
@@ -419,21 +421,24 @@ const OVERWORLD_ICON_COLUMNS: { id: string; name: string; src: string }[][] = [
     { id: 'town-7', name: 'Town 7', src: '/images/overworld/town7.png' },
     { id: 'town-8', name: 'Town 8', src: '/images/overworld/town8.png' },
   ],
-  // Terrain and connector markers. Eleven entries, more than the nine rows a
-  // single column has room for beside the maps, so this column alone is laid out
-  // two icons wide - see `.overworld-terrain-column`.
+  // The four lettered markers - the ones that stand for something found rather
+  // than for a piece of ground.
+  [
+    { id: 'w-marker', name: 'W', src: '/images/overworld/w.png' },
+    { id: 'e-marker', name: 'E', src: '/images/overworld/e.png' },
+    { id: 'mi-marker', name: 'MI', src: '/images/overworld/mi.png' },
+    { id: 'dm-entrance', name: 'DM Entrance', src: '/images/overworld/dmentrance.png' },
+  ],
+  // Terrain and connectors. Seven entries, so they still stack in one column of
+  // nine rows now that the lettered markers have moved out of this group.
   [
     { id: 'river-devil', name: 'River Devil', src: '/images/overworld/riverdevil.png' },
-    { id: 'mi-marker', name: 'MI', src: '/images/overworld/mi.png' },
     { id: 'desert', name: 'Desert', src: '/images/overworld/desert.png' },
     { id: 'bridge', name: 'Bridge', src: '/images/overworld/bridge.png' },
-    { id: 'w-marker', name: 'W', src: '/images/overworld/w.png' },
-    { id: 'dm-entrance', name: 'DM Entrance', src: '/images/overworld/dmentrance.png' },
     { id: 'boulder', name: 'Boulder', src: '/images/overworld/boulder.png' },
     { id: 'forest', name: 'Forest', src: '/images/overworld/forest.png' },
     { id: 'water', name: 'Water', src: '/images/overworld/water.png' },
     { id: 'lava', name: 'Lava', src: '/images/overworld/lava.png' },
-    { id: 'e-marker', name: 'E', src: '/images/overworld/e.png' },
   ],
 ]
 
@@ -846,16 +851,7 @@ export function TrackerFrame() {
         role="toolbar"
       >
         {overworldIconColumns().map((column, columnIndex) => (
-          <div
-            className={
-              // The terrain column carries eleven icons, which is more than fits
-              // in one stack beside the maps, so it wraps into two.
-              columnIndex === 2
-                ? 'overworld-palette-column overworld-terrain-column'
-                : 'overworld-palette-column'
-            }
-            key={columnIndex}
-          >
+          <div className="overworld-palette-column" key={columnIndex}>
             {column.map((icon) => (
               <button
                 aria-label={`${icon.name}${armedIcon === icon.id ? ', selected' : ''}. Click, then click a map square to place it.`}

@@ -655,15 +655,15 @@
   image-rendering: pixelated;
 }
 
-/* Three columns of placeable icons, sitting between the two maps in the DOM so
-   keyboard order matches the screen. 101px: two 22px columns that hug their icons,
-   the 45px double-wide terrain column, and two 6px gaps. It used to reserve 32px per
-   single column, which was 20px the maps could have been using - with 21px squares
-   the row needs that back, and the columns are permanently full now, so there is no
-   shifting to guard against. */
+/* Four columns of placeable icons, sitting between the two maps in the DOM so
+   keyboard order matches the screen. 100px: four 22px columns that hug their icons,
+   plus the 4px `space-between` leaves between each pair. That is 1px narrower than
+   the three-column version it replaced, because splitting the terrain group let the
+   45px double-wide column become two single ones - so the fourth column costs the
+   maps nothing. */
 .overworld-palette {
   display: flex;
-  width: 101px;
+  width: 100px;
   flex: none;
   /* Stretched children, so the columns run the full height of the grids beside them
      rather than bunching at the top. */
@@ -682,21 +682,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-}
-
-/* The terrain column, laid out two icons wide. Eleven slots stacked singly would
-   run 252px and hang well below the 203px grids, so they wrap instead: six rows of
-   two 22px slots plus their 1px gaps come to 137px, which clears the maps easily.
-   Wrapping is preferred over shrinking the slot, because that would break the
-   deliberate match between a palette icon and a map square. */
-.overworld-terrain-column {
-  display: grid;
-  width: 45px;
-  grid-template-columns: repeat(2, 22px);
-  /* Its six rows are spread down the column's full height like the single-file
-     columns beside it; only the 1px column gap is fixed. */
-  align-content: space-between;
-  column-gap: 1px;
 }
 
 /* Unframed: the sprites are the palette, and 22 little white boxes beside two
