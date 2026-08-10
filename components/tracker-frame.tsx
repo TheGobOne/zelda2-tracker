@@ -419,7 +419,22 @@ const OVERWORLD_ICON_COLUMNS: { id: string; name: string; src: string }[][] = [
     { id: 'town-7', name: 'Town 7', src: '/images/overworld/town7.png' },
     { id: 'town-8', name: 'Town 8', src: '/images/overworld/town8.png' },
   ],
-  [],
+  // Terrain and connector markers. Eleven entries, more than the nine rows a
+  // single column has room for beside the maps, so this column alone is laid out
+  // two icons wide - see `.overworld-terrain-column`.
+  [
+    { id: 'river-devil', name: 'River Devil', src: '/images/overworld/riverdevil.png' },
+    { id: 'mi-marker', name: 'MI', src: '/images/overworld/mi.png' },
+    { id: 'desert', name: 'Desert', src: '/images/overworld/desert.png' },
+    { id: 'bridge', name: 'Bridge', src: '/images/overworld/bridge.png' },
+    { id: 'w-marker', name: 'W', src: '/images/overworld/w.png' },
+    { id: 'dm-entrance', name: 'DM Entrance', src: '/images/overworld/dmentrance.png' },
+    { id: 'boulder', name: 'Boulder', src: '/images/overworld/boulder.png' },
+    { id: 'forest', name: 'Forest', src: '/images/overworld/forest.png' },
+    { id: 'water', name: 'Water', src: '/images/overworld/water.png' },
+    { id: 'lava', name: 'Lava', src: '/images/overworld/lava.png' },
+    { id: 'e-marker', name: 'E', src: '/images/overworld/e.png' },
+  ],
 ]
 
 /** Every palette icon, flattened, for resolving whatever id a map cell holds. */
@@ -831,7 +846,16 @@ export function TrackerFrame() {
         role="toolbar"
       >
         {overworldIconColumns().map((column, columnIndex) => (
-          <div className="overworld-palette-column" key={columnIndex}>
+          <div
+            className={
+              // The terrain column carries eleven icons, which is more than fits
+              // in one stack beside the maps, so it wraps into two.
+              columnIndex === 2
+                ? 'overworld-palette-column overworld-terrain-column'
+                : 'overworld-palette-column'
+            }
+            key={columnIndex}
+          >
             {column.map((icon) => (
               <button
                 aria-label={`${icon.name}${armedIcon === icon.id ? ', selected' : ''}. Click, then click a map square to place it.`}

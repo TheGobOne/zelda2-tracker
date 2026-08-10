@@ -659,10 +659,12 @@
 /* Three columns of placeable icons, sitting between the two maps in the DOM so
    keyboard order matches the screen. Width is reserved rather than left to the
    icons, so the maps sit where they will stay once the sprites are added instead
-   of shifting when the palette fills: three 32px columns plus two 6px gaps. */
+   of shifting when the palette fills: two 32px columns, the 45px double-wide
+   terrain column, and two 6px gaps. Both maps are 194px, so the row still comes to
+   509px inside the 520px board column. */
 .overworld-palette {
   display: flex;
-  width: 108px;
+  width: 121px;
   flex: none;
   align-items: flex-start;
   justify-content: space-between;
@@ -685,7 +687,17 @@
   row-gap: 1px;
 }
 
-
+/* The terrain column, laid out two icons wide. Eleven slots stacked singly would
+   run 252px and hang well below the 193px grids, so they wrap instead: six rows of
+   two 22px slots plus their 1px gaps come to 137px, which clears the maps easily.
+   Wrapping is preferred over shrinking the slot, because that would break the
+   deliberate match between a palette icon and a map square. */
+.overworld-terrain-column {
+  display: grid;
+  width: 45px;
+  grid-template-columns: repeat(2, 22px);
+  gap: 1px;
+}
 
 /* Framed like the item slots, so an icon reads the same in the palette as it does
    once it is sitting on the map - literally: the border leaves a 20px interior,
