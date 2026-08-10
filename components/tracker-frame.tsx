@@ -3,6 +3,7 @@
 import { Check } from 'lucide-react'
 import Image from 'next/image'
 import {
+  Fragment,
   type PointerEvent as ReactPointerEvent,
   useEffect,
   useMemo,
@@ -381,6 +382,33 @@ const handles: Handle[] = [
   { id: 'bottom-left', label: 'bottom left corner', x: -1, y: 1 },
 ]
 
+/** The two overworlds, each tracked on its own 9x9 grid. */
+const OVERWORLDS = [
+  { id: 'west', name: 'West' },
+  { id: 'east', name: 'East' },
+] as const
+
+/** Both grids are square, so one number drives rows and columns alike. */
+const OVERWORLD_SIZE = 9
+
+/**
+ * Icons that can be dropped onto a grid, laid out as three vertical columns
+ * between the two of them. Empty until the art is added: the palette renders
+ * straight off this list, so adding an entry with its sprite path is all that is
+ * needed to make it placeable.
+ */
+const OVERWORLD_ICONS: { id: string; name: string; src: string }[] = []
+
+/** Splits the palette into its three columns, however many icons it holds. */
+function overworldIconColumns() {
+  const columnCount = 3
+  const perColumn = Math.ceil(OVERWORLD_ICONS.length / columnCount)
+
+  return Array.from({ length: columnCount }, (_, index) =>
+    OVERWORLD_ICONS.slice(index * perColumn, (index + 1) * perColumn),
+  )
+}
+
 function clampScale(value: number) {
   return Math.min(MAX_SCALE, Math.max(MIN_SCALE, value))
 }
@@ -417,6 +445,13 @@ export function TrackerFrame() {
   // Clear and the flagsets share one hamburger button, so a single flag covers
   // the whole menu rather than just the flagset list.
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  // Which icon sits on each overworld cell, keyed by grid id and coordinates.
+  // Only filled cells are stored, so an absent key is an empty square.
+  const [overworldCells, setOverworldCells] = useState<Record<string, string>>({})
+  // The palette icon held ready to place. It stays armed after each drop, so a
+  // repeated icon can be placed across the map without reselecting it, and
+  // clicking it again puts it down.
+  const [armedIcon, setArmedIcon] = useState<string | null>(null)
 
   /** Steps a counter slot to the next value, wrapping back around to empty. */
   function cycleCount(slotKey: string, step: 1 | -1) {
@@ -742,7 +777,85 @@ export function TrackerFrame() {
    * Returns the tracker to a fresh run. Zoom is deliberately left alone, since
    * it is a display preference rather than run progress.
    */
+  /**
+   * Drops the armed icon on a cell, or clears the cell when nothing is armed so
+   * a stray placement can be undone without first disarming.
+   */
+  function placeOverworldIcon(cellKey: string) {
+    setOverworldCells((current) => {
+      const next = { ...current }
+
+      if (armedIcon) {
+        next[cellKey] = armedIcon
+      } else {
+        delete next[cellKey]
+      }
+
+      return next
+    })
+  }
+
+  /**
+   * The three columns of placeable icons. Rendered between the two maps, so it is
+   * defined here and called from inside the map loop rather than being laid out by
+   * CSS `order` - it needs to sit at the DOM position it is read at, so keyboard
+   * order matches what is on screen. Empty until sprites are added to
+   * OVERWORLD_ICONS; its width is reserved in CSS so the maps do not shift then.
+   */
+  function renderOverworldPalette() {
+    return (
+      <div
+        aria-label="Overworld icons"
+        className="overworld-palette"
+        role="toolbar"
+      >
+        {overworldIconColumns().map((column, columnIndex) => (
+          <div className="overworld-palette-column" key={columnIndex}>
+            {column.map((icon) => (
+              <button
+                aria-label={`${icon.name}${armedIcon === icon.id ? ', selected' : ''}. Click, then click a map square to place it.`}
+                aria-pressed={armedIcon === icon.id}
+                className={
+                  armedIcon === icon.id
+                    ? 'overworld-palette-icon overworld-palette-icon-armed'
+                    : 'overworld-palette-icon'
+                }
+                key={icon.id}
+                // Clicking the armed icon disarms it, so a left click on a cell
+                // goes back to clearing it.
+                onClick={() =>
+                  setArmedIcon((current) =>
+                    current === icon.id ? null : icon.id,
+                  )
+                }
+                type="button"
+              >
+                <Image alt="" height={24} src={icon.src} width={24} />
+              </button>
+            ))}
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  /** Empties a single cell, on right click, whatever is armed. */
+  function clearOverworldCell(cellKey: string) {
+    setOverworldCells((current) => {
+      if (!(cellKey in current)) {
+        return current
+      }
+
+      const next = { ...current }
+      delete next[cellKey]
+
+      return next
+    })
+  }
+
   function clearTracker() {
+    setOverworldCells({})
+    setArmedIcon(null)
     setSlotItems({})
     setCollected({})
     setSlotCounts({})
@@ -759,6 +872,10 @@ export function TrackerFrame() {
    * whatever was on screen before.
    */
   function applyPreset(preset: (typeof PRESETS)[number]) {
+    // The maps describe the seed being played, so a new ruleset empties them
+    // along with everything else.
+    setOverworldCells({})
+    setArmedIcon(null)
     setSlotItems({ ...preset.placements })
     setCollected(collectedFromPreset(preset))
     setSlotCounts({})
@@ -1217,9 +1334,70 @@ export function TrackerFrame() {
               </div>
             </section>
 
-            {/* Closes the collection off, bracketing the open space below it that
-                the next section will fill. */}
+            {/* Closes the collection off, bracketing the overworld maps below. */}
             <div className="section-divider section-divider-collection" />
+
+            {/* The two overworlds, with the icon palette between them so either
+                map is an equally short trip from the icon being placed. */}
+            <section aria-label="Overworld maps" className="overworld">
+              {OVERWORLDS.map((world, worldIndex) => (
+                <Fragment key={world.id}>
+                {worldIndex === 1 ? renderOverworldPalette() : null}
+                <div className="overworld-map">
+                  <h2 className="overworld-title">{world.name}</h2>
+
+                  <div
+                    aria-label={`${world.name} overworld grid`}
+                    className="overworld-grid"
+                    role="grid"
+                  >
+                    {Array.from({ length: OVERWORLD_SIZE }, (_, row) => (
+                      <div className="overworld-row" key={row} role="row">
+                        {Array.from({ length: OVERWORLD_SIZE }, (_, column) => {
+                          const cellKey = `${world.id}-${row}-${column}`
+                          const icon = OVERWORLD_ICONS.find(
+                            (entry) => entry.id === overworldCells[cellKey],
+                          )
+                          // Grids are read out in the 1-based coordinates a
+                          // player would say out loud, not the 0-based indexes.
+                          const position = `row ${row + 1}, column ${column + 1}`
+
+                          return (
+                            <button
+                              aria-label={
+                                icon
+                                  ? `${world.name} ${position}: ${icon.name}. Right click to clear.`
+                                  : `${world.name} ${position}: empty.`
+                              }
+                              className="overworld-cell"
+                              key={column}
+                              onClick={() => placeOverworldIcon(cellKey)}
+                              onContextMenu={(event) => {
+                                event.preventDefault()
+                                clearOverworldCell(cellKey)
+                              }}
+                              role="gridcell"
+                              type="button"
+                            >
+                              {icon ? (
+                                <Image
+                                  alt=""
+                                  className="overworld-cell-icon"
+                                  height={20}
+                                  src={icon.src}
+                                  width={20}
+                                />
+                              ) : null}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                </Fragment>
+              ))}
+            </section>
 
             {/* Closes the menu on any outside click, since the board takes no
                 keystrokes and so has no Escape to fall back on. */}

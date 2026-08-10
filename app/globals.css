@@ -579,6 +579,140 @@
   row-gap: 6px;
 }
 
+/* The overworld maps, filling the space the collection's closing rule opens up.
+   That rule sits at `804px + var(--sep) * 4` and is 14px tall, so 818px carries
+   the fixed parts and the fifth `--sep` is this section's own gap. Same 520px
+   column as the collection and icon grids, so it lines up with the board above. */
+.overworld {
+  position: absolute;
+  top: calc(818px + var(--sep) * 5);
+  left: 40px;
+  z-index: 3;
+  display: flex;
+  width: 520px;
+  align-items: flex-start;
+  /* Two 193px maps and the 108px palette come to 494px, so 26px is left over.
+     `space-between` would pile all of it into one gap because the palette is
+     fixed-width and absorbs none of it; distributing it around the three children
+     instead centers the row and evens both gaps to 13px. */
+  justify-content: space-around;
+}
+
+.overworld-map {
+  display: flex;
+  flex-direction: column;
+  row-gap: 6px;
+}
+
+.overworld-title {
+  margin: 0;
+  color: #f2b21c;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* Framed like the board's other panels. The 1px gaps let the dark background show
+   through as grid lines, so the squares read as a map rather than loose buttons. */
+.overworld-grid {
+  display: flex;
+  flex-direction: column;
+  background: #101010;
+  border: 3px solid #f5f5f5;
+  row-gap: 1px;
+}
+
+.overworld-row {
+  display: flex;
+  column-gap: 1px;
+}
+
+/* 20px squares: nine of them plus eight gaps and the frame come to 194px, so both
+   maps and the palette between them fit the 520px column. */
+.overworld-cell {
+  display: flex;
+  width: 20px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: #233bea;
+  border: 0;
+  cursor: pointer;
+}
+
+.overworld-cell:hover {
+  background: #f2b21c;
+}
+
+.overworld-cell:focus-visible {
+  outline: 2px solid #e52a08;
+  outline-offset: -2px;
+}
+
+.overworld-cell-icon {
+  display: block;
+  image-rendering: pixelated;
+}
+
+/* Three columns of placeable icons, sitting between the two maps in the DOM so
+   keyboard order matches the screen. Width is reserved rather than left to the
+   icons, so the maps sit where they will stay once the sprites are added instead
+   of shifting when the palette fills: three 32px columns plus two 6px gaps. */
+.overworld-palette {
+  display: flex;
+  width: 108px;
+  flex: none;
+  align-items: flex-start;
+  justify-content: space-between;
+  /* Clears the map titles, so the columns start level with the grids themselves
+     rather than riding up beside the headings. */
+  padding-top: 23px;
+}
+
+/* Each column holds the icon width, so the three stay evenly spread while the
+   palette is still empty. */
+.overworld-palette-column {
+  display: flex;
+  width: 32px;
+  flex: none;
+  flex-direction: column;
+  row-gap: 6px;
+}
+
+
+
+/* Framed like the item slots, so an icon reads the same in the palette as it does
+   once it is sitting on the map. */
+.overworld-palette-icon {
+  display: flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: #101010;
+  border: 3px solid #f5f5f5;
+  cursor: pointer;
+}
+
+.overworld-palette-icon:hover {
+  background: #233bea;
+}
+
+/* The armed icon, flagged in gold so it is clear which one the next map click will
+   drop - the palette stays armed between placements, so this is the only cue. */
+.overworld-palette-icon-armed {
+  background: #233bea;
+  border-color: #f2b21c;
+}
+
+.overworld-palette-icon:focus-visible {
+  outline: 3px solid #e52a08;
+  outline-offset: 2px;
+}
+
 /* Anchor for the item picker so it can float over the canvas. */
 .item-slot-wrap {
   position: relative;
