@@ -624,12 +624,14 @@
   text-transform: uppercase;
 }
 
-/* Framed like the board's other panels. The 1px gaps let the dark background show
-   through as grid lines, so the squares read as a map rather than loose buttons. */
+/* Framed like the board's other panels. The 1px gaps between cells show this
+   background, so it is what the grid lines are drawn in - blue, so the lines carry
+   the map's colour and the cells themselves can stay dark. Two 194px maps of solid
+   blue dominated the board; as lines the same colour reads as a map instead. */
 .overworld-grid {
   display: flex;
   flex-direction: column;
-  background: #101010;
+  background: #233bea;
   border: 3px solid #f5f5f5;
   row-gap: 1px;
 }
@@ -640,7 +642,9 @@
 }
 
 /* 20px squares: nine of them plus eight gaps and the frame come to 194px, so both
-   maps and the palette between them fit the 520px column. */
+   maps and the palette between them fit the 520px column. Filled with the board's
+   own dark so each cell is a hole in the grid's blue rather than a tile of it - and
+   filled opaquely, not left transparent, so the blue shows only in the 1px gaps. */
 .overworld-cell {
   display: flex;
   width: 20px;
@@ -648,7 +652,7 @@
   align-items: center;
   justify-content: center;
   padding: 0;
-  background: #233bea;
+  background: #101010;
   border: 0;
   cursor: pointer;
 }
