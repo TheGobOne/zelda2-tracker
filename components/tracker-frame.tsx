@@ -409,7 +409,16 @@ const OVERWORLD_ICON_COLUMNS: { id: string; name: string; src: string }[][] = [
     { id: 'palace-6', name: 'Palace 6', src: '/images/overworld/palace6.png' },
     { id: 'palace-7', name: 'Palace 7', src: '/images/overworld/palace7.png' },
   ],
-  [],
+  [
+    { id: 'town-1', name: 'Town 1', src: '/images/overworld/town1.png' },
+    { id: 'town-2', name: 'Town 2', src: '/images/overworld/town2.png' },
+    { id: 'town-3', name: 'Town 3', src: '/images/overworld/town3.png' },
+    { id: 'town-4', name: 'Town 4', src: '/images/overworld/town4.png' },
+    { id: 'town-5', name: 'Town 5', src: '/images/overworld/town5.png' },
+    { id: 'town-6', name: 'Town 6', src: '/images/overworld/town6.png' },
+    { id: 'town-7', name: 'Town 7', src: '/images/overworld/town7.png' },
+    { id: 'town-8', name: 'Town 8', src: '/images/overworld/town8.png' },
+  ],
   [],
 ]
 

@@ -672,10 +672,10 @@
 }
 
 /* Each column holds the reserved 32px width, so the three stay evenly spread while
-   two of them are still empty, and centers its icons in that width now that they
-   are narrower than the slot. The 1px gap is the grid's own gridline gap, and it is
-   what lets a full column of seven palaces clear the canvas bottom: at the 6px this
-   used to be, the seventh icon ran off the board. */
+   the third is still empty, and centers its icons in that width since they are
+   narrower than the slot. The row gap matches the grid's own 1px gridline gap, and
+   is deliberately that tight rather than the 6px it started as: the gaps are what
+   pushed a full column off the bottom of the board. */
 .overworld-palette-column {
   display: flex;
   width: 32px;
@@ -688,18 +688,25 @@
 
 
 /* Framed like the item slots, so an icon reads the same in the palette as it does
-   once it is sitting on the map - literally, at 26px: the 3px border leaves a 20px
-   interior, matching an overworld cell exactly, so a sprite is drawn at the same
-   size in both places and picking one up does not change how it looks. */
+   once it is sitting on the map - literally: the border leaves a 20px interior,
+   matching an overworld cell exactly, so a sprite is drawn at the same size in both
+   places and picking one up does not change how it looks.
+
+   The overall 22px comes from the tallest column having to fit beside the maps. The
+   longest column is the eight towns, and 8 slots plus their 1px gaps must stay
+   inside the 193px grid height, which caps a slot at 23px. Holding the 20px interior
+   fixed then forces the border to 1px, since the 3px this started as would need a
+   26px slot and overflow the board by 22px. Adding a column longer than eight means
+   revisiting this number again. */
 .overworld-palette-icon {
   display: flex;
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   align-items: center;
   justify-content: center;
   padding: 0;
   background: #101010;
-  border: 3px solid #f5f5f5;
+  border: 1px solid #f5f5f5;
   cursor: pointer;
 }
 
@@ -714,9 +721,12 @@
   border-color: #f2b21c;
 }
 
+/* Kept to 2px and drawn tight against the frame, because at the 1px row gap between
+   slots a wider offset ring covered the neighbouring icons instead of marking this
+   one. */
 .overworld-palette-icon:focus-visible {
-  outline: 3px solid #e52a08;
-  outline-offset: 2px;
+  outline: 2px solid #e52a08;
+  outline-offset: 0;
 }
 
 /* Anchor for the item picker so it can float over the canvas. */
