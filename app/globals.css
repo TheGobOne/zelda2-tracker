@@ -601,14 +601,17 @@
 .overworld-map {
   display: flex;
   flex-direction: column;
-  row-gap: 6px;
+  /* 5px rather than 8px: the taller title below pushed the grid down, leaving only
+     13px under the maps against 16.5px over the title. Pulling the grid back up by
+     that 3px difference evens the section's two outer gaps. */
+  row-gap: 5px;
 }
 
 /* 14px on a line box the height of the text itself. At 11px the caps sat inside
-   half-leading, so the ink began 4.7px into the box and left 18.7px of air over the
-   title against only 13.4px under the maps. At 14px with `line-height: 1` the caps
-   start 2.5px in and the taller title pushes the grid down a little, which brings
-   both to ~16px - the same distance from the divider above and the frame below. */
+   half-leading, so the ink started 4.7px down the box and the title read as small
+   and low against the section's borders. `line-height: 1` drops the half-leading so
+   the caps sit 2.5px in, and the room the larger type needs is paid for out of the
+   row-gap above. */
 .overworld-title {
   margin: 0;
   color: #f2b21c;
