@@ -278,7 +278,9 @@ const PRESETS: {
   {
     id: 'sgl',
     name: 'SGL',
-    collectedIds: ['candle', 'cross', 'fire-spell'],
+    // Candle and cross only: the fire spell is not a starting item under this
+    // ruleset, so it stays unmarked until it is actually found.
+    collectedIds: ['candle', 'cross'],
     placements: {
       // All three P-Bag caves keep their vanilla point bags.
       'location-West P-Bag Cave': 'pbag',
