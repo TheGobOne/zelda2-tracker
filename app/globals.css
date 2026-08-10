@@ -590,7 +590,9 @@
   z-index: 3;
   display: flex;
   width: 520px;
-  align-items: flex-start;
+  /* Stretch, so the palette between the maps is handed the maps' full height -
+     title included - and can spread its icons over all of it. */
+  align-items: stretch;
   /* Two 193px maps and the 108px palette come to 494px, so 26px is left over.
      `space-between` would pile all of it into one gap because the palette is
      fixed-width and absorbs none of it; distributing it around the three children
@@ -675,25 +677,25 @@
   display: flex;
   width: 121px;
   flex: none;
-  align-items: flex-start;
+  /* No top padding and stretched children: the columns run the full height of the
+     section, from the map titles down to the foot of the grids, instead of starting
+     level with the grids and leaving the band beside the titles empty. */
+  align-items: stretch;
   justify-content: space-between;
-  /* Clears the map titles, so the columns start level with the grids themselves
-     rather than riding up beside the headings. */
-  padding-top: 23px;
 }
 
 /* Each column holds the reserved 32px width, so the three stay evenly spread while
    the third is still empty, and centers its icons in that width since they are
-   narrower than the slot. The row gap matches the grid's own 1px gridline gap, and
-   is deliberately that tight rather than the 6px it started as: the gaps are what
-   pushed a full column off the bottom of the board. */
+   narrower than the slot. Vertically the icons are spaced out over whatever height
+   the column is given rather than stacked at a fixed gap, so a short column and a
+   long one both start at the top of the section and end at its foot. */
 .overworld-palette-column {
   display: flex;
   width: 32px;
   flex: none;
   flex-direction: column;
   align-items: center;
-  row-gap: 1px;
+  justify-content: space-between;
 }
 
 /* The terrain column, laid out two icons wide. Eleven slots stacked singly would
@@ -705,20 +707,18 @@
   display: grid;
   width: 45px;
   grid-template-columns: repeat(2, 22px);
-  gap: 1px;
+  /* Its six rows are spread down the column's full height like the single-file
+     columns beside it; only the 1px column gap is fixed. */
+  align-content: space-between;
+  column-gap: 1px;
 }
 
-/* Framed like the item slots, so an icon reads the same in the palette as it does
-   once it is sitting on the map - literally: the border leaves a 20px interior,
-   matching an overworld cell exactly, so a sprite is drawn at the same size in both
-   places and picking one up does not change how it looks.
-
-   The overall 22px comes from the tallest column having to fit beside the maps. The
-   longest column is the eight towns, and 8 slots plus their 1px gaps must stay
-   inside the 193px grid height, which caps a slot at 23px. Holding the 20px interior
-   fixed then forces the border to 1px, since the 3px this started as would need a
-   26px slot and overflow the board by 22px. Adding a column longer than eight means
-   revisiting this number again. */
+/* Unframed: the sprites are the palette, and 22 little white boxes beside two
+   bordered maps read as a third grid competing with them. Dropping the border also
+   drops the fill, since an unbordered #101010 square on the dark board is invisible
+   anyway - what is left is the sprite, sized 20px like an overworld cell's interior
+   so picking one up does not change how it looks. The 22px box is kept as the click
+   target and as the unit the column spacing is measured in. */
 .overworld-palette-icon {
   display: flex;
   width: 22px;
@@ -726,8 +726,8 @@
   align-items: center;
   justify-content: center;
   padding: 0;
-  background: #101010;
-  border: 1px solid #f5f5f5;
+  background: transparent;
+  border: 0;
   cursor: pointer;
 }
 
@@ -736,10 +736,10 @@
 }
 
 /* The armed icon, flagged in gold so it is clear which one the next map click will
-   drop - the palette stays armed between placements, so this is the only cue. */
+   drop - the palette stays armed between placements, so this is the only cue. With
+   the border gone the gold has to come from the fill to stay visible. */
 .overworld-palette-icon-armed {
-  background: #233bea;
-  border-color: #f2b21c;
+  background: #f2b21c;
 }
 
 /* Kept to 2px and drawn tight against the frame, because at the 1px row gap between
