@@ -446,8 +446,8 @@ const OVERWORLD_ICON_COLUMNS: { id: string; name: string; src: string }[][] = [
   // sits next to Boulder, the other impassable rock, and the three ground-surface
   // fills - Water, Desert, Lava - close the column as a run.
   [
-    { id: 'river-devil', name: 'River Devil', src: '/images/overworld/riverdevil.png' },
     { id: 'bridge', name: 'Bridge', src: '/images/overworld/bridge.png' },
+    { id: 'river-devil', name: 'River Devil', src: '/images/overworld/riverdevil.png' },
     { id: 'boulder', name: 'Boulder', src: '/images/overworld/boulder.png' },
     { id: 'mountain', name: 'Mountain', src: '/images/overworld/mountain.png' },
     { id: 'forest', name: 'Forest', src: '/images/overworld/forest.png' },
