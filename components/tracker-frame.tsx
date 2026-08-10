@@ -1392,9 +1392,10 @@ export function TrackerFrame() {
               {OVERWORLDS.map((world, worldIndex) => (
                 <Fragment key={world.id}>
                 {worldIndex === 1 ? renderOverworldPalette() : null}
-                <div className="overworld-map">
-                  <h2 className="overworld-title">{world.name}</h2>
-
+                  {/* Unlabelled on screen - the two grids are self-evidently the
+                      west and east maps, and dropping the headings buys the height
+                      the larger squares need. The name still reaches screen readers
+                      through the grid's own label and every cell's. */}
                   <div
                     aria-label={`${world.name} overworld grid`}
                     className="overworld-grid"
@@ -1443,7 +1444,6 @@ export function TrackerFrame() {
                       </div>
                     ))}
                   </div>
-                </div>
                 </Fragment>
               ))}
             </section>

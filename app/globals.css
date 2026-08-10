@@ -582,46 +582,27 @@
 /* The overworld maps, filling the space the collection's closing rule opens up.
    That rule sits at `804px + var(--sep) * 4` and is 14px tall, so 818px carries
    the fixed parts and the fifth `--sep` is this section's own gap. Same 520px
-   column as the collection and icon grids, so it lines up with the board above. */
+   column as the collection and icon grids, so it lines up with the board above.
+
+   The extra 6px is half the height this section lost when the map headings came off:
+   19px of heading and gap went away and the bigger squares took 9px of it back, so
+   the block is 11px shorter than the band between the divider and the bottom rail.
+   Pushing it down by half of that keeps it centred in the band, which is why the
+   gaps above and below both read 20px rather than 14px and 26px. */
 .overworld {
   position: absolute;
-  top: calc(818px + var(--sep) * 5);
+  top: calc(818px + var(--sep) * 5 + 6px);
   left: 40px;
   z-index: 3;
   display: flex;
   width: 520px;
-  /* Stretch, so the palette between the maps is handed the maps' full height -
-     title included - and can spread its icons over all of it. */
+  /* Stretch, so the palette between the maps is handed the maps' full height and
+     can spread its icons over all of it. */
   align-items: stretch;
-  /* Two 193px maps and the 108px palette come to 494px, so 26px is left over.
-     `space-between` would pile all of it into one gap because the palette is
-     fixed-width and absorbs none of it; distributing it around the three children
-     instead centers the row and evens both gaps to 13px. */
-  justify-content: space-around;
-}
-
-.overworld-map {
-  display: flex;
-  flex-direction: column;
-  /* 5px rather than 8px: the taller title below pushed the grid down, leaving only
-     13px under the maps against 16.5px over the title. Pulling the grid back up by
-     that 3px difference evens the section's two outer gaps. */
-  row-gap: 5px;
-}
-
-/* 14px on a line box the height of the text itself. At 11px the caps sat inside
-   half-leading, so the ink started 4.7px down the box and the title read as small
-   and low against the section's borders. `line-height: 1` drops the half-leading so
-   the caps sit 2.5px in, and the room the larger type needs is paid for out of the
-   row-gap above. */
-.overworld-title {
-  margin: 0;
-  color: #f2b21c;
-  font-size: 14px;
-  letter-spacing: 1px;
-  line-height: 1;
-  text-align: center;
-  text-transform: uppercase;
+  /* Two 203px maps and the 101px palette come to 507px, and `space-between` splits
+     the remaining 13px into the two gaps that need it, leaving the maps flush with
+     the 520px column so they line up with the collection above. */
+  justify-content: space-between;
 }
 
 /* Framed like the board's other panels. The 1px gaps between cells show this
@@ -641,14 +622,17 @@
   column-gap: 1px;
 }
 
-/* 20px squares: nine of them plus eight gaps and the frame come to 194px, so both
-   maps and the palette between them fit the 520px column. Filled with the board's
-   own dark so each cell is a hole in the grid's blue rather than a tile of it - and
-   filled opaquely, not left transparent, so the blue shows only in the 1px gaps. */
+/* 21px squares: nine of them plus eight gaps and the frame come to 203px, so both
+   maps and the palette between them still fit the 520px column - 21 is the largest
+   square that does, since 22 would need 424px for the maps alone and squeeze the
+   palette to nothing. Removing the map headings freed the matching height. Filled
+   with the board's own dark so each cell is a hole in the grid's blue rather than a
+   tile of it - and filled opaquely, not left transparent, so the blue shows only in
+   the 1px gaps. */
 .overworld-cell {
   display: flex;
-  width: 20px;
-  height: 20px;
+  width: 21px;
+  height: 21px;
   align-items: center;
   justify-content: center;
   padding: 0;
@@ -672,30 +656,28 @@
 }
 
 /* Three columns of placeable icons, sitting between the two maps in the DOM so
-   keyboard order matches the screen. Width is reserved rather than left to the
-   icons, so the maps sit where they will stay once the sprites are added instead
-   of shifting when the palette fills: two 32px columns, the 45px double-wide
-   terrain column, and two 6px gaps. Both maps are 194px, so the row still comes to
-   509px inside the 520px board column. */
+   keyboard order matches the screen. 101px: two 22px columns that hug their icons,
+   the 45px double-wide terrain column, and two 6px gaps. It used to reserve 32px per
+   single column, which was 20px the maps could have been using - with 21px squares
+   the row needs that back, and the columns are permanently full now, so there is no
+   shifting to guard against. */
 .overworld-palette {
   display: flex;
-  width: 121px;
+  width: 101px;
   flex: none;
-  /* No top padding and stretched children: the columns run the full height of the
-     section, from the map titles down to the foot of the grids, instead of starting
-     level with the grids and leaving the band beside the titles empty. */
+  /* Stretched children, so the columns run the full height of the grids beside them
+     rather than bunching at the top. */
   align-items: stretch;
   justify-content: space-between;
 }
 
-/* Each column holds the reserved 32px width, so the three stay evenly spread while
-   the third is still empty, and centers its icons in that width since they are
-   narrower than the slot. Vertically the icons are spaced out over whatever height
-   the column is given rather than stacked at a fixed gap, so a short column and a
-   long one both start at the top of the section and end at its foot. */
+/* 22px wide, the width of the icons themselves. Vertically the icons are spaced out
+   over whatever height the column is given rather than stacked at a fixed gap, so a
+   short column and a long one both start at the top of the grids and end at their
+   foot. */
 .overworld-palette-column {
   display: flex;
-  width: 32px;
+  width: 22px;
   flex: none;
   flex-direction: column;
   align-items: center;
@@ -703,7 +685,7 @@
 }
 
 /* The terrain column, laid out two icons wide. Eleven slots stacked singly would
-   run 252px and hang well below the 193px grids, so they wrap instead: six rows of
+   run 252px and hang well below the 203px grids, so they wrap instead: six rows of
    two 22px slots plus their 1px gaps come to 137px, which clears the maps easily.
    Wrapping is preferred over shrinking the slot, because that would break the
    deliberate match between a palette icon and a map square. */
