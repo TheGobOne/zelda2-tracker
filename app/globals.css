@@ -328,75 +328,15 @@
   justify-content: flex-start;
 }
 
-/* Flag picker, filling the width the third row's four tiles leave over. `flex: 1`
+/* Run controls, filling the width the third row's four tiles leave over. `flex: 1`
    claims that remainder rather than a fixed width, so it cannot collide with the
-   tiles if the row ever gains one. The select is pinned right so its edge lines up
-   with the rows above, and the label takes the leftover space to its left.
-   Centred vertically against the 56px tiles. */
-.location-flags {
+   tiles if the row ever gains one. The hamburger is pinned right, so it lines up
+   with the right edge of the rows above, and centred against the 56px tiles. */
+.location-menu {
   display: flex;
   flex: 1;
   align-items: center;
-}
-
-/* Given the whole gap between the last tile and the select, then centred inside
-   it, rather than sitting tight against the select. `flex: 1` is what measures
-   that gap, so the label re-centres on its own if the select's width changes. */
-.location-flags-label {
-  flex: 1;
-  color: #f5f5f5;
-  /* 33% up from the 11px the frame's other labels use, rounded to a whole pixel
-     so this bitmap-style face keeps its stems on the pixel grid. Centring is
-     `flex: 1` plus `text-align`, so the wider glyphs re-centre on their own. */
-  font-size: 15px;
-  letter-spacing: 1px;
-  text-align: center;
-  text-transform: uppercase;
-  /* `align-items: center` centres the line box, but this face carries a 21px
-     ascent against a 2px descent, and an all-caps word has no descenders to fill
-     that space, so the ink lands ~2.5px below the row's midline. Nudged back up
-     so the letters read centred rather than the invisible box around them. This
-     offset comes from the font metrics, not the line height, so it cannot be
-     fixed with `line-height`. A transform, so it shifts nothing else in the row */
-  transform: translateY(-2px);
-}
-
-/* Framed like the tracker's other controls. `appearance: none` drops the OS
-   chrome, which would otherwise read as a rounded native widget against the
-   pixel art, and the arrow is redrawn as two flat wedges. */
-.location-flags-select {
-  padding: 5px 26px 5px 8px;
-  appearance: none;
-  background-color: #101010;
-  /* Solid triangle, built from two clipped gradients so it stays crisp. */
-  background-image: linear-gradient(45deg, transparent 50%, #f2b21c 50%),
-    linear-gradient(135deg, #f2b21c 50%, transparent 50%);
-  background-position: right 12px center, right 6px center;
-  background-repeat: no-repeat;
-  background-size: 6px 6px, 6px 6px;
-  border: 3px solid #f5f5f5;
-  color: #f5f5f5;
-  font-family: inherit;
-  font-size: 11px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  cursor: pointer;
-}
-
-.location-flags-select:hover {
-  background-color: #233bea;
-}
-
-.location-flags-select:focus-visible {
-  outline: 3px solid #e52a08;
-  outline-offset: 2px;
-}
-
-/* The dropdown list itself is drawn by the OS, so it only takes the colours. */
-
-.location-flags-select option {
-  background: #101010;
-  color: #f5f5f5;
+  justify-content: flex-end;
 }
 
 /* Anchors the overlaid item and check inside the location art, and matches the
@@ -650,50 +590,6 @@
   row-gap: 6px;
 }
 
-/* The empty fourth row of the right column, standing in for the boss row that
-   column does not have. Height matches a `.palace-row` so the band lines up with
-   the left column's fourth row, and centring inside it puts the button on that
-   row's midline instead of tight under the last boss. `stretch` overrides the
-   column's `flex-end`, giving the band the full column width to work with. */
-.palace-clear-row {
-  display: flex;
-  height: 56px;
-  align-self: stretch;
-  align-items: center;
-}
-
-/* Clear, moved out of the hamburger menu onto the right boss column's free
-   fourth row. Full width of its band, which spans from the outer edge of the boss
-   sprite across the 14px gap to the far edge of the item slot, so it lines up with
-   both columns of icons above it. Gold on the frame's red is the same pairing the
-   menu entry used on hover, so it still reads as the destructive control now that
-   it sits out in the open on the board. */
-.palace-clear {
-  width: 100%;
-  padding: 3px 0;
-  background: #e52a08;
-  border: 2px solid #f5f5f5;
-  color: #f2b21c;
-  /* Back to the 11px the frame's other labels use. It was dropped to 8px only
-     because the button was 56px wide then and the label overflowed; at the full
-     column width it measures 60px inside a 122px box, with room to spare. */
-  font-size: 11px;
-  letter-spacing: 1px;
-  text-align: center;
-  text-transform: uppercase;
-  cursor: pointer;
-}
-
-.palace-clear:hover {
-  background: #f2b21c;
-  color: #e52a08;
-}
-
-.palace-clear:focus-visible {
-  outline: 3px solid #233bea;
-  outline-offset: 2px;
-}
-
 /* Anchor for the item picker so it can float over the canvas. */
 .item-slot-wrap {
   position: relative;
@@ -870,6 +766,134 @@
 /* The confirm dialog's destructive action, flagged in the frame's red. */
 .tracker-button-danger:hover {
   background: #e52a08;
+}
+
+/* Lifts the third location row over the rest of the board while its menu is open.
+   The row carries a transform, so it is its own stacking context and the panel's
+   own z-index cannot lift it past the collection (3) that follows it in the DOM -
+   the row is what has to move. Above the board's content and rails (3 to 6) but
+   below the pickers and dialogs (40, 50), which still cover the menu. */
+.location-row-raised {
+  z-index: 7;
+}
+
+/* Anchor for the drop-down options menu */
+.tracker-menu-wrap {
+  position: relative;
+  display: flex;
+}
+
+/* Square hamburger button, framed like the tracker's other controls. 40px, to
+   match the item slots rather than the 56px sprites, so it reads as a control
+   sitting in the row instead of another thing to track. */
+.tracker-menu-toggle {
+  display: flex;
+  width: 40px;
+  height: 40px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: #101010;
+  border: 3px solid #f5f5f5;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.tracker-menu-toggle:hover {
+  background: #233bea;
+}
+
+.tracker-menu-toggle:focus-visible {
+  outline: 3px solid #e52a08;
+  outline-offset: 2px;
+}
+
+/* Blocks rather than borders, so the bars stay crisp at any zoom. */
+.tracker-menu-bar {
+  display: block;
+  width: 20px;
+  height: 4px;
+  background: #f5f5f5;
+}
+
+/* Opens below the button and pinned to its right edge, so it stays inside the
+   board: the button sits at the right of the row, and the open space under the
+   locations is where the panel has room to hang. */
+.tracker-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 5;
+  display: flex;
+  min-width: 100%;
+  flex-direction: column;
+  padding: 6px;
+  background: #101010;
+  border: 3px solid #f5f5f5;
+  box-shadow: 0 0 0 3px #233bea;
+}
+
+/* Names the flagset list, since the entries are bare ruleset names and the
+   hamburger gives no hint of what they are on their own. */
+.tracker-menu-heading {
+  margin: 0;
+  padding: 2px 14px 6px;
+  border-bottom: 3px solid #f5f5f5;
+  color: #f2b21c;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.tracker-menu-option {
+  padding: 8px 14px;
+  background: transparent;
+  border: 0;
+  color: #f5f5f5;
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.tracker-menu-option:hover {
+  background: #233bea;
+}
+
+/* The loaded flagset, marked in the frame's gold so the menu still answers which
+   ruleset is active - the job the closed dropdown used to do by showing its name. */
+.tracker-menu-option[aria-checked='true'] {
+  color: #f2b21c;
+}
+
+/* Separated from the flagsets above it, since it throws the board away. */
+.tracker-menu-option-danger {
+  margin-top: 4px;
+  border-top: 3px solid #f5f5f5;
+  color: #f2b21c;
+}
+
+.tracker-menu-option-danger:hover {
+  background: #e52a08;
+  color: #f5f5f5;
+}
+
+/* Invisible catcher so clicking anywhere else dismisses the menu. Above the board's
+   content and rails (3 to 6), so the first click outside closes the menu instead of
+   landing on an icon and marking something by accident, and below the raised row
+   (7) that carries the menu, so the options themselves stay clickable. */
+.tracker-menu-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  cursor: default;
 }
 
 /* The clear confirmation covers the whole canvas, like the item menu. */

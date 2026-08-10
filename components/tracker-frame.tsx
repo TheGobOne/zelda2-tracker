@@ -408,9 +408,13 @@ export function TrackerFrame() {
   const [openSlot, setOpenSlot] = useState<string | null>(null)
   // Clearing is destructive, so it waits on a confirmation dialog.
   const [isConfirmingClear, setIsConfirmingClear] = useState(false)
-  // Which ruleset the flags dropdown is showing. Standard is the default, so the
-  // board opens matching it rather than needing the preset picked by hand.
+  // Which ruleset is loaded. Standard is the default, so the board opens matching
+  // it rather than needing the flagset picked by hand. Still tracked now that the
+  // picker is a menu, to mark the active entry.
   const [activeFlags, setActiveFlags] = useState(PRESETS[0].id)
+  // Clear and the flagsets share one hamburger button, so a single flag covers
+  // the whole menu rather than just the flagset list.
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   /** Steps a counter slot to the next value, wrapping back around to empty. */
   function cycleCount(slotKey: string, step: 1 | -1) {
@@ -834,17 +838,7 @@ export function TrackerFrame() {
       // stray Enter or Space re-fire the last icon clicked. Cancelling the
       // default on mousedown keeps focus off without touching the click itself,
       // and it suppresses text selection while dragging a resize grip.
-      onMouseDown={(event) => {
-        // A native select opens as mousedown's default action, so cancelling it
-        // board-wide stopped the flags dropdown from ever opening. Selects are
-        // exempt: they need focus to be keyboard-operable anyway, and they are
-        // not icons that a stray Enter could re-fire.
-        if ((event.target as HTMLElement).closest('select')) {
-          return
-        }
-
-        event.preventDefault()
-      }}
+      onMouseDown={(event) => event.preventDefault()}
       ref={rootRef}
     >
       <div
@@ -985,23 +979,7 @@ export function TrackerFrame() {
                     )
                   })}
 
-                  {/* Clear takes the right column's empty fourth row: that column
-                      holds three bosses against the left column's four, so the
-                      band the missing row would occupy is free. The wrapper is
-                      that band, sized like a `.palace-row`, which is what centres
-                      the button on the row rather than parking it just below the
-                      last boss. Still routed through the confirmation dialog. */}
-                  {column.id === 'right' ? (
-                    <div className="palace-clear-row">
-                      <button
-                        className="palace-clear"
-                        onClick={() => setIsConfirmingClear(true)}
-                        type="button"
-                      >
-                        Clear
-                      </button>
-                    </div>
-                  ) : null}
+
                 </div>
               ))}
             </div>
@@ -1039,6 +1017,12 @@ export function TrackerFrame() {
                     'location-row',
                     rowIndex === 1 ? 'location-row-second' : '',
                     rowIndex === 2 ? 'location-row-third' : '',
+                    // The row is its own stacking context, so the menu cannot
+                    // rise above the collection from inside it. Lifting the row
+                    // while the menu is open is what gets the panel on top, and
+                    // it drops back afterwards rather than reordering the board
+                    // permanently.
+                    rowIndex === 2 && isMenuOpen ? 'location-row-raised' : '',
                   ]
                     .filter(Boolean)
                     .join(' ')
@@ -1149,35 +1133,68 @@ export function TrackerFrame() {
                 })}
 
                 {/* The third row is the short one, so the space its four tiles
-                    leave free is where the flag picker goes. A native select is
-                    used deliberately: the board already spends left, right and
-                    middle click on tracking, and a custom pop-up would have to
-                    compete with that. */}
+                    leave free is where the run controls go. Flagsets and Clear
+                    share one hamburger, which keeps two rarely-touched controls
+                    off the board and out of the way of tracking clicks. */}
                 {rowIndex === 2 ? (
-                  <div className="location-flags">
-                    <label className="location-flags-label" htmlFor="flag-set">
-                      Flagset
-                    </label>
-                    <select
-                      className="location-flags-select"
-                      id="flag-set"
-                      onChange={(event) => {
-                        const preset = PRESETS.find(
-                          (entry) => entry.id === event.target.value,
-                        )
+                  <div className="location-menu">
+                    <div className="tracker-menu-wrap">
+                      <button
+                        aria-expanded={isMenuOpen}
+                        aria-haspopup="menu"
+                        aria-label="Tracker options"
+                        className="tracker-menu-toggle"
+                        onClick={() => setIsMenuOpen((current) => !current)}
+                        type="button"
+                      >
+                        {/* Three chunky bars, drawn as blocks to match the pixel
+                            art rather than a thin vector icon. */}
+                        <span aria-hidden="true" className="tracker-menu-bar" />
+                        <span aria-hidden="true" className="tracker-menu-bar" />
+                        <span aria-hidden="true" className="tracker-menu-bar" />
+                      </button>
 
-                        if (preset) {
-                          applyPreset(preset)
-                        }
-                      }}
-                      value={activeFlags}
-                    >
-                      {PRESETS.map((preset) => (
-                        <option key={preset.id} value={preset.id}>
-                          {preset.name}
-                        </option>
-                      ))}
-                    </select>
+                      {isMenuOpen ? (
+                        <div
+                          aria-label="Tracker options"
+                          className="tracker-menu"
+                          role="menu"
+                        >
+                          <p className="tracker-menu-heading">Flagset</p>
+
+                          {PRESETS.map((preset) => (
+                            <button
+                              aria-checked={preset.id === activeFlags}
+                              className="tracker-menu-option"
+                              key={preset.id}
+                              onClick={() => {
+                                setIsMenuOpen(false)
+                                applyPreset(preset)
+                              }}
+                              role="menuitemradio"
+                              type="button"
+                            >
+                              {preset.name}
+                            </button>
+                          ))}
+
+                          {/* Clearing wipes the board, so it is set apart from
+                              the flagsets above it and tinted with the frame's
+                              red. Still routed through the confirm dialog. */}
+                          <button
+                            className="tracker-menu-option tracker-menu-option-danger"
+                            onClick={() => {
+                              setIsMenuOpen(false)
+                              setIsConfirmingClear(true)
+                            }}
+                            role="menuitem"
+                            type="button"
+                          >
+                            Clear
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
                 ) : null}
               </div>
@@ -1201,6 +1218,16 @@ export function TrackerFrame() {
                 the next section will fill. */}
             <div className="section-divider section-divider-collection" />
 
+            {/* Closes the menu on any outside click, since the board takes no
+                keystrokes and so has no Escape to fall back on. */}
+            {isMenuOpen ? (
+              <button
+                aria-label="Close tracker options"
+                className="tracker-menu-backdrop"
+                onClick={() => setIsMenuOpen(false)}
+                type="button"
+              />
+            ) : null}
 
             {isConfirmingClear ? (
               <div className="tracker-dialog-overlay">
