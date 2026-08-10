@@ -604,11 +604,17 @@
   row-gap: 6px;
 }
 
+/* 14px on a line box the height of the text itself. At 11px the caps sat inside
+   half-leading, so the ink began 4.7px into the box and left 18.7px of air over the
+   title against only 13.4px under the maps. At 14px with `line-height: 1` the caps
+   start 2.5px in and the taller title pushes the grid down a little, which brings
+   both to ~16px - the same distance from the divider above and the frame below. */
 .overworld-title {
   margin: 0;
   color: #f2b21c;
-  font-size: 11px;
+  font-size: 14px;
   letter-spacing: 1px;
+  line-height: 1;
   text-align: center;
   text-transform: uppercase;
 }
@@ -1293,8 +1299,3 @@
 .frame-corner-top-right { top: 4px; right: 4px; }
 .frame-corner-bottom-right { right: 4px; bottom: 4px; }
 .frame-corner-bottom-left { bottom: 4px; left: 4px; }
-
-
-
-
-
