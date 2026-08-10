@@ -496,9 +496,9 @@ export function TrackerFrame() {
   // Which icon sits on each overworld cell, keyed by grid id and coordinates.
   // Only filled cells are stored, so an absent key is an empty square.
   const [overworldCells, setOverworldCells] = useState<Record<string, string>>({})
-  // The palette icon held ready to place. Cleared as soon as it is dropped, so the
-  // palette is only ever armed for the one placement the user just asked for -
-  // clicking it again also puts it down, unplaced.
+  // The palette icon held ready to place. It stays armed after each drop, so a
+  // repeated icon can be placed across the map without reselecting it, and
+  // clicking it again puts it down.
   const [armedIcon, setArmedIcon] = useState<string | null>(null)
 
   /** Steps a counter slot to the next value, wrapping back around to empty. */
@@ -841,12 +841,6 @@ export function TrackerFrame() {
 
       return next
     })
-    // One placement per selection: the palette disarms itself on the drop, so the
-    // very next map click clears a cell rather than silently stamping the same icon
-    // again. Placing a repeat now costs a reselect, which is the deliberate trade -
-    // most icons here are one-of-a-kind, and an unnoticed armed palette was doing
-    // more damage than the extra click saves.
-    setArmedIcon(null)
   }
 
   /**
@@ -867,7 +861,7 @@ export function TrackerFrame() {
           <div className="overworld-palette-column" key={columnIndex}>
             {column.map((icon) => (
               <button
-                aria-label={`${icon.name}${armedIcon === icon.id ? ', selected' : ''}. Click, then click a map square to place it once.`}
+                aria-label={`${icon.name}${armedIcon === icon.id ? ', selected' : ''}. Click, then click a map square to place it.`}
                 aria-pressed={armedIcon === icon.id}
                 className={
                   armedIcon === icon.id
