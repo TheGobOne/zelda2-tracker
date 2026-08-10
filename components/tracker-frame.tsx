@@ -906,7 +906,15 @@ export function TrackerFrame() {
 
             <div className="section-divider section-divider-towns" />
 
-            <div aria-label="Palace locations" className="palace-grid">
+            {/* The grid carries a transform, so it is its own stacking context and
+                the menu's own z-index cannot lift the panel past the sections that
+                follow it in the DOM - the grid is what has to move. Raised only
+                while the menu is open, so the board's paint order is otherwise
+                untouched. */}
+            <div
+              aria-label="Palace locations"
+              className={`palace-grid${isMenuOpen ? ' palace-grid-raised' : ''}`}
+            >
               {palaceColumns.map((column) => (
                 <div
                   className={`town-column palace-column-${column.id}${column.flipped ? ' town-column-flipped' : ''}`}
@@ -981,7 +989,71 @@ export function TrackerFrame() {
                     )
                   })}
 
+                  {/* Flagsets and Clear share one hamburger, sitting in the right
+                      column's free fourth row: that column holds three bosses to
+                      the left column's four, so the band under Thunderbird is
+                      open. Column `align-items: flex-end` pins it to the same edge
+                      the boss sprites use, so it lands directly below Thunderbird
+                      and level with the left column's fourth boss. */}
+                  {column.id === 'right' ? (
+                    <div className="tracker-menu-wrap">
+                      <button
+                        aria-expanded={isMenuOpen}
+                        aria-haspopup="menu"
+                        aria-label="Tracker options"
+                        className="tracker-menu-toggle"
+                        onClick={() => setIsMenuOpen((current) => !current)}
+                        type="button"
+                      >
+                        {/* Three chunky bars, drawn as blocks to match the pixel
+                            art rather than a thin vector icon. */}
+                        <span aria-hidden="true" className="tracker-menu-bar" />
+                        <span aria-hidden="true" className="tracker-menu-bar" />
+                        <span aria-hidden="true" className="tracker-menu-bar" />
+                      </button>
 
+                      {isMenuOpen ? (
+                        <div
+                          aria-label="Tracker options"
+                          className="tracker-menu"
+                          role="menu"
+                        >
+                          <p className="tracker-menu-heading">Flagset</p>
+
+                          {PRESETS.map((preset) => (
+                            <button
+                              aria-checked={preset.id === activeFlags}
+                              className="tracker-menu-option"
+                              key={preset.id}
+                              onClick={() => {
+                                setIsMenuOpen(false)
+                                applyPreset(preset)
+                              }}
+                              role="menuitemradio"
+                              type="button"
+                            >
+                              {preset.name}
+                            </button>
+                          ))}
+
+                          {/* Clearing wipes the board, so it is set apart from
+                              the flagsets above it and tinted with the frame's
+                              red. Still routed through the confirm dialog. */}
+                          <button
+                            className="tracker-menu-option tracker-menu-option-danger"
+                            onClick={() => {
+                              setIsMenuOpen(false)
+                              setIsConfirmingClear(true)
+                            }}
+                            role="menuitem"
+                            type="button"
+                          >
+                            Clear
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
                 </div>
               ))}
             </div>
@@ -1019,12 +1091,6 @@ export function TrackerFrame() {
                     'location-row',
                     rowIndex === 1 ? 'location-row-second' : '',
                     rowIndex === 2 ? 'location-row-third' : '',
-                    // The row is its own stacking context, so the menu cannot
-                    // rise above the collection from inside it. Lifting the row
-                    // while the menu is open is what gets the panel on top, and
-                    // it drops back afterwards rather than reordering the board
-                    // permanently.
-                    rowIndex === 2 && isMenuOpen ? 'location-row-raised' : '',
                   ]
                     .filter(Boolean)
                     .join(' ')
@@ -1134,71 +1200,6 @@ export function TrackerFrame() {
                   )
                 })}
 
-                {/* The third row is the short one, so the space its four tiles
-                    leave free is where the run controls go. Flagsets and Clear
-                    share one hamburger, which keeps two rarely-touched controls
-                    off the board and out of the way of tracking clicks. */}
-                {rowIndex === 2 ? (
-                  <div className="location-menu">
-                    <div className="tracker-menu-wrap">
-                      <button
-                        aria-expanded={isMenuOpen}
-                        aria-haspopup="menu"
-                        aria-label="Tracker options"
-                        className="tracker-menu-toggle"
-                        onClick={() => setIsMenuOpen((current) => !current)}
-                        type="button"
-                      >
-                        {/* Three chunky bars, drawn as blocks to match the pixel
-                            art rather than a thin vector icon. */}
-                        <span aria-hidden="true" className="tracker-menu-bar" />
-                        <span aria-hidden="true" className="tracker-menu-bar" />
-                        <span aria-hidden="true" className="tracker-menu-bar" />
-                      </button>
-
-                      {isMenuOpen ? (
-                        <div
-                          aria-label="Tracker options"
-                          className="tracker-menu"
-                          role="menu"
-                        >
-                          <p className="tracker-menu-heading">Flagset</p>
-
-                          {PRESETS.map((preset) => (
-                            <button
-                              aria-checked={preset.id === activeFlags}
-                              className="tracker-menu-option"
-                              key={preset.id}
-                              onClick={() => {
-                                setIsMenuOpen(false)
-                                applyPreset(preset)
-                              }}
-                              role="menuitemradio"
-                              type="button"
-                            >
-                              {preset.name}
-                            </button>
-                          ))}
-
-                          {/* Clearing wipes the board, so it is set apart from
-                              the flagsets above it and tinted with the frame's
-                              red. Still routed through the confirm dialog. */}
-                          <button
-                            className="tracker-menu-option tracker-menu-option-danger"
-                            onClick={() => {
-                              setIsMenuOpen(false)
-                              setIsConfirmingClear(true)
-                            }}
-                            role="menuitem"
-                            type="button"
-                          >
-                            Clear
-                          </button>
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
-                ) : null}
               </div>
             ))}
 
