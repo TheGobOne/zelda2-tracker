@@ -421,13 +421,20 @@ const OVERWORLD_ICON_COLUMNS: { id: string; name: string; src: string }[][] = [
     { id: 'town-7', name: 'Town 7', src: '/images/overworld/town7.png' },
     { id: 'town-8', name: 'Town 8', src: '/images/overworld/town8.png' },
   ],
-  // The four lettered markers - the ones that stand for something found rather
-  // than for a piece of ground.
+  // Lettered markers - the ones that stand for something found rather than for a
+  // piece of ground: the four item/entrance markers, then the four cave connectors
+  // in alphabetical order, since a connector is only meaningful paired with the
+  // matching letter at the cave's other end. Eight entries, the most this column
+  // can take before it outgrows the nine-row grids beside it.
   [
     { id: 'w-marker', name: 'W', src: '/images/overworld/w.png' },
     { id: 'e-marker', name: 'E', src: '/images/overworld/e.png' },
     { id: 'mi-marker', name: 'MI', src: '/images/overworld/mi.png' },
     { id: 'dm-entrance', name: 'DM Entrance', src: '/images/overworld/dmentrance.png' },
+    { id: 'connector-a', name: 'Connector A', src: '/images/overworld/connectora.png' },
+    { id: 'connector-b', name: 'Connector B', src: '/images/overworld/connectorb.png' },
+    { id: 'connector-c', name: 'Connector C', src: '/images/overworld/connectorc.png' },
+    { id: 'connector-d', name: 'Connector D', src: '/images/overworld/connectord.png' },
   ],
   // Terrain and connectors. Seven entries, so they still stack in one column of
   // nine rows now that the lettered markers have moved out of this group.
