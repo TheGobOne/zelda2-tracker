@@ -671,24 +671,30 @@
   padding-top: 23px;
 }
 
-/* Each column holds the icon width, so the three stay evenly spread while the
-   palette is still empty. */
+/* Each column holds the reserved 32px width, so the three stay evenly spread while
+   two of them are still empty, and centers its icons in that width now that they
+   are narrower than the slot. The 1px gap is the grid's own gridline gap, and it is
+   what lets a full column of seven palaces clear the canvas bottom: at the 6px this
+   used to be, the seventh icon ran off the board. */
 .overworld-palette-column {
   display: flex;
   width: 32px;
   flex: none;
   flex-direction: column;
-  row-gap: 6px;
+  align-items: center;
+  row-gap: 1px;
 }
 
 
 
 /* Framed like the item slots, so an icon reads the same in the palette as it does
-   once it is sitting on the map. */
+   once it is sitting on the map - literally, at 26px: the 3px border leaves a 20px
+   interior, matching an overworld cell exactly, so a sprite is drawn at the same
+   size in both places and picking one up does not change how it looks. */
 .overworld-palette-icon {
   display: flex;
-  width: 32px;
-  height: 32px;
+  width: 26px;
+  height: 26px;
   align-items: center;
   justify-content: center;
   padding: 0;
