@@ -658,6 +658,38 @@ export function TrackerFrame() {
   }, [collected, slotItems])
 
   /**
+   * Palace number to stamp on each item in the collection row: the palace it has
+   * been placed in but not yet picked up. Knowing an item is sitting in Palace 3
+   * is the same kind of "still needed, and here is the catch" note the letters
+   * carry, so it is drawn in their place and in their style rather than as a
+   * second badge competing for the same corner.
+   *
+   * Palace slots key as `Palace 3-0`, which is where the number comes from - no
+   * separate lookup table to keep in step with `palaceColumns`. Collected slots
+   * are skipped, since a found item needs no reminder, and the lowest palace wins
+   * if the same pickup somehow sits in two.
+   */
+  const palaceItemNumbers = useMemo(() => {
+    const byItem = new Map<string, string>()
+
+    for (const [slotKey, itemId] of Object.entries(slotItems)) {
+      const palace = /^Palace (\d+)-\d+$/.exec(slotKey)
+
+      if (!palace || !itemId || collected[slotKey]) {
+        continue
+      }
+
+      const current = byItem.get(itemId)
+
+      if (!current || Number(palace[1]) < Number(current)) {
+        byItem.set(itemId, palace[1])
+      }
+    }
+
+    return byItem
+  }, [collected, slotItems])
+
+  /**
    * Clears an item from the collection row. The row mirrors the map, so undoing
    * it here also unchecks any placed slot holding that item, otherwise the map
    * would immediately light the sprite back up.
@@ -687,11 +719,21 @@ export function TrackerFrame() {
     // The letter is a reminder of what is still needed, so it is dropped once
     // the pickup is found. Collecting via the map only flips a derived flag, so
     // the letter is gated on isCollected here as well as cleared on click.
-    const mark = isCollected ? undefined : iconMarks[slotKey]
+    //
+    // A palace number outranks a hand-set letter, because it is the sharper note
+    // of the two: the letter says only that something gates this pickup, while the
+    // number says exactly where it is waiting. The letter is kept, not cleared, so
+    // pulling the item back out of the palace brings it straight back.
+    const palaceNumber = isCollected
+      ? undefined
+      : palaceItemNumbers.get(entry.id)
+    const mark = isCollected
+      ? undefined
+      : (palaceNumber ?? iconMarks[slotKey])
 
     return (
       <button
-        aria-label={`${entry.name}${isCollected ? ', collected' : ', not collected'}${mark ? `, marked ${mark}` : ''}. Right click to cycle letters.`}
+        aria-label={`${entry.name}${isCollected ? ', collected' : ', not collected'}${palaceNumber ? `, in palace ${palaceNumber}` : mark ? `, marked ${mark}` : ''}. Right click to cycle letters.`}
         aria-pressed={isCollected}
         className={
           isCollected
