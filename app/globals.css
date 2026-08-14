@@ -559,25 +559,32 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  row-gap: 1px;
+  /* Clear of the 2px ring each plate carries, so a stack of two reads as two. */
+  row-gap: 5px;
   pointer-events: none;
 }
 
+/* Held 2px off the icon's edge so the plate's ring is not sheared off by the
+   board's outer margin, which the boss icons sit flush against. */
 .palace-column-left .boss-block {
-  left: 0;
+  left: 2px;
 }
 
 .palace-column-right .boss-block {
-  right: 0;
+  right: 2px;
 }
 
-/* Same black keyline the letters carry, so a sprite stays readable against
-   whatever part of the boss art is behind it. Drop shadows rather than an outline,
-   because these are transparent PNGs and the ring has to follow the pixels. */
+/* Each sprite gets its own plate: a black field ringed in the letters' gold. A
+   keyline traced around the sprite's pixels was the first attempt and it vanished -
+   these items and spells are mostly dark greys and browns, and the boss art beneath
+   them is darker still, so there was nothing for a thin line to separate. The plate
+   gives the sprite a field of its own, and reads as a small inset panel next to the
+   item slots it shares the row with. */
 .boss-block img {
+  display: block;
+  background: #050505;
+  box-shadow: 0 0 0 2px #f2b21c;
   image-rendering: pixelated;
-  filter: drop-shadow(1px 0 0 #101010) drop-shadow(-1px 0 0 #101010)
-    drop-shadow(0 1px 0 #101010) drop-shadow(0 -1px 0 #101010);
 }
 
 .icon-toggle:focus-visible {
