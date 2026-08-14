@@ -545,33 +545,43 @@
   pointer-events: none;
 }
 
-/* What blocks a palace, stacked against the boss sprite's outer edge - the side
-   facing away from its item slots. The bosses sit flush with the board's outer
-   margin, so there is no room beside them to hang this off; the outer edge is the
-   next best thing, being the one part of the icon the centred letter and defeated
-   check never reach. Two sprites mean either one opens the way. */
+/* What blocks a palace, stacked in the gutter just beyond the boss sprite's outer
+   edge - the side facing away from its item slots. It sits outside the icon rather
+   than over it because the requirement letter's glyph spans the icon's full width,
+   so a wide mark like DM would cross anything laid on the art.
+
+   That gutter is exactly 18px: the board's frame rail ends 18px short of the end
+   columns, and the rail is painted above this, so a plate any wider than 16px plus
+   its 1px ring disappears under the frame. Hence the sizes here, which are smaller
+   than the tracker's other overlays and deliberately so. Two sprites mean either
+   one opens the way. */
 .boss-block {
   position: absolute;
   top: 0;
   bottom: 0;
+  /* Explicit, matching the plate size below. Without it the box is shrink-to-fit,
+     and the global `img` reset's `max-width: 100%` resolves against that indefinite
+     width - max-width outranks width, so the sprites collapse to nothing. */
+  width: 16px;
   z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  /* Clear of the 2px ring each plate carries, so a stack of two reads as two. */
-  row-gap: 5px;
+  /* Clear of the ring each plate carries, so a stack of two reads as two. */
+  row-gap: 3px;
   pointer-events: none;
 }
 
-/* Held 2px off the icon's edge so the plate's ring is not sheared off by the
-   board's outer margin, which the boss icons sit flush against. */
+/* Offset by the ring's own width, so the ring lands flush against the frame rail's
+   inner edge on one side and the icon's edge on the other - the exact width of the
+   gutter, with nothing spilling under the rail. */
 .palace-column-left .boss-block {
-  left: 2px;
+  right: calc(100% + 1px);
 }
 
 .palace-column-right .boss-block {
-  right: 2px;
+  left: calc(100% + 1px);
 }
 
 /* Each sprite gets its own plate: a black field ringed in the letters' gold. A
@@ -582,8 +592,10 @@
    item slots it shares the row with. */
 .boss-block img {
   display: block;
+  width: 16px;
+  height: 16px;
   background: #050505;
-  box-shadow: 0 0 0 2px #f2b21c;
+  box-shadow: 0 0 0 1px #f2b21c;
   image-rendering: pixelated;
 }
 

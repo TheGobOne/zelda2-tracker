@@ -1286,10 +1286,10 @@ export function TrackerFrame() {
                               {block.src.map((src) => (
                                 <Image
                                   alt=""
-                                  height={22}
+                                  height={16}
                                   key={src}
                                   src={src}
-                                  width={22}
+                                  width={16}
                                 />
                               ))}
                             </span>
