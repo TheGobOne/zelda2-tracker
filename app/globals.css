@@ -455,8 +455,10 @@
   row-gap: var(--sep);
 }
 
-/* Mirror the boss sprites only, so item slots and their contents stay upright. */
-.palace-grid .town-column-flipped .town-icon img {
+/* Mirror the boss sprites only, so item slots and their contents stay upright.
+   Direct child, so the block sprites layered over the icon are not mirrored with
+   it - a reversed glove or hammer would read as a different piece of art. */
+.palace-grid .town-column-flipped .town-icon > img {
   transform: scaleX(-1) translateZ(0);
 }
 
@@ -541,6 +543,41 @@
   z-index: 1;
   justify-content: center;
   pointer-events: none;
+}
+
+/* What blocks a palace, stacked against the boss sprite's outer edge - the side
+   facing away from its item slots. The bosses sit flush with the board's outer
+   margin, so there is no room beside them to hang this off; the outer edge is the
+   next best thing, being the one part of the icon the centred letter and defeated
+   check never reach. Two sprites mean either one opens the way. */
+.boss-block {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  row-gap: 1px;
+  pointer-events: none;
+}
+
+.palace-column-left .boss-block {
+  left: 0;
+}
+
+.palace-column-right .boss-block {
+  right: 0;
+}
+
+/* Same black keyline the letters carry, so a sprite stays readable against
+   whatever part of the boss art is behind it. Drop shadows rather than an outline,
+   because these are transparent PNGs and the ring has to follow the pixels. */
+.boss-block img {
+  image-rendering: pixelated;
+  filter: drop-shadow(1px 0 0 #101010) drop-shadow(-1px 0 0 #101010)
+    drop-shadow(0 1px 0 #101010) drop-shadow(0 -1px 0 #101010);
 }
 
 .icon-toggle:focus-visible {
@@ -1218,7 +1255,9 @@
   height: 24px;
 }
 
-.town-icon img {
+/* The icon's own sprite only. Direct child, so the smaller block sprites stacked
+   inside `.boss-block` keep the size they are rendered at. */
+.town-icon > img {
   width: 56px;
   height: 56px;
   image-rendering: pixelated;

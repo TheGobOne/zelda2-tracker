@@ -330,6 +330,35 @@ const COLLECTION_MARKS = ['', 'W', 'E', 'MI', 'DM']
 // the bosses use.
 const TOWN_MARKS = ['', 'W', 'E']
 
+/**
+ * What a palace can be walled off by, as the sprites of the items and spells that
+ * open it. Scrolling a boss steps through these; the empty first entry is the
+ * unblocked state, so a full turn of the wheel returns the boss to unmarked.
+ *
+ * A pair of sprites means either one gets you in. That is drawn as the two sprites
+ * stacked rather than as a written "OR", because the alternatives are always a
+ * choice between two things the tracker already has art for, and the art reads
+ * faster at this size than any word would.
+ */
+const BOSS_BLOCKS: { id: string; name: string; src: string[] }[] = [
+  { id: '', name: '', src: [] },
+  { id: 'glove', name: 'Glove', src: ['/images/items/glove.png'] },
+  { id: 'fairy', name: 'Fairy', src: ['/images/spells/fairy.png'] },
+  {
+    id: 'glove-fairy',
+    name: 'Glove or Fairy',
+    src: ['/images/items/glove.png', '/images/spells/fairy.png'],
+  },
+  { id: 'jump', name: 'Jump', src: ['/images/spells/jump.png'] },
+  {
+    id: 'jump-fairy',
+    name: 'Jump or Fairy',
+    src: ['/images/spells/jump.png', '/images/spells/fairy.png'],
+  },
+  { id: 'boots', name: 'Boots', src: ['/images/items/boots.png'] },
+  { id: 'hammer', name: 'Hammer', src: ['/images/items/hammer.png'] },
+]
+
 /** Turns a slot key into the heading shown in the item menu. */
 function slotLabel(slotKey: string) {
   if (slotKey.startsWith('town-')) {
@@ -486,6 +515,9 @@ export function TrackerFrame() {
   // Requirement letter shown over a town or boss; right click steps through
   // them. Keys are namespaced ("town-"/"boss-") so names cannot collide.
   const [iconMarks, setIconMarks] = useState<Record<string, string>>({})
+  // What is walling off each palace, keyed by the same "boss-" key as the letters
+  // and holding a `BOSS_BLOCKS` id. The wheel steps it; an absent key is unblocked.
+  const [bossBlocks, setBossBlocks] = useState<Record<string, string>>({})
   // Number shown in a counter slot, stepped through by left click.
   const [countValues, setCountValues] = useState<Record<string, string>>({})
   // Destination tagged on each connector end, keyed by row index and side. An
@@ -508,6 +540,7 @@ export function TrackerFrame() {
   // repeated icon can be placed across the map without reselecting it, and
   // clicking it again puts it down.
   const [armedIcon, setArmedIcon] = useState<string | null>(null)
+  const palaceGridRef = useRef<HTMLDivElement | null>(null)
 
   /** Steps a counter slot to the next value, wrapping back around to empty. */
   function cycleCount(slotKey: string, step: 1 | -1) {
@@ -558,6 +591,35 @@ export function TrackerFrame() {
     observer.observe(root, { childList: true, subtree: true })
 
     return () => observer.disconnect()
+  }, [])
+
+  // Scrolling a boss steps what blocks its palace. One delegated listener on the
+  // grid rather than an `onWheel` per boss, because React registers wheel handlers
+  // as passive: `preventDefault` would be ignored there and the page would scroll
+  // away under the cursor while the block cycled.
+  useEffect(() => {
+    const grid = palaceGridRef.current
+
+    if (!grid) {
+      return
+    }
+
+    function handleWheel(event: WheelEvent) {
+      const target = event.target as HTMLElement | null
+      const boss = target?.closest<HTMLElement>('[data-boss-key]')
+      const bossKey = boss?.dataset.bossKey
+
+      if (!bossKey || event.deltaY === 0) {
+        return
+      }
+
+      event.preventDefault()
+      cycleBossBlock(bossKey, event.deltaY > 0 ? 1 : -1)
+    }
+
+    grid.addEventListener('wheel', handleWheel, { passive: false })
+
+    return () => grid.removeEventListener('wheel', handleWheel)
   }, [])
 
   /** One item holder. Left click marks collected, right click opens the menu,
@@ -805,6 +867,31 @@ export function TrackerFrame() {
     })
   }
 
+  /**
+   * Steps a boss through what blocks its palace. `direction` is -1 or 1, so
+   * scrolling back up walks the list in reverse instead of having to wrap all the
+   * way around - with eight states that matters, and the wheel is the one control
+   * here that has a natural backwards.
+   */
+  function cycleBossBlock(bossKey: string, direction: number) {
+    setBossBlocks((current) => {
+      const index = BOSS_BLOCKS.findIndex(
+        (block) => block.id === (current[bossKey] ?? ''),
+      )
+      const length = BOSS_BLOCKS.length
+      const block = BOSS_BLOCKS[(index + direction + length) % length]
+      const next = { ...current }
+
+      if (block.id) {
+        next[bossKey] = block.id
+      } else {
+        delete next[bossKey]
+      }
+
+      return next
+    })
+  }
+
   /** Drops an icon's requirement letter without stepping the cycle. */
   function clearMark(iconKey: string) {
     setIconMarks((current) => {
@@ -962,6 +1049,7 @@ export function TrackerFrame() {
     setCollected({})
     setSlotCounts({})
     setIconMarks({})
+    setBossBlocks({})
     setCountValues({})
     setConnectorEnds({})
     setOpenSlot(null)
@@ -982,6 +1070,7 @@ export function TrackerFrame() {
     setCollected(collectedFromPreset(preset))
     setSlotCounts({})
     setIconMarks({})
+    setBossBlocks({})
     setCountValues({ ...preset.counts })
     setConnectorEnds({})
     setActiveFlags(preset.id)
@@ -1133,6 +1222,7 @@ export function TrackerFrame() {
             <div
               aria-label="Palace locations"
               className={`palace-grid${isMenuOpen ? ' palace-grid-raised' : ''}`}
+              ref={palaceGridRef}
             >
               {palaceColumns.map((column) => (
                 <div
@@ -1145,17 +1235,25 @@ export function TrackerFrame() {
                     const bossKey = `boss-${palace.name}`
                     const isBeaten = Boolean(collected[bossKey])
                     const mark = iconMarks[bossKey]
+                    const block = BOSS_BLOCKS.find(
+                      (entry) => entry.id === bossBlocks[bossKey],
+                    )
 
                     return (
                       <div className="palace-row" key={palace.name}>
                         <button
-                          aria-label={`${palace.name} palace boss${isBeaten ? ', defeated' : ''}${mark ? `, marked ${mark}` : ''}, ${slots} of ${palace.maxSlots} item slots. Left click to mark defeated, right click to cycle letters, middle click to cycle slots.`}
+                          aria-label={`${palace.name} palace boss${isBeaten ? ', defeated' : ''}${mark ? `, marked ${mark}` : ''}${block ? `, blocked by ${block.name}` : ''}, ${slots} of ${palace.maxSlots} item slots. Left click to mark defeated, right click to cycle letters, middle click to cycle slots, scroll to cycle what blocks it.`}
                           aria-pressed={isBeaten}
                           className={
                             isBeaten
                               ? 'town-icon icon-toggle boss-toggle-beaten'
                               : 'town-icon icon-toggle'
                           }
+                          // Read by the grid's wheel listener to find which boss was
+                          // scrolled. The listener sits on the grid rather than here
+                          // because React registers `wheel` passively, which would
+                          // leave the page scrolling as the block cycles.
+                          data-boss-key={bossKey}
                           onAuxClick={(event) => {
                             if (event.button === 1) {
                               event.preventDefault()
@@ -1183,6 +1281,19 @@ export function TrackerFrame() {
                             src={palace.src}
                             width={32}
                           />
+                          {block ? (
+                            <span aria-hidden="true" className="boss-block">
+                              {block.src.map((src) => (
+                                <Image
+                                  alt=""
+                                  height={22}
+                                  key={src}
+                                  src={src}
+                                  width={22}
+                                />
+                              ))}
+                            </span>
+                          ) : null}
                           {mark ? (
                             <GlyphText className="icon-mark-glyph" scale={3}>
                               {mark}
