@@ -726,28 +726,31 @@
   column-gap: 6px;
 }
 
-/* Height matches the two-slot boxes rather than the 56px single, so the tally
-   stays visibly smaller than the boss it sits beside. */
+/* The heart and its count read as one object on the board rather than as a boxed
+   slot, so no plate or keyline here. The 102x48 footprint stays, though - it is
+   what holds the row in the gutter and keeps the heart on the same left edge as
+   the item boxes above, so dropping the frame changes nothing about the layout. */
 .heart-tally {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* The 102px less its 2px borders leaves 98px inside, and the heart and glyphs
-     take 32 + 52 of that, so this gap spends 12 of the remaining 14 and leaves the
-     pair a pixel clear of each border. */
+  /* Nothing is inset now, so the full 102px is available: the heart and glyphs
+     take 84 of it and this gap spends 12, leaving the pair centred with 3px clear
+     either side. */
   column-gap: 12px;
   width: 102px;
   height: 48px;
   padding: 0;
-  background: #101010;
-  border: 2px solid #f5f5f5;
+  background: none;
+  border: none;
   cursor: pointer;
 }
 
-/* Same blue the item slots take, so the tally answers to the pointer the way the
-   boxes above it do. */
+/* With no border to recolour, the hover cue has to come from the content itself -
+   brightening both the sprite and the glyphs together keeps the tally responsive
+   to the pointer the way the boxes above it are. */
 .heart-tally:hover {
-  border-color: #233bea;
+  filter: brightness(1.35);
 }
 
 .heart-tally:focus-visible {
@@ -763,9 +766,8 @@
   image-rendering: pixelated;
 }
 
-/* The glyphs carry their own 2px keyline, which already separates them from the
-   plate, so nothing further is needed here beyond keeping them off the baseline
-   the flex centring puts them on. */
+/* The glyphs carry their own 2px keyline, so they stay legible against the board
+   now that there is no plate behind them. */
 .heart-tally-count {
   flex: none;
 }
