@@ -52,26 +52,28 @@ const palaceColumns = [
       {
         name: 'Palace 7',
         src: '/images/palaces/thunderbird.png',
-        maxSlots: 2,
-        // Thunderbird holds no items on a fresh tracker, so it starts empty and
-        // middle click reveals its slots when a run actually places something.
-        startSlots: 0,
+        // The Great Palace holds no items at all, so Thunderbird caps at zero and
+        // has no slots to show or cycle.
+        maxSlots: 0,
       },
     ],
   },
 ]
 
 /**
- * Slot count a boss shows before anything is tracked. Every boss opens with a
- * single slot unless its data overrides that, so this is read by the renderer,
- * by the slot cycle, and after a clear or preset load, which all reset the
- * stored counts back to empty.
+ * Slot count a boss shows before anything is tracked. Read by the renderer, by
+ * the slot cycle, and after a clear or preset load, which all reset the stored
+ * counts back to empty.
+ *
+ * A boss opens with one slot, or none when it cannot hold items at all - taking
+ * that from `maxSlots` rather than a second field keeps one number in charge of
+ * both, so an opening count can never exceed the cap.
  */
 function startSlotsFor(name: string) {
   for (const column of palaceColumns) {
     for (const boss of column.bosses) {
       if (boss.name === name) {
-        return 'startSlots' in boss ? boss.startSlots : 1
+        return Math.min(1, boss.maxSlots)
       }
     }
   }
@@ -1299,11 +1301,21 @@ export function TrackerFrame() {
                     const block = BOSS_BLOCKS.find(
                       (entry) => entry.id === bossBlocks[bossKey],
                     )
+                    // A boss that holds no items has no slot count worth reading
+                    // out and nothing for middle click to do, so its label drops
+                    // both rather than offering an action that does nothing.
+                    const holdsItems = palace.maxSlots > 0
+                    const slotLabel = holdsItems
+                      ? `, ${slots} of ${palace.maxSlots} item slots`
+                      : ', holds no items'
+                    const slotHint = holdsItems
+                      ? ' middle click to cycle slots,'
+                      : ''
 
                     return (
                       <div className="palace-row" key={palace.name}>
                         <button
-                          aria-label={`${palace.name} palace boss${isBeaten ? ', defeated' : ''}${mark ? `, marked ${mark}` : ''}${block ? `, blocked by ${block.name}` : ''}, ${slots} of ${palace.maxSlots} item slots. Left click to mark defeated, right click to cycle letters, middle click to cycle slots, scroll to cycle what blocks it.`}
+                          aria-label={`${palace.name} palace boss${isBeaten ? ', defeated' : ''}${mark ? `, marked ${mark}` : ''}${block ? `, blocked by ${block.name}` : ''}${slotLabel}. Left click to mark defeated, right click to cycle letters,${slotHint} scroll to cycle what blocks it.`}
                           aria-pressed={isBeaten}
                           className={
                             isBeaten
