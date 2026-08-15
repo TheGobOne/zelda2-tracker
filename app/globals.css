@@ -655,8 +655,8 @@
 }
 
 .palace-row:has(.item-slot-wrap + .item-slot-wrap) .item-slot-check {
-  width: 26px;
-  height: 26px;
+  width: 20px;
+  height: 20px;
 }
 
 /* Pin rows to their outer edge so added slots never shift the boss icons. The
@@ -942,23 +942,28 @@
   border-color: #3aa63a;
 }
 
-/* The check covers the same box as the sprite it sits over, so it reads as a
-   stamp across the item rather than a badge beside it. */
+/* The check reads as a stamp over the item rather than a badge beside it, but sits
+   inside the sprite's box rather than covering it, so the item underneath stays
+   identifiable at a glance.
+
+   Every size below is three quarters of what it was, and each is kept even so that
+   the `translate(-50%, -50%)` centring lands on a whole pixel - an odd width would
+   put the stroke on a half pixel and blur it against the art behind. */
 .item-slot .item-slot-check {
-  width: 50px;
-  height: 50px;
+  width: 38px;
+  height: 38px;
 }
 
 /* Smaller town slots hold smaller sprites, so their check follows suit. */
 .town-grid .item-slot .item-slot-check {
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
 }
 
 /* Locations use their own size, sitting over the 56px overworld art. */
 .location-icon .item-slot-check {
-  width: 37px;
-  height: 37px;
+  width: 28px;
+  height: 28px;
 }
 
 .item-slot-check {
@@ -1395,6 +1400,7 @@
 .frame-corner-top-right { top: 4px; right: 4px; }
 .frame-corner-bottom-right { right: 4px; bottom: 4px; }
 .frame-corner-bottom-left { bottom: 4px; left: 4px; }
+
 
 
 

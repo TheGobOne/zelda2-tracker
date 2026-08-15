@@ -690,8 +690,9 @@ export function TrackerFrame() {
             <Check
               aria-hidden="true"
               className="item-slot-check"
-              // Matches the palace sprite size; CSS scales it down for towns.
-              size={50}
+              // Matches the palace sprite size; CSS scales it down for towns and
+              // for palaces holding more than one item.
+              size={38}
               strokeWidth={4}
             />
           ) : null}
@@ -1303,8 +1304,10 @@ export function TrackerFrame() {
                             <Check
                               aria-hidden="true"
                               className="item-slot-check"
-                              // Same 37px stamp the 56px location sprites use.
-                              size={37}
+                              // Same 28px stamp the 56px location sprites use. Unlike
+                              // the slot checks, no CSS rule sizes this one, so this
+                              // attribute is what actually draws it.
+                              size={28}
                               strokeWidth={4}
                             />
                           ) : null}
@@ -1522,7 +1525,7 @@ export function TrackerFrame() {
                         <Check
                           aria-hidden="true"
                           className="item-slot-check"
-                          size={37}
+                          size={28}
                           strokeWidth={4}
                         />
                       ) : null}
