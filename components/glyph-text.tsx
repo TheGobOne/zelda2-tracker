@@ -6,7 +6,8 @@
  * transparent background, so it cannot be recoloured as an image. Instead the
  * white ink of every glyph was traced off the sheet into the 8x8 bitmaps below
  * (one hex byte per row, high bit leftmost), which lets each letter be drawn as
- * a shape and filled to taste while keeping the exact sheet letterforms.
+ * a shape and filled to taste while keeping the exact sheet letterforms. Every
+ * bitmap comes off the sheet except where noted inline.
  *
  * Regenerating: sample the sheet on its measured grid of 8x8 glyphs at a 16px
  * pitch with the first cell's ink at (6, 2), keeping only the white pixels.
@@ -53,6 +54,11 @@ const GLYPH_BITMAPS: Record<string, string> = {
   Y: '6666663c18181800',
   Z: 'fe0e1c3870e0fe00',
   '-': '0000003c00000000',
+  /* Drawn rather than traced: the sheet has no slash, and a tally like "3/6"
+     needs one. Built to the digits' own metrics so it sets with them - six rows
+     tall like `0`, and inside the same columns 1 to 5 - which is why it steps 2px
+     wide down the diagonal instead of running corner to corner. */
+  '/': '0c18183030600000',
 }
 
 /**

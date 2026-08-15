@@ -55,6 +55,11 @@ const palaceColumns = [
         // The Great Palace holds no items at all, so Thunderbird caps at zero and
         // has no slots to show or cycle.
         maxSlots: 0,
+        // Which leaves this row's item area free, so the heart tally takes it -
+        // landing directly under Palace 6's items, in the column the eye already
+        // follows for what a run has picked up. Carried as data so the renderer
+        // asks the row where the tally goes instead of naming a palace itself.
+        heartTally: true,
       },
     ],
   },
@@ -107,6 +112,29 @@ const locationRowOne = [
 // Values a counter slot steps through on left click. The empty entry starts the
 // cycle, so clicking past the last number clears the slot again.
 const COUNT_VALUES = ['', '5', '6', '7']
+
+/**
+ * Heart containers Link carries. A run opens on three and caps at six, and they
+ * can only ever be gained, so the tally counts up from the start rather than
+ * from zero and has no empty state - three is a real reading, not "unset".
+ */
+const HEART_START = 3
+const HEART_MAX = 6
+
+/**
+ * The tally's own cycle, held as strings so it shares the counter state the
+ * numbered location slots already use. Reusing that state is what makes Clear
+ * and a flagset switch reset the hearts for free, and because the first entry is
+ * the starting count, an absent value reads as a fresh board rather than a zero.
+ */
+const HEART_VALUES = Array.from(
+  { length: HEART_MAX - HEART_START + 1 },
+  (_, index) => String(HEART_START + index),
+)
+
+// Keyed outside the `location-` and `boss-` namespaces, since the tally belongs
+// to no single check.
+const HEART_KEY = 'hearts'
 
 // A location row holds sprite slots plus the occasional numeric counter slot,
 // which takes up one icon of space and shows a chosen number over its art. The
@@ -550,14 +578,21 @@ export function TrackerFrame() {
   const [armedIcon, setArmedIcon] = useState<string | null>(null)
   const palaceGridRef = useRef<HTMLDivElement | null>(null)
 
-  /** Steps a counter slot to the next value, wrapping back around to empty. */
-  function cycleCount(slotKey: string, step: 1 | -1) {
+  /**
+   * Steps a counter slot to the next value, wrapping around at either end. The
+   * value list is a parameter because the heart tally counts over a different
+   * range than the numbered location slots, but wraps the same way; an unset slot
+   * reads as the list's first entry, which is empty for those slots and the
+   * starting count for the hearts.
+   */
+  function cycleCount(
+    slotKey: string,
+    step: 1 | -1,
+    values: readonly string[] = COUNT_VALUES,
+  ) {
     setCountValues((current) => {
-      const index = COUNT_VALUES.indexOf(current[slotKey] ?? '')
-      const next =
-        COUNT_VALUES[
-          (index + step + COUNT_VALUES.length) % COUNT_VALUES.length
-        ]
+      const index = values.indexOf(current[slotKey] ?? values[0])
+      const next = values[(index + step + values.length) % values.length]
 
       return { ...current, [slotKey]: next }
     })
@@ -1204,6 +1239,11 @@ export function TrackerFrame() {
     }
   }
 
+  // Unset until the tally is first clicked, and the cycle's first value is the
+  // starting count, so a fresh board and a cleared one both read three without
+  // anything having to be written into state.
+  const heartCount = countValues[HEART_KEY] ?? HEART_VALUES[0]
+
   return (
     <div
       className="tracker-wrap"
@@ -1390,6 +1430,35 @@ export function TrackerFrame() {
                             `${palace.name} item ${index + 1}`
                           )
                         )}
+                        {'heartTally' in palace ? (
+                          <button
+                            aria-label={`Heart containers: ${heartCount} of ${HEART_MAX}. Left click to add one, right click to take one away.`}
+                            className="heart-tally"
+                            onClick={() =>
+                              cycleCount(HEART_KEY, 1, HEART_VALUES)
+                            }
+                            // Right click steps back, the same way the numbered
+                            // location slots undo an overshoot.
+                            onContextMenu={(event) => {
+                              event.preventDefault()
+                              cycleCount(HEART_KEY, -1, HEART_VALUES)
+                            }}
+                            type="button"
+                          >
+                            <Image
+                              alt=""
+                              height={32}
+                              src="/images/items/heartcontainer.png"
+                              width={32}
+                            />
+                            {/* Inline SVG glyphs rather than text, so the tally
+                                sets in the same letterforms as the requirement
+                                marks instead of introducing a second typeface. */}
+                            <GlyphText className="heart-tally-count" scale={2}>
+                              {`${heartCount}/${HEART_MAX}`}
+                            </GlyphText>
+                          </button>
+                        ) : null}
                       </div>
                     )
                   })}

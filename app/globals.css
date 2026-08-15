@@ -717,6 +717,58 @@
   height: 32px;
 }
 
+/* The heart tally sits in Thunderbird's row, which holds no item slots, so it has
+   the whole 114px gutter to itself. It takes the same 6px gap and 108px span the
+   three-slot rows use, which leaves the same 6px before the notes and lines its
+   outer edge up with Palace 6's items directly above - the row reads as part of
+   that column rather than as something parked in a leftover space. */
+.palace-row:has(.heart-tally) {
+  column-gap: 6px;
+}
+
+/* Height matches the two-slot boxes rather than the 56px single, so the tally
+   stays visibly smaller than the boss it sits beside. */
+.heart-tally {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 32px heart plus 52px of glyphs plus this gap comes to 100px, so the pair sits
+     centred in the span with a pixel to spare either side. */
+  column-gap: 16px;
+  width: 108px;
+  height: 48px;
+  padding: 0;
+  background: #101010;
+  border: 2px solid #f5f5f5;
+  cursor: pointer;
+}
+
+/* Same blue the item slots take, so the tally answers to the pointer the way the
+   boxes above it do. */
+.heart-tally:hover {
+  border-color: #233bea;
+}
+
+.heart-tally:focus-visible {
+  outline: 3px solid #e52a08;
+  outline-offset: 2px;
+}
+
+/* Matched to the three-slot boxes above it, and pixelated like every other sprite
+   on the board. */
+.heart-tally img {
+  width: 32px;
+  height: 32px;
+  image-rendering: pixelated;
+}
+
+/* The glyphs carry their own 2px keyline, which already separates them from the
+   plate, so nothing further is needed here beyond keeping them off the baseline
+   the flex centring puts them on. */
+.heart-tally-count {
+  flex: none;
+}
+
 /* Pin rows to their outer edge so added slots never shift the boss icons. The
    left column carries a fourth boss, so at the shared 14px gap it grew to 266px
    and came within 2px of the dividers above and below. A 6px gap brings it to
