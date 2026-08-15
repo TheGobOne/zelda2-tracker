@@ -107,10 +107,12 @@ const locationRowOne = [
 const COUNT_VALUES = ['', '5', '6', '7']
 
 // A location row holds sprite slots plus the occasional numeric counter slot,
-// which takes up one icon of space but shows a chosen number instead of art.
+// which takes up one icon of space and shows a chosen number over its art. The
+// counter carries a `src` like any other slot rather than hardcoding one in the
+// markup, so the art stays beside the name it belongs to.
 type LocationEntry =
   | { name: string; src: string }
-  | { kind: 'count'; name: string }
+  | { kind: 'count'; name: string; src: string }
 
 // Second location row, filled in as the remaining sprites are added.
 const locationRowTwo: LocationEntry[] = [
@@ -125,7 +127,11 @@ const locationRowTwo: LocationEntry[] = [
     src: '/images/locations/heartcontainersea.png',
   },
   { name: 'Nabooru Fountain', src: '/images/locations/naboorufountain.png' },
-  { kind: 'count', name: 'Spell Item Count' },
+  {
+    kind: 'count',
+    name: 'Spell Item Count',
+    src: '/images/locations/granny.png',
+  },
   {
     name: 'New Kasuto Magic Container',
     src: '/images/locations/magiccontainernewkasuto.png',
@@ -1433,8 +1439,8 @@ export function TrackerFrame() {
                 {row.map((location) => {
                   const slotKey = `location-${location.name}`
 
-                  // Counter slots hold no sprite: they occupy one icon of space
-                  // and cycle through their numbers on left click instead.
+                  // Counter slots cycle through their numbers on left click, drawn
+                  // over their art the way a palace's requirement letter is.
                   if ('kind' in location) {
                     const value = countValues[slotKey] ?? ''
 
@@ -1455,6 +1461,12 @@ export function TrackerFrame() {
                         }}
                         type="button"
                       >
+                        <Image
+                          alt={location.name}
+                          height={56}
+                          src={location.src}
+                          width={56}
+                        />
                         {value ? (
                           <span aria-hidden="true" className="icon-mark">
                             {value}

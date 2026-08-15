@@ -343,9 +343,11 @@
   cursor: pointer;
 }
 
-/* A counter slot reserves one icon of empty space in the row and shows only its
-   chosen number, so the board reads as a gap until a value is picked. The number
-   itself is an .icon-mark span, so it is styled with the sprite letters. */
+/* A counter slot carries sprite art like the rest of the row and lays its chosen
+   number over it, so an unset counter still reads as a slot rather than a hole in
+   the row. The number is an .icon-mark span, the same treatment the palace
+   requirement letters get, which is what keeps it legible over the art: gold on a
+   dark ring, above the sprite in the stacking order. */
 .location-count {
   background: none;
 }
