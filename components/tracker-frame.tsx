@@ -122,11 +122,18 @@ const HEART_START = 3
 const HEART_MAX = 6
 
 /**
- * The pickup the tally counts. Checking off a slot holding this is what raises
- * the count, so the number is read off the board rather than kept beside it -
- * one source of truth, which is what stops the two from drifting apart.
+ * The pickups the tallies count. Checking off a slot holding one of these is what
+ * raises its count, so each number is read off the board rather than kept beside
+ * it - one source of truth, which is what stops the two from drifting apart.
  */
 const HEART_ITEM_ID = 'heartcontainer'
+const MAGIC_ITEM_ID = 'magiccontainer'
+
+/**
+ * Magic caps at eight everywhere, but how many Link opens with is a rule of the
+ * flagset, so the starting figure lives on each preset rather than here.
+ */
+const MAGIC_MAX = 8
 
 // A location row holds sprite slots plus the occasional numeric counter slot,
 // which takes up one icon of space and shows a chosen number over its art. The
@@ -292,6 +299,7 @@ const PRESETS: {
   id: string
   name: string
   collectedIds: string[]
+  magicStart: number
   placements: Record<string, string>
   counts: Record<string, string>
 }[] = [
@@ -301,6 +309,8 @@ const PRESETS: {
     id: 'standard',
     name: 'Standard',
     collectedIds: ['candle'],
+    // Vanilla magic: four of the eight containers are Link's to begin with.
+    magicStart: 4,
     placements: {},
     counts: {},
   },
@@ -310,6 +320,9 @@ const PRESETS: {
     // Candle and cross only: the fire spell is not a starting item under this
     // ruleset, so it stays unmarked until it is actually found.
     collectedIds: ['candle', 'cross'],
+    // This ruleset holds one of the starting containers back, so the run opens a
+    // magic short of vanilla and there is one more to find.
+    magicStart: 3,
     placements: {
       // All three P-Bag caves keep their vanilla point bags.
       'location-West P-Bag Cave': 'pbag',
@@ -558,6 +571,13 @@ export function TrackerFrame() {
   // it rather than needing the flagset picked by hand. Still tracked now that the
   // picker is a menu, to mark the active entry.
   const [activeFlags, setActiveFlags] = useState(PRESETS[0].id)
+  // How much magic the loaded ruleset starts Link with - 4 under Standard, 3 under
+  // SGL - so switching flagsets moves the magic tally's floor with it. Read from
+  // the preset rather than switched on its id, so a new ruleset only has to declare
+  // its own figure. Falls back to Standard's if an id ever goes missing.
+  const magicStart =
+    PRESETS.find((preset) => preset.id === activeFlags)?.magicStart ??
+    PRESETS[0].magicStart
   // Clear and the flagsets share one hamburger button, so a single flag covers
   // the whole menu rather than just the flagset list.
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -786,25 +806,33 @@ export function TrackerFrame() {
   }, [collected, slotItems])
 
   /**
-   * Hearts Link is carrying: the starting three plus every heart container that
-   * has been checked off out on the map. Counting slots rather than tracking a
-   * number of its own means unchecking a heart takes the tally back down, a heart
-   * cannot be counted twice, and Clear and a flagset switch reset it for free.
+   * How many hearts and magic containers Link is carrying: what the ruleset starts
+   * him with, plus every matching container checked off out on the map. Counting
+   * slots rather than tracking numbers of their own means unchecking a container
+   * takes its tally back down, one cannot be counted twice, and Clear and a flagset
+   * switch reset both for free.
    *
-   * A run only ever holds enough containers to reach the cap, but the clamp keeps
-   * the reading honest under a flagset that shuffles in more than that.
+   * A run only ever holds enough containers to reach the caps, but the clamp keeps
+   * the readings honest under a flagset that shuffles in more than that.
    */
-  const heartCount = useMemo(() => {
-    let found = 0
+  const { heartCount, magicCount } = useMemo(() => {
+    let hearts = 0
+    let magic = 0
 
     for (const [slotKey, isChecked] of Object.entries(collected)) {
-      if (isChecked && slotItems[slotKey] === HEART_ITEM_ID) {
-        found += 1
-      }
+      if (!isChecked) continue
+
+      const itemId = slotItems[slotKey]
+
+      if (itemId === HEART_ITEM_ID) hearts += 1
+      if (itemId === MAGIC_ITEM_ID) magic += 1
     }
 
-    return Math.min(HEART_START + found, HEART_MAX)
-  }, [collected, slotItems])
+    return {
+      heartCount: Math.min(HEART_START + hearts, HEART_MAX),
+      magicCount: Math.min(magicStart + magic, MAGIC_MAX),
+    }
+  }, [collected, slotItems, magicStart])
 
   /**
    * Palace number to stamp on each item in the collection row: the palace it has
@@ -1441,7 +1469,7 @@ export function TrackerFrame() {
                           <div
                             aria-label={`Heart containers: ${heartCount} of ${HEART_MAX}`}
                             aria-live="polite"
-                            className="heart-tally"
+                            className="container-tally"
                             role="img"
                           >
                             <Image
@@ -1456,7 +1484,7 @@ export function TrackerFrame() {
                             {/* Inline SVG glyphs rather than text, so the tally
                                 sets in the same letterforms as the requirement
                                 marks instead of introducing a second typeface. */}
-                            <GlyphText className="heart-tally-count" scale={2}>
+                            <GlyphText className="container-tally-count" scale={2}>
                               {`${heartCount}/${HEART_MAX}`}
                             </GlyphText>
                           </div>
@@ -1465,14 +1493,43 @@ export function TrackerFrame() {
                     )
                   })}
 
-                  {/* Flagsets and Clear share one hamburger, sitting in the right
-                      column's free fourth row: that column holds three bosses to
-                      the left column's four, so the band under Thunderbird is
-                      open. Column `align-items: flex-end` pins it to the same edge
-                      the boss sprites use, so it lands directly below Thunderbird
-                      and level with the left column's fourth boss. */}
+                  {/* The right column's free fourth row: that column holds three
+                      bosses to the left column's four, so the band under
+                      Thunderbird is open. It carries the magic tally and the
+                      hamburger side by side - the tally taking the gutter the heart
+                      tally uses in the row above, and the hamburger the boss slot
+                      below Thunderbird. Column `align-items: flex-end` pins the
+                      pair to the edge the boss sprites use, which is what lines the
+                      two tallies up on the same left edge. */}
                   {column.id === 'right' ? (
-                    <div className="tracker-menu-wrap">
+                    <div className="tracker-utility-row">
+                      {/* Reads like the heart tally above it and for the same
+                          reason: the count follows the magic containers checked off
+                          on the map, so there is nothing to click. Its floor moves
+                          with the flagset, which is why the total comes from
+                          `magicStart` rather than a fixed number. */}
+                      <div
+                        aria-label={`Magic containers: ${magicCount} of ${MAGIC_MAX}`}
+                        aria-live="polite"
+                        className="container-tally"
+                        role="img"
+                      >
+                        <Image
+                          alt=""
+                          height={32}
+                          // Eager for the same reason as the heart sprite above:
+                          // it is above the fold and Next flags it as the largest
+                          // contentful paint.
+                          loading="eager"
+                          src="/images/items/magiccontainer.png"
+                          width={32}
+                        />
+                        <GlyphText className="container-tally-count" scale={2}>
+                          {`${magicCount}/${MAGIC_MAX}`}
+                        </GlyphText>
+                      </div>
+
+                      <div className="tracker-menu-wrap">
                       <button
                         aria-expanded={isMenuOpen}
                         aria-haspopup="menu"
@@ -1528,6 +1585,7 @@ export function TrackerFrame() {
                           </button>
                         </div>
                       ) : null}
+                      </div>
                     </div>
                   ) : null}
                 </div>

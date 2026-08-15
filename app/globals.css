@@ -722,42 +722,53 @@
    gap on the boss side and leaves the same 6px before the notes, which is what
    fixes its width: 6 + 102 + 6 fills the gutter exactly, so the tally sits evenly
    between the boss and the connectors like the item boxes above it. */
-.palace-row:has(.heart-tally) {
+.palace-row:has(.container-tally) {
   column-gap: 6px;
 }
 
-/* The heart and its count read as one object on the board rather than as a boxed
-   slot, so no plate or keyline here. The 102x48 footprint stays, though - it is
-   what holds the row in the gutter and keeps the heart on the same left edge as
-   the item boxes above, so dropping the frame changes nothing about the layout. */
-.heart-tally {
+/* The row under Thunderbird, holding the magic tally and the hamburger. The same
+   6px gap as the rows above, so the pair comes to 102 + 6 + 56 = 164px; pinned to
+   the column's right edge, that puts the magic tally on the same left edge as the
+   heart tally directly above it and the item boxes above that. Centred rather than
+   stretched because the hamburger's slot is 56px tall against the tally's 48. */
+.tracker-utility-row {
+  display: flex;
+  align-items: center;
+  column-gap: 6px;
+}
+
+/* A container sprite and its count, read as one object on the board rather than as
+   a boxed slot, so no plate or keyline here. Shared by the heart and magic
+   readouts, which differ only in sprite and numbers. The 102x48 footprint is
+   load-bearing: it is what holds each tally on the column's shared left edge. */
+.container-tally {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Nothing is inset now, so the full 102px is available: the heart and glyphs
-     take 84 of it and this gap spends 12, leaving the pair centred with 3px clear
+  /* Nothing is inset, so the full 102px is available: the sprite and glyphs take
+     84 of it and this gap spends 12, leaving the pair centred with 3px clear
      either side. */
   column-gap: 12px;
   width: 102px;
   height: 48px;
-  /* No hover or focus cue: the count follows the heart containers ticked off out
-     on the map, so there is nothing to click here. The cursor is reset explicitly
-     because the row above sets `pointer`, which would otherwise be inherited and
-     advertise a click this readout does not take. */
+  /* No hover or focus cue: these counts follow the containers ticked off out on
+     the map, so there is nothing to click. The cursor is reset explicitly because
+     the palace row sets `pointer`, which would otherwise be inherited and
+     advertise a click these readouts do not take. */
   cursor: default;
 }
 
-/* Matched to the three-slot boxes above it, and pixelated like every other sprite
-   on the board. */
-.heart-tally img {
+/* Matched to the three-slot boxes above them, and pixelated like every other
+   sprite on the board. */
+.container-tally img {
   width: 32px;
   height: 32px;
   image-rendering: pixelated;
 }
 
 /* The glyphs carry their own 2px keyline, so they stay legible against the board
-   now that there is no plate behind them. */
-.heart-tally-count {
+   with no plate behind them. */
+.container-tally-count {
   flex: none;
 }
 
