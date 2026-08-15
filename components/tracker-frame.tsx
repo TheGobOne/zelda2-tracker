@@ -237,9 +237,9 @@ const collectionItems = items.filter((entry) => !UNTRACKED_IDS.has(entry.id))
 const UNKNOWN_NOTE = '/images/notes/unknown.png'
 
 /**
- * Destinations a connector end can be tagged with. Right click steps through
- * these in order; the empty entry is the unknown "?" starting state, so a full
- * cycle returns the end to being unmarked.
+ * Destinations a connector end can be tagged with. Left click steps forward
+ * through these and right click steps back; the unknown "?" marker sits between
+ * the last entry and the first, so a full cycle returns the end to unmarked.
  */
 const CONNECTOR_MARKS: { src: string; alt: string }[] = [
   { src: '/images/notes/w.png', alt: 'W' },
@@ -250,7 +250,7 @@ const CONNECTOR_MARKS: { src: string; alt: string }[] = [
 
 /**
  * Connector art centered in the palace section. Each entry renders one row, flanked
- * by a right-clickable destination marker per end. Add sprites here as
+ * by a clickable destination marker per end. Add sprites here as
  * { src, alt } and the column renders them in order. The same src may repeat,
  * so entries are keyed by position rather than by path.
  */
@@ -916,8 +916,15 @@ export function TrackerFrame() {
   /**
    * Steps a connector end through the destination sprites, then back to the
    * unknown marker. Each end cycles independently of its partner.
+   *
+   * `step` is +1 for left click and -1 for right click, so overshooting a
+   * destination costs one click to undo rather than a lap through the whole
+   * cycle. The unknown state is treated as position 0 of a ring one longer than
+   * the sprite list, which makes both directions the same modulo hop and keeps
+   * the wrap symmetric: forward off the last mark lands on unknown, and
+   * backward off unknown lands on the last mark.
    */
-  function cycleConnectorEnd(endKey: string) {
+  function cycleConnectorEnd(endKey: string, step: 1 | -1) {
     if (CONNECTOR_MARKS.length === 0) {
       return
     }
@@ -925,9 +932,13 @@ export function TrackerFrame() {
     setConnectorEnds((current) => {
       const next = { ...current }
       const marks = CONNECTOR_MARKS.map((mark) => mark.src)
-      // -1 for an unmarked end steps to index 0, the first destination.
-      const index = marks.indexOf(current[endKey] ?? '')
-      const mark = marks[(index + 1) % (marks.length + 1)]
+      const ring = marks.length + 1
+      // indexOf returns -1 for an unmarked end, so +1 puts unknown at 0 and the
+      // sprites at 1..n. Adding `ring` keeps the operand positive, since JS `%`
+      // would otherwise return a negative for a backward step off unknown.
+      const position = marks.indexOf(current[endKey] ?? '') + 1
+      const target = (position + step + ring) % ring
+      const mark = target === 0 ? undefined : marks[target - 1]
 
       if (mark) {
         next[endKey] = mark
@@ -939,7 +950,7 @@ export function TrackerFrame() {
     })
   }
 
-  /** Renders one end of a connector row as a right-clickable marker. */
+  /** Renders one end of a connector row as a clickable marker. */
   function renderConnectorEnd(
     index: number,
     side: 'first' | 'second',
@@ -951,11 +962,16 @@ export function TrackerFrame() {
 
     return (
       <button
-        aria-label={`${noteAlt} ${side} side: ${endMark?.alt ?? 'unknown'}. Right click to change.`}
+        aria-label={`${noteAlt} ${side} side: ${endMark?.alt ?? 'unknown'}. Click to change, right click to go back.`}
         className="palace-note-end"
+        // Keyboard activation routes through onClick, so Enter and Space step
+        // forward and the control stays operable without a pointer.
+        onClick={() => {
+          cycleConnectorEnd(endKey, 1)
+        }}
         onContextMenu={(event) => {
           event.preventDefault()
-          cycleConnectorEnd(endKey)
+          cycleConnectorEnd(endKey, -1)
         }}
         type="button"
       >
