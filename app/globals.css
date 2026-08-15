@@ -621,24 +621,26 @@
    the note column at the canvas centre, and that gutter is only 114px wide. Three
    full-size slots need 186px, so the extra ones ran straight under the notes.
 
-   Rows past their first slot therefore drop to 32px on a 4px gap: three slots and
-   three gaps come to 108px, clearing the notes by 6px, and two come to 72px with
-   room to spare. A lone slot keeps the full 56px, so the common case still reads at
-   the size of the boss beside it.
+   Both multi-slot counts therefore span the same 108px and divide it evenly for
+   their own count, which clears the notes by the same 6px that separates the boxes
+   inside the row. A lone slot keeps the full 56px, so the common case still reads
+   at the size of the boss beside it.
 
-   One size for every multi-slot row rather than one per count, even though the
-   two-slot rows could afford 48px. Palace 6 holds three and Palace 7 two, directly
-   below it in the same column, and boxes that changed size between neighbouring
-   rows read as a mistake rather than as a fit.
+   Sharing one span is what lets the counts differ in size without looking wrong:
+   Palace 6 holds three and Palace 7 two directly below it in the same column, and
+   because both rows come to 108px their inner edges line up. The column still reads
+   as a block; only the boxes inside it change.
 
-   Keyed off `:has()` on a second wrap: the count lives in React state, but the
-   layout only needs to know "more than one", and asking the DOM keeps this beside
-   the rest of the slot's styling instead of threading a modifier through the JSX. */
-.palace-row:has(.item-slot-wrap + .item-slot-wrap) {
+   Keyed off `:has()` on adjacent wraps: the count lives in React state, but the
+   layout only needs to know how many, and asking the DOM keeps this beside the rest
+   of the slot's styling instead of threading a modifier through the JSX. The two
+   sets below are mutually exclusive rather than layered, so neither relies on
+   source order or on how `:has()` specificity resolves. */
+.palace-row:has(.item-slot-wrap + .item-slot-wrap + .item-slot-wrap) {
   column-gap: 4px;
 }
 
-.palace-row:has(.item-slot-wrap + .item-slot-wrap) .item-slot {
+.palace-row:has(.item-slot-wrap + .item-slot-wrap + .item-slot-wrap) .item-slot {
   width: 32px;
   min-height: 32px;
   height: 32px;
@@ -646,19 +648,73 @@
 
 /* Flush to the 28px interior less the 1px inset the full-size slot leaves, so the
    art keeps clear of its own border rather than bleeding into it. */
-.palace-row:has(.item-slot-wrap + .item-slot-wrap) .item-slot img {
+.palace-row:has(.item-slot-wrap + .item-slot-wrap + .item-slot-wrap) .item-slot img {
   width: 26px;
   height: 26px;
 }
 
-.palace-row:has(.item-slot-wrap + .item-slot-wrap) .item-slot .item-pair img {
+.palace-row:has(.item-slot-wrap + .item-slot-wrap + .item-slot-wrap)
+  .item-slot
+  .item-pair
+  img {
   width: 12px;
   height: 12px;
 }
 
-.palace-row:has(.item-slot-wrap + .item-slot-wrap) .item-slot-check {
+.palace-row:has(.item-slot-wrap + .item-slot-wrap + .item-slot-wrap)
+  .item-slot-check {
   width: 20px;
   height: 20px;
+}
+
+/* Two slots have the same 108px to spend on one box fewer, so they take 48px on a
+   6px gap: 6 + 48 + 6 + 48 fills the span, and the 6px left before the notes is the
+   same gap again, so the boss, both boxes and the note column all sit evenly apart.
+   48px stays just under the 56px boss, which keeps the boxes reading as its items
+   rather than as three icons of equal weight. */
+.palace-row:has(.item-slot-wrap + .item-slot-wrap):not(
+    :has(.item-slot-wrap + .item-slot-wrap + .item-slot-wrap)
+  ) {
+  column-gap: 6px;
+}
+
+.palace-row:has(.item-slot-wrap + .item-slot-wrap):not(
+    :has(.item-slot-wrap + .item-slot-wrap + .item-slot-wrap)
+  )
+  .item-slot {
+  width: 48px;
+  min-height: 48px;
+  height: 48px;
+}
+
+/* The 44px interior less the same 1px inset the other two sizes leave. */
+.palace-row:has(.item-slot-wrap + .item-slot-wrap):not(
+    :has(.item-slot-wrap + .item-slot-wrap + .item-slot-wrap)
+  )
+  .item-slot
+  img {
+  width: 42px;
+  height: 42px;
+}
+
+.palace-row:has(.item-slot-wrap + .item-slot-wrap):not(
+    :has(.item-slot-wrap + .item-slot-wrap + .item-slot-wrap)
+  )
+  .item-slot
+  .item-pair
+  img {
+  width: 16px;
+  height: 16px;
+}
+
+/* Kept even, like the other checks, so the `translate(-50%, -50%)` centring lands
+   on a whole pixel instead of blurring the stroke against the art behind it. */
+.palace-row:has(.item-slot-wrap + .item-slot-wrap):not(
+    :has(.item-slot-wrap + .item-slot-wrap + .item-slot-wrap)
+  )
+  .item-slot-check {
+  width: 32px;
+  height: 32px;
 }
 
 /* Pin rows to their outer edge so added slots never shift the boss icons. The
