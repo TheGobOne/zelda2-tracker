@@ -1132,11 +1132,14 @@
   color: #f2b21c;
 }
 
-/* Separated from the flagsets above it, since it throws the board away. */
+/* Separated from the flagsets above it, since it throws the board away, and set in
+   the frame's red so it reads as destructive at rest rather than only on hover.
+   Gold would be wrong here: gold is what marks the active flagset just above, so a
+   gold Clear looked like a fourth selectable ruleset. */
 .tracker-menu-option-danger {
   margin-top: 4px;
   border-top: 3px solid #f5f5f5;
-  color: #f2b21c;
+  color: #e52a08;
 }
 
 .tracker-menu-option-danger:hover {
