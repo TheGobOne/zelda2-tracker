@@ -596,7 +596,44 @@ export function TrackerFrame() {
 
     observer.observe(root, { childList: true, subtree: true })
 
-    return () => observer.disconnect()
+    // Keeping focus out covers every route we control, but not one we don't: if
+    // focus ever lands inside anyway - a browser quirk, an extension, devtools
+    // inspecting a node - Enter and Space would still fire the focused control,
+    // because a button synthesises a click from them. Enter acts on keydown and
+    // Space on keyup, so both phases are cancelled.
+    //
+    // Only those two keys, and only unmodified. Blocking everything would take
+    // the browser's own shortcuts hostage - Ctrl+F, Ctrl+P, Ctrl+R - which is
+    // not what "mouse-only tracker" asks for. No other key activates a button,
+    // so nothing else can reach tracker state.
+    //
+    // Listening on the root rather than the window is deliberate: a keystroke
+    // only arrives here when focus is already inside the tracker, so this can
+    // never swallow a keystroke meant for the game beside it.
+    function blockActivationKeys(event: KeyboardEvent) {
+      if (event.ctrlKey || event.metaKey || event.altKey) {
+        return
+      }
+
+      // ' ' is the modern value; 'Spacebar' is the legacy one older engines send.
+      if (event.key !== 'Enter' && event.key !== ' ' && event.key !== 'Spacebar') {
+        return
+      }
+
+      event.preventDefault()
+      event.stopPropagation()
+    }
+
+    // Capture phase, so this runs before React's delegated handlers rather than
+    // after they have already toggled something.
+    root.addEventListener('keydown', blockActivationKeys, true)
+    root.addEventListener('keyup', blockActivationKeys, true)
+
+    return () => {
+      observer.disconnect()
+      root.removeEventListener('keydown', blockActivationKeys, true)
+      root.removeEventListener('keyup', blockActivationKeys, true)
+    }
   }, [])
 
   // Scrolling a boss steps what blocks its palace. One delegated listener on the
@@ -964,8 +1001,9 @@ export function TrackerFrame() {
       <button
         aria-label={`${noteAlt} ${side} side: ${endMark?.alt ?? 'unknown'}. Click to change, right click to go back.`}
         className="palace-note-end"
-        // Keyboard activation routes through onClick, so Enter and Space step
-        // forward and the control stays operable without a pointer.
+        // onClick is the left-click path only. The tracker is mouse-only, so the
+        // Enter and Space that would otherwise reach this are cancelled at the
+        // root; see the focusability effect.
         onClick={() => {
           cycleConnectorEnd(endKey, 1)
         }}
