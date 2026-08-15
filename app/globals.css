@@ -1013,24 +1013,26 @@
   display: flex;
 }
 
-/* Square hamburger button, framed like the tracker's other controls and sized to
-   read as the boss sprites' equal rather than to match their box. 46px, not their
-   full 56px: the sprites are tapered heads that fade into the background at the
-   corners, so a solid panel with a hard white border looked bigger at an identical
-   size. Trimming it to their ink balances the two by eye. The margin keeps it
-   centred in the 56px slot, so it stays aligned under Thunderbird. */
+/* Square hamburger button, framed like the tracker's other controls but deliberately
+   small: it is a settings affordance, not part of the run, so it gives way to the
+   boss sprites it sits under rather than matching them.
+
+   24px, where half of its old 46px would be 23. The extra pixel keeps every part of
+   the glyph on whole pixels - the 2px border leaves a 20px interior, and the margin
+   that centres it in the 56px slot lands on 16px rather than 16.5, so it stays
+   aligned under Thunderbird without straddling a half pixel. */
 .tracker-menu-toggle {
   display: flex;
-  width: 46px;
-  height: 46px;
+  width: 24px;
+  height: 24px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin: 5px;
+  margin: 16px;
   padding: 0;
   background: #101010;
-  border: 3px solid #f5f5f5;
-  gap: 6px;
+  border: 2px solid #f5f5f5;
+  gap: 3px;
   cursor: pointer;
 }
 
@@ -1043,12 +1045,13 @@
   outline-offset: 2px;
 }
 
-/* Blocks rather than borders, so the bars stay crisp at any zoom. Scaled to the
-   46px button, so the glyph keeps its proportions. */
+/* Blocks rather than borders, so the bars stay crisp at any zoom. Halved with the
+   button, so the glyph keeps its proportions: three 2px bars on 3px gaps stack to
+   12px inside the 20px interior, leaving the same breathing room as before. */
 .tracker-menu-bar {
   display: block;
-  width: 22px;
-  height: 4px;
+  width: 12px;
+  height: 2px;
   background: #f5f5f5;
 }
 
@@ -1375,5 +1378,6 @@
 .frame-corner-top-right { top: 4px; right: 4px; }
 .frame-corner-bottom-right { right: 4px; bottom: 4px; }
 .frame-corner-bottom-left { bottom: 4px; left: 4px; }
+
 
 
