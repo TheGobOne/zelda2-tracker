@@ -740,22 +740,11 @@
   column-gap: 12px;
   width: 102px;
   height: 48px;
-  padding: 0;
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-/* With no border to recolour, the hover cue has to come from the content itself -
-   brightening both the sprite and the glyphs together keeps the tally responsive
-   to the pointer the way the boxes above it are. */
-.heart-tally:hover {
-  filter: brightness(1.35);
-}
-
-.heart-tally:focus-visible {
-  outline: 3px solid #e52a08;
-  outline-offset: 2px;
+  /* No hover or focus cue: the count follows the heart containers ticked off out
+     on the map, so there is nothing to click here. The cursor is reset explicitly
+     because the row above sets `pointer`, which would otherwise be inherited and
+     advertise a click this readout does not take. */
+  cursor: default;
 }
 
 /* Matched to the three-slot boxes above it, and pixelated like every other sprite

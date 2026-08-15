@@ -122,19 +122,11 @@ const HEART_START = 3
 const HEART_MAX = 6
 
 /**
- * The tally's own cycle, held as strings so it shares the counter state the
- * numbered location slots already use. Reusing that state is what makes Clear
- * and a flagset switch reset the hearts for free, and because the first entry is
- * the starting count, an absent value reads as a fresh board rather than a zero.
+ * The pickup the tally counts. Checking off a slot holding this is what raises
+ * the count, so the number is read off the board rather than kept beside it -
+ * one source of truth, which is what stops the two from drifting apart.
  */
-const HEART_VALUES = Array.from(
-  { length: HEART_MAX - HEART_START + 1 },
-  (_, index) => String(HEART_START + index),
-)
-
-// Keyed outside the `location-` and `boss-` namespaces, since the tally belongs
-// to no single check.
-const HEART_KEY = 'hearts'
+const HEART_ITEM_ID = 'heartcontainer'
 
 // A location row holds sprite slots plus the occasional numeric counter slot,
 // which takes up one icon of space and shows a chosen number over its art. The
@@ -578,21 +570,14 @@ export function TrackerFrame() {
   const [armedIcon, setArmedIcon] = useState<string | null>(null)
   const palaceGridRef = useRef<HTMLDivElement | null>(null)
 
-  /**
-   * Steps a counter slot to the next value, wrapping around at either end. The
-   * value list is a parameter because the heart tally counts over a different
-   * range than the numbered location slots, but wraps the same way; an unset slot
-   * reads as the list's first entry, which is empty for those slots and the
-   * starting count for the hearts.
-   */
-  function cycleCount(
-    slotKey: string,
-    step: 1 | -1,
-    values: readonly string[] = COUNT_VALUES,
-  ) {
+  /** Steps a counter slot to the next value, wrapping back around to empty. */
+  function cycleCount(slotKey: string, step: 1 | -1) {
     setCountValues((current) => {
-      const index = values.indexOf(current[slotKey] ?? values[0])
-      const next = values[(index + step + values.length) % values.length]
+      const index = COUNT_VALUES.indexOf(current[slotKey] ?? '')
+      const next =
+        COUNT_VALUES[
+          (index + step + COUNT_VALUES.length) % COUNT_VALUES.length
+        ]
 
       return { ...current, [slotKey]: next }
     })
@@ -798,6 +783,27 @@ export function TrackerFrame() {
     }
 
     return found
+  }, [collected, slotItems])
+
+  /**
+   * Hearts Link is carrying: the starting three plus every heart container that
+   * has been checked off out on the map. Counting slots rather than tracking a
+   * number of its own means unchecking a heart takes the tally back down, a heart
+   * cannot be counted twice, and Clear and a flagset switch reset it for free.
+   *
+   * A run only ever holds enough containers to reach the cap, but the clamp keeps
+   * the reading honest under a flagset that shuffles in more than that.
+   */
+  const heartCount = useMemo(() => {
+    let found = 0
+
+    for (const [slotKey, isChecked] of Object.entries(collected)) {
+      if (isChecked && slotItems[slotKey] === HEART_ITEM_ID) {
+        found += 1
+      }
+    }
+
+    return Math.min(HEART_START + found, HEART_MAX)
   }, [collected, slotItems])
 
   /**
@@ -1239,11 +1245,6 @@ export function TrackerFrame() {
     }
   }
 
-  // Unset until the tally is first clicked, and the cycle's first value is the
-  // starting count, so a fresh board and a cleared one both read three without
-  // anything having to be written into state.
-  const heartCount = countValues[HEART_KEY] ?? HEART_VALUES[0]
-
   return (
     <div
       className="tracker-wrap"
@@ -1431,23 +1432,24 @@ export function TrackerFrame() {
                           )
                         )}
                         {'heartTally' in palace ? (
-                          <button
-                            aria-label={`Heart containers: ${heartCount} of ${HEART_MAX}. Left click to add one, right click to take one away.`}
+                          // A readout, not a control: the count follows the heart
+                          // containers checked off on the map, so there is nothing
+                          // to click here. role="img" carries the label because the
+                          // number is drawn as sprites, and aria-live announces the
+                          // change when a heart is picked up somewhere else on the
+                          // board.
+                          <div
+                            aria-label={`Heart containers: ${heartCount} of ${HEART_MAX}`}
+                            aria-live="polite"
                             className="heart-tally"
-                            onClick={() =>
-                              cycleCount(HEART_KEY, 1, HEART_VALUES)
-                            }
-                            // Right click steps back, the same way the numbered
-                            // location slots undo an overshoot.
-                            onContextMenu={(event) => {
-                              event.preventDefault()
-                              cycleCount(HEART_KEY, -1, HEART_VALUES)
-                            }}
-                            type="button"
+                            role="img"
                           >
                             <Image
                               alt=""
                               height={32}
+                              // Eager because this sits above the fold and Next
+                              // flags it as the largest contentful paint.
+                              loading="eager"
                               src="/images/items/heartcontainer.png"
                               width={32}
                             />
@@ -1457,7 +1459,7 @@ export function TrackerFrame() {
                             <GlyphText className="heart-tally-count" scale={2}>
                               {`${heartCount}/${HEART_MAX}`}
                             </GlyphText>
-                          </button>
+                          </div>
                         ) : null}
                       </div>
                     )
