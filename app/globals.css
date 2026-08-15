@@ -718,10 +718,10 @@
 }
 
 /* The heart tally sits in Thunderbird's row, which holds no item slots, so it has
-   the whole 114px gutter to itself. It takes the same 6px gap and 108px span the
-   three-slot rows use, which leaves the same 6px before the notes and lines its
-   outer edge up with Palace 6's items directly above - the row reads as part of
-   that column rather than as something parked in a leftover space. */
+   the whole 114px gutter between boss and notes to itself. It takes the row's 6px
+   gap on the boss side and leaves the same 6px before the notes, which is what
+   fixes its width: 6 + 102 + 6 fills the gutter exactly, so the tally sits evenly
+   between the boss and the connectors like the item boxes above it. */
 .palace-row:has(.heart-tally) {
   column-gap: 6px;
 }
@@ -732,10 +732,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* 32px heart plus 52px of glyphs plus this gap comes to 100px, so the pair sits
-     centred in the span with a pixel to spare either side. */
-  column-gap: 16px;
-  width: 108px;
+  /* The 102px less its 2px borders leaves 98px inside, and the heart and glyphs
+     take 32 + 52 of that, so this gap spends 12 of the remaining 14 and leaves the
+     pair a pixel clear of each border. */
+  column-gap: 12px;
+  width: 102px;
   height: 48px;
   padding: 0;
   background: #101010;
