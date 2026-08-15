@@ -114,26 +114,21 @@ const locationRowOne = [
 const COUNT_VALUES = ['', '5', '6', '7']
 
 /**
- * Heart containers Link carries. A run opens on three and caps at six, and they
- * can only ever be gained, so the tally counts up from the start rather than
- * from zero and has no empty state - three is a real reading, not "unset".
- */
-const HEART_START = 3
-const HEART_MAX = 6
-
-/**
  * The pickups the tallies count. Checking off a slot holding one of these is what
  * raises its count, so each number is read off the board rather than kept beside
  * it - one source of truth, which is what stops the two from drifting apart.
+ *
+ * Containers can only ever be gained, so both tallies count up from what the
+ * ruleset starts Link with rather than from zero, and neither has an empty state -
+ * the opening figure is a real reading, not "unset".
+ *
+ * How many Link opens with, and how many exist at all, are rules of the flagset,
+ * so those figures live on each preset. Magic happens to cap at eight under both
+ * current rulesets, but hearts do not, so the cap is per-preset for both rather
+ * than a constant for one and a field for the other.
  */
 const HEART_ITEM_ID = 'heartcontainer'
 const MAGIC_ITEM_ID = 'magiccontainer'
-
-/**
- * Magic caps at eight everywhere, but how many Link opens with is a rule of the
- * flagset, so the starting figure lives on each preset rather than here.
- */
-const MAGIC_MAX = 8
 
 // A location row holds sprite slots plus the occasional numeric counter slot,
 // which takes up one icon of space and shows a chosen number over its art. The
@@ -299,7 +294,10 @@ const PRESETS: {
   id: string
   name: string
   collectedIds: string[]
+  heartStart: number
+  heartMax: number
   magicStart: number
+  magicMax: number
   placements: Record<string, string>
   counts: Record<string, string>
 }[] = [
@@ -309,8 +307,11 @@ const PRESETS: {
     id: 'standard',
     name: 'Standard',
     collectedIds: ['candle'],
-    // Vanilla magic: four of the eight containers are Link's to begin with.
+    // Vanilla containers: Link opens with four of the eight of each.
+    heartStart: 4,
+    heartMax: 8,
     magicStart: 4,
+    magicMax: 8,
     placements: {},
     counts: {},
   },
@@ -320,9 +321,13 @@ const PRESETS: {
     // Candle and cross only: the fire spell is not a starting item under this
     // ruleset, so it stays unmarked until it is actually found.
     collectedIds: ['candle', 'cross'],
-    // This ruleset holds one of the starting containers back, so the run opens a
-    // magic short of vanilla and there is one more to find.
+    // This ruleset runs a shorter heart track - three of six rather than vanilla's
+    // four of eight - and holds back one starting magic container, leaving one more
+    // of those to find than vanilla has.
+    heartStart: 3,
+    heartMax: 6,
     magicStart: 3,
+    magicMax: 8,
     placements: {
       // All three P-Bag caves keep their vanilla point bags.
       'location-West P-Bag Cave': 'pbag',
@@ -571,13 +576,13 @@ export function TrackerFrame() {
   // it rather than needing the flagset picked by hand. Still tracked now that the
   // picker is a menu, to mark the active entry.
   const [activeFlags, setActiveFlags] = useState(PRESETS[0].id)
-  // How much magic the loaded ruleset starts Link with - 4 under Standard, 3 under
-  // SGL - so switching flagsets moves the magic tally's floor with it. Read from
-  // the preset rather than switched on its id, so a new ruleset only has to declare
-  // its own figure. Falls back to Standard's if an id ever goes missing.
-  const magicStart =
-    PRESETS.find((preset) => preset.id === activeFlags)?.magicStart ??
-    PRESETS[0].magicStart
+  // The container figures the loaded ruleset plays by: Standard runs 4 of 8 hearts
+  // and magic, SGL 3 of 6 hearts and 3 of 8 magic. Switching flagsets moves both
+  // tallies' floors and totals with it. Read off the preset rather than switched on
+  // its id, so a new ruleset only has to declare its own numbers. Falls back to
+  // Standard if an id ever goes missing.
+  const activePreset =
+    PRESETS.find((preset) => preset.id === activeFlags) ?? PRESETS[0]
   // Clear and the flagsets share one hamburger button, so a single flag covers
   // the whole menu rather than just the flagset list.
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -829,10 +834,16 @@ export function TrackerFrame() {
     }
 
     return {
-      heartCount: Math.min(HEART_START + hearts, HEART_MAX),
-      magicCount: Math.min(magicStart + magic, MAGIC_MAX),
+      heartCount: Math.min(
+        activePreset.heartStart + hearts,
+        activePreset.heartMax,
+      ),
+      magicCount: Math.min(
+        activePreset.magicStart + magic,
+        activePreset.magicMax,
+      ),
     }
-  }, [collected, slotItems, magicStart])
+  }, [collected, slotItems, activePreset])
 
   /**
    * Palace number to stamp on each item in the collection row: the palace it has
@@ -1467,7 +1478,7 @@ export function TrackerFrame() {
                           // change when a heart is picked up somewhere else on the
                           // board.
                           <div
-                            aria-label={`Heart containers: ${heartCount} of ${HEART_MAX}`}
+                            aria-label={`Heart containers: ${heartCount} of ${activePreset.heartMax}`}
                             aria-live="polite"
                             className="container-tally"
                             role="img"
@@ -1485,7 +1496,7 @@ export function TrackerFrame() {
                                 sets in the same letterforms as the requirement
                                 marks instead of introducing a second typeface. */}
                             <GlyphText className="container-tally-count" scale={2}>
-                              {`${heartCount}/${HEART_MAX}`}
+                              {`${heartCount}/${activePreset.heartMax}`}
                             </GlyphText>
                           </div>
                         ) : null}
@@ -1505,11 +1516,11 @@ export function TrackerFrame() {
                     <div className="tracker-utility-row">
                       {/* Reads like the heart tally above it and for the same
                           reason: the count follows the magic containers checked off
-                          on the map, so there is nothing to click. Its floor moves
-                          with the flagset, which is why the total comes from
-                          `magicStart` rather than a fixed number. */}
+                          on the map, so there is nothing to click. Both its floor
+                          and its total are the loaded ruleset's, which is why they
+                          come off `activePreset` rather than being fixed here. */}
                       <div
-                        aria-label={`Magic containers: ${magicCount} of ${MAGIC_MAX}`}
+                        aria-label={`Magic containers: ${magicCount} of ${activePreset.magicMax}`}
                         aria-live="polite"
                         className="container-tally"
                         role="img"
@@ -1525,7 +1536,7 @@ export function TrackerFrame() {
                           width={32}
                         />
                         <GlyphText className="container-tally-count" scale={2}>
-                          {`${magicCount}/${MAGIC_MAX}`}
+                          {`${magicCount}/${activePreset.magicMax}`}
                         </GlyphText>
                       </div>
 
