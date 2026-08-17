@@ -1011,25 +1011,18 @@
   z-index: 6;
 }
 
-/* A town holding a spell drops its own sprite to half opacity. The slot sits
-   directly on the sprite rather than beside it, so the two compete for one 56px
-   square; pushing the town back makes the spell the thing being read, while leaving
-   enough of the art to still say which town it is.
-
-   Only the sprite fades. The requirement letter is state the spell does not answer -
-   it says what is needed to reach the town at all - so it keeps full strength, which
-   is also why it already sits at a higher z-index than the item art.
-
-   Keyed off `img` inside the slot, which is present exactly when a spell has been
-   placed: the collected checkmark renders only alongside an item, so an empty slot
-   has no image to match. */
-.town-grid .town-column:has(.item-slot img) .town-icon img {
-  opacity: 0.5;
-}
+/* A town holding a spell keeps its sprite at full strength. The slot sits directly
+   on the sprite rather than beside it, so the two compete for one 56px square, and
+   the spell wins that competition on size instead of by fading the town: it is a
+   third larger than the town art can spare, and it carries a doubled drop shadow
+   that cuts its own edge against whatever is behind it. Nothing here is dimmed,
+   which keeps both readable - the town stays as identifiable as its neighbours, and
+   the spell still reads first. */
 
 /* Once a town's item is collected the town itself is spent, so its sprite drops
-   to greyscale - compounding with the fade above, since a collected town is also a
-   filled one. `:has()` is what makes this possible in CSS alone: the collected
+   to greyscale. This is now the only state that changes the town art, so it reads
+   cleanly as "done" rather than stacking with an earlier fade. `:has()` is what
+   makes this possible in CSS alone: the collected
    flag lives on the slot, which is a later sibling of the icon, so the state is
    read from the shared column instead. Scoped to `.town-grid` because the boss
    columns reuse `.town-icon` and are not finished by handing over an item.
@@ -1039,11 +1032,18 @@
   filter: grayscale(1) brightness(0.7);
 }
 
+/* A third larger than the 40px it was, which is what replaces the fade as the thing
+   that makes the spell read over the town art. 53px is about the ceiling: the slot
+   it sits in is 56px, so this fills it to within a pixel and a half either side and
+   anything more would spill past the town's own square. */
 .town-grid .item-slot img {
-  width: 40px;
-  height: 40px;
+  width: 53px;
+  height: 53px;
 }
 
+/* Paired items keep their old size. Two sit side by side inside the same 56px slot,
+   so 23px each already spends most of the width available - scaling the pair to
+   match the single spell would push it outside the town's square. */
 .town-grid .item-slot .item-pair img {
   width: 23px;
   height: 23px;
