@@ -767,9 +767,16 @@
 }
 
 /* The glyphs carry their own 2px keyline, so they stay legible against the board
-   with no plate behind them. */
+   with no plate behind them.
+
+   Nudged 7px left so the count centres on 1031 - the centre line the item boxes in
+   the rows above run down, Barba's included - instead of the 1038 that flex centring
+   lands on. Shifted with a transform rather than by closing the gap, because the gap
+   feeds the centring calculation and narrowing it would drag the sprite inward too;
+   this leaves the sprite on its own left edge and moves only the number. */
 .container-tally-count {
   flex: none;
+  transform: translateX(-7px);
 }
 
 /* Pin rows to their outer edge so added slots never shift the boss icons. The
