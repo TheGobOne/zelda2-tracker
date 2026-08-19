@@ -547,20 +547,23 @@
   pointer-events: none;
 }
 
-/* What blocks a palace, stacked in the gutter just beyond the boss sprite's outer
-   edge - the side facing away from its item slots. It sits outside the icon rather
-   than over it because the requirement letter's glyph spans the icon's full width,
-   so a wide mark like DM would cross anything laid on the art.
+/* What blocks a palace, stacked over the boss art in the icon's bottom-left corner.
+   A stack of two means either one opens the way, and it grows upward from that
+   corner so the first plate stays put as a second appears.
 
-   That gutter is exactly 18px: the board's frame rail ends 18px short of the end
-   columns, and the rail is painted above this, so a plate any wider than 16px plus
-   its 1px ring disappears under the frame. Hence the sizes here, which are smaller
-   than the tracker's other overlays and deliberately so. Two sprites mean either
-   one opens the way. */
+   Both columns anchor to the same corner. They used to sit in the gutter outside
+   each sprite's outer edge, which put the left column's plates on its left and the
+   right column's on its right - mirrored, and only as wide as the 18px the frame
+   rail left free. Inside the icon that constraint is gone, but the plates stay 16px:
+   they read as markers over the art rather than as art themselves, and the corner is
+   the one part of a 56px sprite that carries no silhouette worth covering.
+
+   Inset a pixel so the gold ring each plate carries sits fully inside the icon
+   rather than straddling its edge. */
 .boss-block {
   position: absolute;
-  top: 0;
-  bottom: 0;
+  bottom: 1px;
+  left: 1px;
   /* Explicit, matching the plate size below. Without it the box is shrink-to-fit,
      and the global `img` reset's `max-width: 100%` resolves against that indefinite
      width - max-width outranks width, so the sprites collapse to nothing. */
@@ -568,30 +571,20 @@
   z-index: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  /* Bottom-anchored, so a second plate stacks above the first. */
+  justify-content: flex-end;
   /* Clear of the ring each plate carries, so a stack of two reads as two. */
   row-gap: 3px;
   pointer-events: none;
-}
-
-/* Offset by the ring's own width, so the ring lands flush against the frame rail's
-   inner edge on one side and the icon's edge on the other - the exact width of the
-   gutter, with nothing spilling under the rail. */
-.palace-column-left .boss-block {
-  right: calc(100% + 1px);
-}
-
-.palace-column-right .boss-block {
-  left: calc(100% + 1px);
 }
 
 /* Each sprite gets its own plate: a black field ringed in the letters' gold. A
    keyline traced around the sprite's pixels was the first attempt and it vanished -
    these items and spells are mostly dark greys and browns, and the boss art beneath
    them is darker still, so there was nothing for a thin line to separate. The plate
-   gives the sprite a field of its own, and reads as a small inset panel next to the
-   item slots it shares the row with. */
+   gives the sprite a field of its own, which is what lets it sit directly over the
+   boss art now without the two running together. */
 .boss-block img {
   display: block;
   width: 16px;
