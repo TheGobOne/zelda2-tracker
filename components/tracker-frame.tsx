@@ -130,6 +130,15 @@ const COUNT_VALUES = ['', '5', '6', '7']
 const HEART_ITEM_ID = 'heartcontainer'
 const MAGIC_ITEM_ID = 'magiccontainer'
 
+/**
+ * Granny hands over her spell item once the magic container in New Kasuto's
+ * basement is taken, so checking that container off finishes her too. Both slots
+ * are named here and matched by name rather than by their position in the rows,
+ * so reordering a row cannot quietly break the link.
+ */
+const GRANNY_SLOT_NAME = 'Spell Item Count'
+const NEW_KASUTO_MAGIC_SLOT_NAME = 'New Kasuto Magic Container'
+
 // A location row holds sprite slots plus the occasional numeric counter slot,
 // which takes up one icon of space and shows a chosen number over its art. The
 // counter carries a `src` like any other slot rather than hardcoding one in the
@@ -1650,14 +1659,36 @@ export function TrackerFrame() {
                   if ('kind' in location) {
                     const value = countValues[slotKey] ?? ''
 
+                    // Granny is finished the moment New Kasuto's magic container is
+                    // checked off, since that is the same visit. Read straight off
+                    // that slot rather than recorded here, so the two always agree
+                    // and unchecking the container brings Granny back - `clearItem`
+                    // drops the collected flag with the item, so wiping the slot
+                    // reverts her as well.
+                    const isComplete =
+                      location.name === GRANNY_SLOT_NAME &&
+                      Boolean(
+                        collected[`location-${NEW_KASUTO_MAGIC_SLOT_NAME}`],
+                      )
+
                     return (
                       <button
                         aria-label={
-                          value
-                            ? `${location.name}: ${value}. Left click for the next number.`
-                            : `${location.name}: unset. Left click to choose 5, 6 or 7.`
+                          isComplete
+                            ? `${location.name}: complete, collected with the New Kasuto magic container.`
+                            : value
+                              ? `${location.name}: ${value}. Left click for the next number.`
+                              : `${location.name}: unset. Left click to choose 5, 6 or 7.`
                         }
-                        className="location-icon location-count"
+                        className={
+                          isComplete
+                            ? 'location-icon location-count location-icon-collected'
+                            : 'location-icon location-count'
+                        }
+                        // Nothing left to record once she is done, and the number is
+                        // hidden below, so cycling an unseen value would be a click
+                        // with no visible effect.
+                        disabled={isComplete}
                         key={location.name}
                         onClick={() => cycleCount(slotKey, 1)}
                         // Right click steps back through the numbers.
@@ -1673,7 +1704,11 @@ export function TrackerFrame() {
                           src={location.src}
                           width={56}
                         />
-                        {value ? (
+                        {/* The count comes off the sprite once she is complete,
+                            leaving just the greyed art. The chosen number stays in
+                            state rather than being wiped, so unchecking the
+                            container brings it back rather than losing it. */}
+                        {value && !isComplete ? (
                           <span aria-hidden="true" className="icon-mark">
                             {value}
                           </span>

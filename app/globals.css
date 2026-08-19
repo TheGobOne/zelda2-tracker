@@ -391,6 +391,17 @@
   opacity: 0.45;
 }
 
+/* A counter slot another location has already completed takes no clicks, so it
+   stops advertising one - `.location-icon` sets `pointer` for every icon in the row,
+   which would otherwise carry over. The greyed art is what says why.
+
+   Doubled up rather than left as a single class: `.location-icon:disabled` ties that
+   rule on specificity and would win only on source order, which is too fragile to
+   rest a pointer state on. */
+.location-icon.location-icon:disabled {
+  cursor: default;
+}
+
 /* Connector rows centered between the two boss columns, starting level with
    them. Four 56px rows with 6px gaps come to 242px, which is why the boss
    divider sits below the 134px columns rather than tight against them. Sprites
