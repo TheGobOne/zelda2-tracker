@@ -536,7 +536,7 @@
   shape-rendering: crispEdges;
 }
 
-/* Letters stamped across a marked boss. These are inline SVG rather than `img`
+/* Letters stamped across a marked icon. These are inline SVG rather than `img`
    elements, so the mirror rule on the flipped columns does not reach them and
    the glyphs stay the right way round. */
 .icon-mark-glyph {
@@ -545,6 +545,20 @@
   z-index: 1;
   justify-content: center;
   pointer-events: none;
+}
+
+/* On a palace the letter rides in the upper third rather than across the middle,
+   which also lifts it clear of the blocker plates now stacking up from the
+   bottom-left corner. Scoped to the bosses by their own attribute: the towns and
+   item slots draw their marks with the same class and still want theirs centred.
+
+   Top-aligned with 4px of padding rather than a literal third, because the glyph box
+   carries a spare unit of outline padding on each side - at scale 3 that is a 30px
+   box holding 24px of ink, so topping it at 4px puts the ink's centre on 19 of the
+   icon's 56px, which is the third mark as near as a pixel grid allows. */
+[data-boss-key] .icon-mark-glyph {
+  align-items: flex-start;
+  padding-top: 4px;
 }
 
 /* What blocks a palace, stacked over the boss art in the icon's bottom-left corner.
