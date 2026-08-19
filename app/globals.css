@@ -554,9 +554,10 @@
    Both columns anchor to the same corner. They used to sit in the gutter outside
    each sprite's outer edge, which put the left column's plates on its left and the
    right column's on its right - mirrored, and only as wide as the 18px the frame
-   rail left free. Inside the icon that constraint is gone, but the plates stay 16px:
-   they read as markers over the art rather than as art themselves, and the corner is
-   the one part of a 56px sprite that carries no silhouette worth covering.
+   rail left free. Inside the icon that constraint is gone, which is what let the
+   plates grow past the 16px that gutter allowed to the 21px here - a third larger,
+   and about the ceiling for a stack of two: 21 + 3 + 21 plus the inset comes to 46
+   of the icon's 56px, so a doubled palace still keeps its top corner clear.
 
    Inset a pixel so the gold ring each plate carries sits fully inside the icon
    rather than straddling its edge. */
@@ -567,7 +568,7 @@
   /* Explicit, matching the plate size below. Without it the box is shrink-to-fit,
      and the global `img` reset's `max-width: 100%` resolves against that indefinite
      width - max-width outranks width, so the sprites collapse to nothing. */
-  width: 16px;
+  width: 21px;
   z-index: 1;
   display: flex;
   flex-direction: column;
@@ -587,8 +588,8 @@
    boss art now without the two running together. */
 .boss-block img {
   display: block;
-  width: 16px;
-  height: 16px;
+  width: 21px;
+  height: 21px;
   background: #050505;
   box-shadow: 0 0 0 1px #f2b21c;
   image-rendering: pixelated;
