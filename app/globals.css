@@ -558,23 +558,39 @@
   pointer-events: none;
 }
 
-/* What blocks a palace, stacked over the boss art in the icon's bottom-left corner.
-   A stack of two means either one opens the way, and it grows upward from that
-   corner so the first plate stays put as a second appears.
+/* A blocked palace gives up its left edge to the blocker plates, so its letter
+   moves off centre to the right of them. The class comes from the component, which
+   sets it exactly when plates are drawn - an unblocked boss keeps its letter centred
+   on the sprite, as do the towns and item slots that share the class above.
 
-   Both columns anchor to the same corner. They used to sit in the gutter outside
-   each sprite's outer edge, which put the left column's plates on its left and the
-   right column's on its right - mirrored, and only as wide as the 18px the frame
-   rail left free. Inside the icon that constraint is gone, which is what let the
-   plates grow past the 16px that gutter allowed to the 21px here - a third larger,
-   and about the ceiling for a stack of two: 21 + 3 + 21 plus the inset comes to 46
-   of the icon's 56px, so a doubled palace still keeps its top corner clear.
+   Pushed to the icon's right edge rather than centred on the space beside the
+   plates, so the letter lands the same distance in whatever it is. 2px holds it off
+   that edge. The component only sets this class on marks narrow enough to fit the
+   space, so nothing aligned here overflows. */
+.icon-mark-glyph-shifted {
+  justify-content: flex-end;
+  padding-right: 2px;
+}
 
-   Inset a pixel so the gold ring each plate carries sits fully inside the icon
-   rather than straddling its edge. */
+/* What blocks a palace, stacked over the boss art down the icon's left edge and
+   centred on its height. A stack of two means either one opens the way, and it grows
+   from the middle outward, so one plate and two both read as one column.
+
+   Both columns anchor to the same edge. They used to sit in the gutter outside each
+   sprite's outer edge, which put the left column's plates on its left and the right
+   column's on its right - mirrored, and only as wide as the 18px the frame rail left
+   free. Inside the icon that constraint is gone, which is what let the plates grow
+   past the 16px that gutter allowed to the 21px here - a third larger, and about the
+   ceiling for a stack of two: 21 + 3 + 21 comes to 45 of the icon's 56px, so a
+   doubled palace still leaves a margin top and bottom.
+
+   Inset a pixel on the left so the gold ring each plate carries sits fully inside
+   the icon rather than straddling its edge. Stretched top to bottom instead of
+   pinned to one end, since centring needs a full-height box to centre within. */
 .boss-block {
   position: absolute;
-  bottom: 1px;
+  top: 0;
+  bottom: 0;
   left: 1px;
   /* Explicit, matching the plate size below. Without it the box is shrink-to-fit,
      and the global `img` reset's `max-width: 100%` resolves against that indefinite
@@ -584,8 +600,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  /* Bottom-anchored, so a second plate stacks above the first. */
-  justify-content: flex-end;
+  justify-content: center;
   /* Clear of the ring each plate carries, so a stack of two reads as two. */
   row-gap: 3px;
   pointer-events: none;

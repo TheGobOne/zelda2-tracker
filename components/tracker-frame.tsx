@@ -1456,8 +1456,26 @@ export function TrackerFrame() {
                               ))}
                             </span>
                           ) : null}
+                          {/* A blocked boss carries its plates down the icon's left
+                              edge, so the letter shifts right to keep off them. Set
+                              here from the same `block` the plates render from
+                              rather than matched in CSS with `:has()`, which the
+                              stylesheet's browser targets compile away.
+
+                              Single letters only. A two-letter mark is 54px of ink
+                              against the 34px left free beside the plates, so
+                              shifting one would hang it off the icon and into the
+                              row beside it - worse than the overlap it set out to
+                              fix. Those stay centred. */}
                           {mark ? (
-                            <GlyphText className="icon-mark-glyph" scale={3}>
+                            <GlyphText
+                              className={
+                                block && mark.length === 1
+                                  ? 'icon-mark-glyph icon-mark-glyph-shifted'
+                                  : 'icon-mark-glyph'
+                              }
+                              scale={3}
+                            >
                               {mark}
                             </GlyphText>
                           ) : null}
