@@ -558,20 +558,6 @@
   pointer-events: none;
 }
 
-/* On a palace the letter rides in the upper third rather than across the middle,
-   which also lifts it clear of the blocker plates now stacking up from the
-   bottom-left corner. Scoped to the bosses by their own attribute: the towns and
-   item slots draw their marks with the same class and still want theirs centred.
-
-   Top-aligned with 4px of padding rather than a literal third, because the glyph box
-   carries a spare unit of outline padding on each side - at scale 3 that is a 30px
-   box holding 24px of ink, so topping it at 4px puts the ink's centre on 19 of the
-   icon's 56px, which is the third mark as near as a pixel grid allows. */
-[data-boss-key] .icon-mark-glyph {
-  align-items: flex-start;
-  padding-top: 4px;
-}
-
 /* What blocks a palace, stacked over the boss art in the icon's bottom-left corner.
    A stack of two means either one opens the way, and it grows upward from that
    corner so the first plate stays put as a second appears.
