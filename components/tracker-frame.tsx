@@ -2428,13 +2428,12 @@ export function TrackerFrame() {
                     ))}
                   </div>
 
-                  {/* Reworded once the tallies became settable under Custom: they
-                      no longer "take no clicks", but the half that still holds is
-                      the part worth stating, since it is why setting the start does
-                      not stop the count from moving on its own. */}
+                  {/* Closes the dialog on the one behaviour that surprises people:
+                      the counts move by themselves, so the click is for the figures
+                      rather than the count. */}
                   <p className="controls-footnote">
-                    The heart and magic counts still come from the board - finding a
-                    container is what moves them, never a click on the tally.
+                    The heart/magic containers will increment on their own when
+                    collected. Setting a custom flagset allows selection.
                   </p>
                 </div>
               </div>
