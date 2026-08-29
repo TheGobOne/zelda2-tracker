@@ -405,15 +405,25 @@ const PRESETS: {
   })),
 ]
 
-/**
- * The rulesets shown at the top level of the flags list, and the weeks behind the
- * Upstarts entry. Split once here so the menu does not filter on every render.
- */
-const TOP_LEVEL_PRESETS = PRESETS.filter((preset) => !preset.group)
-const UPSTARTS_PRESETS = PRESETS.filter((preset) => preset.group === 'upstarts')
-
 /** The one ruleset whose container figures are the user's to set. */
 const CUSTOM_FLAGS_ID = 'custom'
+
+/**
+ * The three runs the flags list is built from, split once here so the menu does
+ * not filter on every render.
+ *
+ * Custom is held apart from the rest of the top level rather than left to fall
+ * where it sits in `PRESETS`, because it has to stay at the foot of the list: it
+ * is the odd one out - the ruleset you configure rather than one that states its
+ * own figures - and anything added later should land above it. Deriving it by id
+ * means that holds no matter where it sits in the array, and no matter how many
+ * named rulesets or submenus arrive above it.
+ */
+const UPSTARTS_PRESETS = PRESETS.filter((preset) => preset.group === 'upstarts')
+const NAMED_PRESETS = PRESETS.filter(
+  (preset) => !preset.group && preset.id !== CUSTOM_FLAGS_ID,
+)
+const CUSTOM_PRESET = PRESETS.find((preset) => preset.id === CUSTOM_FLAGS_ID)
 
 /**
  * The four figures behind the two container tallies: what Link starts with, and
@@ -2051,7 +2061,7 @@ export function TrackerFrame() {
                         >
                           <p className="tracker-menu-heading">Flags</p>
 
-                          {TOP_LEVEL_PRESETS.map((preset) => (
+                          {NAMED_PRESETS.map((preset) => (
                             <button
                               aria-checked={preset.id === activeFlags}
                               className="tracker-menu-option"
@@ -2119,6 +2129,26 @@ export function TrackerFrame() {
                               </div>
                             ) : null}
                           </div>
+
+                          {/* Custom last, below the named rulesets and the
+                              Upstarts submenu. Rendered from its own constant
+                              rather than in list order so it stays pinned to the
+                              foot of the flags run however many entries appear
+                              above it. */}
+                          {CUSTOM_PRESET ? (
+                            <button
+                              aria-checked={CUSTOM_PRESET.id === activeFlags}
+                              className="tracker-menu-option"
+                              onClick={() => {
+                                closeMenu()
+                                applyPreset(CUSTOM_PRESET)
+                              }}
+                              role="menuitemradio"
+                              type="button"
+                            >
+                              {CUSTOM_PRESET.name}
+                            </button>
+                          ) : null}
 
                           {/* Opens the controls reference. Sits below the
                               flags entries and above Clear, so the menu runs from
