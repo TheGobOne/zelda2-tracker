@@ -333,8 +333,9 @@
    spends exactly the remainder rather than a measured width - 288px, once the
    row's 2px gap comes off the 290px free - so it stays correct if a fifth
    location is ever added to the row. 56px matches the icons beside it, top and
-   bottom, and the black fill with a grey keyline is the same treatment as the
-   item boxes in the rows above, so it reads as board furniture. */
+   bottom. No fill and no keyline: the text sits straight on the board's black, so
+   the readout reads as a label in the empty space rather than as another boxed
+   slot competing with the icons beside it. */
 .flags-panel {
   display: flex;
   flex: 1;
@@ -344,8 +345,6 @@
   justify-content: center;
   row-gap: 4px;
   padding: 0 10px;
-  background: #000000;
-  border: 2px solid #3a3a3a;
 }
 
 /* Says what the panel is, since it sits among the location sprites with nothing
