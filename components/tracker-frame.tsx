@@ -666,7 +666,9 @@ const CONTROL_GROUPS: {
     note: 'Only changeable under Custom flags - every other ruleset fixes its own figures, so its tallies are read-only.',
     rows: [
       {
-        input: 'Right click',
+        // Both buttons open the same panel, so they share one row rather than
+        // being listed twice with identical effects.
+        input: 'Any click',
         // Both sides, because the tally reads `found/total` and one panel sets
         // the pair.
         effect: 'Set the starting count and the total',
@@ -1629,10 +1631,20 @@ export function TrackerFrame() {
         <button
           aria-expanded={isOpen}
           aria-haspopup="menu"
-          aria-label={`${name}: ${count} of ${max}, starting from ${start}. Right click to set the starting count and the total.`}
+          aria-label={`${name}: ${count} of ${max}, starting from ${start}. Click to set the starting count and the total.`}
           aria-live="polite"
           className="container-tally container-tally-editable"
+          // Either button opens the figures. Right click alone was the mistake:
+          // the tally has no left-click meaning to protect - unlike an item slot,
+          // where left marks it collected and right has to be kept free for the
+          // picker - so binding only the less obvious of the two left the plain
+          // click dead. It also left the keyboard with nothing, since Enter and
+          // Space arrive as clicks and never as a context menu.
+          onClick={() => setOpenLimitPicker(isOpen ? null : kind)}
           onContextMenu={(event) => {
+            // Still bound, so the habit the rest of the board teaches - right
+            // click opens a chooser - keeps working here, and so the panel opens
+            // rather than the browser's own menu.
             event.preventDefault()
             setOpenLimitPicker(isOpen ? null : kind)
           }}
