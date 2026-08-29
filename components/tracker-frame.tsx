@@ -629,7 +629,7 @@ const CONTROL_GROUPS: {
       { input: 'Left click', effect: 'Mark the boss defeated' },
       { input: 'Right click', effect: 'Cycle the location' },
       { input: 'Middle click', effect: 'Change how many item slots it shows' },
-      { input: 'Scroll', effect: 'Cycle what blocks the palace' },
+      { input: 'Scroll', effect: 'Cycle what blocks the boss' },
     ],
   },
   {
