@@ -576,7 +576,7 @@ const CONTROL_GROUPS: {
     title: 'Palace bosses',
     rows: [
       { input: 'Left click', effect: 'Mark the boss defeated' },
-      { input: 'Right click', effect: 'Cycle the continent' },
+      { input: 'Right click', effect: 'Cycle the location' },
       { input: 'Middle click', effect: 'Change how many item slots it shows' },
       { input: 'Scroll', effect: 'Cycle what blocks the palace' },
     ],
@@ -587,7 +587,7 @@ const CONTROL_GROUPS: {
       { input: 'Left click', effect: 'Mark found, or clear it again' },
       {
         input: 'Right click',
-        effect: 'Cycle the continent, until the item is found',
+        effect: 'Cycle the location, until the item is found',
       },
     ],
   },
@@ -834,7 +834,7 @@ export function TrackerFrame() {
     const item = allPickables.find((entry) => entry.id === slotItems[slotKey])
     const isCollected = Boolean(item && collected[slotKey])
     const cycleHint = options?.onCycleMark
-      ? ' Shift right click to cycle the continent.'
+      ? ' Shift right click to cycle the location.'
       : ''
 
     return (
@@ -1027,7 +1027,7 @@ export function TrackerFrame() {
 
     return (
       <button
-        aria-label={`${entry.name}${isCollected ? ', collected' : ', not collected'}${palaceNumber ? `, in palace ${palaceNumber}` : mark ? `, marked ${mark}` : ''}. Right click to cycle the continent.`}
+        aria-label={`${entry.name}${isCollected ? ', collected' : ', not collected'}${palaceNumber ? `, in palace ${palaceNumber}` : mark ? `, marked ${mark}` : ''}. Right click to cycle the location.`}
         aria-pressed={isCollected}
         className={
           isCollected
@@ -1432,7 +1432,7 @@ export function TrackerFrame() {
                 return (
                   <div className="town-column" key={town.name}>
                     <button
-                      aria-label={`${town.name} town${mark ? `, marked ${mark}` : ''}. Right click to cycle the continent.`}
+                      aria-label={`${town.name} town${mark ? `, marked ${mark}` : ''}. Right click to cycle the location.`}
                       className="town-icon icon-toggle"
                       // Right click steps through the requirement letters.
                       onContextMenu={(event) => {
@@ -1501,7 +1501,7 @@ export function TrackerFrame() {
                     return (
                       <div className="palace-row" key={palace.name}>
                         <button
-                          aria-label={`${palace.name} palace boss${isBeaten ? ', defeated' : ''}${mark ? `, marked ${mark}` : ''}${block ? `, blocked by ${block.name}` : ''}${slotLabel}. Left click to mark defeated, right click to cycle the continent,${slotHint} scroll to cycle what blocks it.`}
+                          aria-label={`${palace.name} palace boss${isBeaten ? ', defeated' : ''}${mark ? `, marked ${mark}` : ''}${block ? `, blocked by ${block.name}` : ''}${slotLabel}. Left click to mark defeated, right click to cycle the location,${slotHint} scroll to cycle what blocks it.`}
                           aria-pressed={isBeaten}
                           className={
                             isBeaten
