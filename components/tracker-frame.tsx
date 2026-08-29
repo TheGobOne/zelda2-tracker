@@ -582,11 +582,6 @@ const CONTROL_GROUPS: {
     ],
   },
   {
-    title: 'Towns',
-    note: 'A town holding an item slot cycles its continent with shift + right click.',
-    rows: [{ input: 'Right click', effect: 'Cycle the continent' }],
-  },
-  {
     title: 'Item list',
     rows: [
       { input: 'Left click', effect: 'Mark found, or clear it again' },
@@ -605,7 +600,7 @@ const CONTROL_GROUPS: {
     ],
   },
   {
-    title: 'Spell item count',
+    title: "Granny's Basement",
     note: 'Finishes on its own when the New Kasuto magic container is checked off.',
     rows: [
       { input: 'Left click', effect: 'Next count' },
