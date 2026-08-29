@@ -230,10 +230,16 @@ const items = [
     src: '/images/items/magiccontainer.png',
   },
   { id: 'pbag', name: 'Point Bag', src: '/images/items/pbag.png' },
-  // Two sprites shown side by side to mean "either of these two pickups".
+  // The pair's two halves, each pickable on its own so a slot can name the exact
+  // pickup rather than only "one of these two".
+  { id: '1up', name: '1-Up', src: '/images/items/1up.png' },
+  { id: 'redjar', name: 'Red Jar', src: '/images/items/redpotion.png' },
+  // Kept alongside them: two sprites side by side, still meaning "either of these
+  // two pickups". The presets lean on it for filler checks where the half is not
+  // worth distinguishing, and it reads as the summary of the two boxes above.
   {
     id: '1up-redpotion',
-    name: '1-Up or Red Potion',
+    name: '1-Up or Red Jar',
     src: ['/images/items/1up.png', '/images/items/redpotion.png'],
   },
 ]
@@ -254,12 +260,17 @@ const spells: { id: string; name: string; src: string | string[] }[] = [
 const allPickables = [...items, ...spells]
 
 // Pickups the collection tracker leaves out. Containers and point bags repeat
-// all over the map, and the 1-Up/Red Jar pair is filler, so none of them are
-// one-off collectibles worth a checkbox.
+// all over the map, and the 1-Up/Red Jar pickups are filler, so none of them are
+// one-off collectibles worth a checkbox. The two halves are listed alongside the
+// pair for the same reason it is: splitting filler into its own boxes makes it
+// placeable on a slot, not something to be collected once - and leaving them out
+// is what keeps the collection grid at its 16 items, two clean rows of eight.
 const UNTRACKED_IDS = new Set([
   'heartcontainer',
   'magiccontainer',
   'pbag',
+  '1up',
+  'redjar',
   '1up-redpotion',
 ])
 
