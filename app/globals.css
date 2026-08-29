@@ -344,7 +344,15 @@
   align-items: center;
   justify-content: center;
   row-gap: 4px;
-  padding: 0 10px;
+  /* The bottom 5px is not spacing, it is optical centering. `justify-content`
+     centers the two line boxes, which left the glyphs themselves sitting low:
+     every letter here is a cap on the baseline with no descender, yet this pixel
+     font still reserves descender room in each box, and at 20px its ascent
+     exceeds the line box outright - so the ink ran to 11.5px clear above and
+     6.75px below. Padding the bottom shrinks the box the lines centre inside,
+     lifting them half of it and evening the ink to about 9px either side. Tied
+     to these two font sizes: change either and this wants re-measuring. */
+  padding: 0 10px 5px;
 }
 
 /* Says what the panel is, since it sits among the location sprites with nothing
