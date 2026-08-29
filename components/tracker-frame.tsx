@@ -295,9 +295,10 @@ const PALACE_NOTES: { src: string; alt: string }[] = [
 ]
 
 /**
- * Starting states for known rulesets. A preset both lights pickups Link begins
- * with and fills the checks whose contents that ruleset fixes in advance, so a
- * run only has to record what is actually still unknown.
+ * Starting states for the rulesets the tracker knows, plus a blank entry for the
+ * ones it does not. A preset both lights pickups Link begins with and fills the
+ * checks whose contents that ruleset fixes in advance, so a run only has to record
+ * what is actually still unknown.
  */
 const PRESETS: {
   id: string
@@ -355,6 +356,23 @@ const PRESETS: {
       // The counter beside the fountain starts on 6 under this ruleset.
       'location-Spell Item Count': '6',
     },
+  },
+  {
+    // For a ruleset the tracker has no entry for. Nothing is assumed: no starting
+    // pickups, no known placements, and both container tallies open empty, so
+    // every square on the board is filled in by hand.
+    id: 'custom',
+    name: 'Custom',
+    collectedIds: [],
+    // Starting at nothing, but still counted against the vanilla totals - those
+    // are the ceiling the game itself imposes, not something a ruleset relaxes, so
+    // they stay put while the starting figures drop to zero.
+    heartStart: 0,
+    heartMax: 8,
+    magicStart: 0,
+    magicMax: 8,
+    placements: {},
+    counts: {},
   },
 ]
 
