@@ -699,6 +699,10 @@ const CONTROL_GROUPS: {
     // already states both of that panel's facts, so the box was repeating itself.
     title: 'Made By',
     credit: 'TheGobOne',
+    // Reuses the existing note slot, which already renders directly beneath the
+    // credit in the dimmer aside styling - the right weight for a footnote that
+    // should sit under the name without competing with it.
+    note: 'If you have any issues or bugs to report please find me on the Z2R Discord.',
   },
 ]
 
