@@ -234,6 +234,10 @@ const items = [
   // pickup rather than only "one of these two".
   { id: '1up', name: '1-Up', src: '/images/items/1up.png' },
   { id: 'redjar', name: 'Red Jar', src: '/images/items/redpotion.png' },
+  // The blue jar beside its red counterpart, then the small key. All four sit in
+  // the same run: repeatable pickups a slot can name, rather than one-off items.
+  { id: 'bluejar', name: 'Blue Jar', src: '/images/items/bluejar.png' },
+  { id: 'smallkey', name: 'Small Key', src: '/images/items/smallkey.png' },
   // Kept alongside them: two sprites side by side, still meaning "either of these
   // two pickups". The presets lean on it for filler checks where the half is not
   // worth distinguishing, and it reads as the summary of the two boxes above.
@@ -271,6 +275,10 @@ const UNTRACKED_IDS = new Set([
   'pbag',
   '1up',
   'redjar',
+  'bluejar',
+  // Keys are per-palace and there are many of them, so a single checkbox could
+  // never say anything useful about how many have been found.
+  'smallkey',
   '1up-redpotion',
 ])
 
