@@ -2402,11 +2402,21 @@ export function TrackerFrame() {
                     Rendered inside the row, not as its own absolutely positioned
                     block, so the row's own flex layout lines it up with the icons
                     and it stays lined up if a fifth location is ever added. The
-                    label is what keeps it from being read as another location. */}
+                    label is what keeps it from being read as another location.
+
+                    Grouped rulesets print their group instead of their own name:
+                    "Week 3" only means something next to the other weeks in the
+                    submenu, whereas here the ruleset in play is Upstarts. Taken
+                    off `group` rather than matched against week names, so further
+                    weeks - or a second group - are covered without a change. */}
                 {rowIndex === 2 ? (
                   <div className="flags-panel">
                     <p className="flags-panel-label">Flags</p>
-                    <p className="flags-panel-value">{activePreset.name}</p>
+                    <p className="flags-panel-value">
+                      {activePreset.group === 'upstarts'
+                        ? 'Upstarts'
+                        : activePreset.name}
+                    </p>
                   </div>
                 ) : null}
               </div>
