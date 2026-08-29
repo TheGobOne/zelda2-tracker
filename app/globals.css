@@ -730,27 +730,21 @@
   width: 32px;
   min-height: 32px;
   height: 32px;
-}
 
-/* Flush to the 28px interior less the 1px inset the full-size slot leaves, so the
-   art keeps clear of its own border rather than bleeding into it. */
-.palace-row:has(.item-slot-wrap + .item-slot-wrap + .item-slot-wrap) .item-slot img {
-  width: 26px;
-  height: 26px;
-}
+  /* Art is flush to the 28px interior less the 1px inset the full-size slot
+     leaves, so it keeps clear of its own border rather than bleeding into it. */
+  --art: 26px;
+  --pair: 12px;
+  --check: 20px;
 
-.palace-row:has(.item-slot-wrap + .item-slot-wrap + .item-slot-wrap)
-  .item-slot
-  .item-pair
-  img {
-  width: 12px;
-  height: 12px;
-}
-
-.palace-row:has(.item-slot-wrap + .item-slot-wrap + .item-slot-wrap)
-  .item-slot-check {
-  width: 20px;
-  height: 20px;
+  /* Blocked, this is the tightest of the three: 28px of interior split 14 art +
+     12 plate, leaving a 2px gap. Half the unblocked sprite, which is the cost of
+     showing both in a box this small. A stack of two plates comes to
+     12 + 2 + 12 = 26px, so it still fits the 28px height. */
+  --art-blocked: 14px;
+  --plate: 12px;
+  --pair-blocked: 8px;
+  --check-blocked: 10px;
 }
 
 /* Two slots have the same 108px to spend on one box fewer, so they take 48px on a
@@ -771,36 +765,21 @@
   width: 48px;
   min-height: 48px;
   height: 48px;
-}
 
-/* The 44px interior less the same 1px inset the other two sizes leave. */
-.palace-row:has(.item-slot-wrap + .item-slot-wrap):not(
-    :has(.item-slot-wrap + .item-slot-wrap + .item-slot-wrap)
-  )
-  .item-slot
-  img {
-  width: 42px;
-  height: 42px;
-}
+  /* Art is the 44px interior less the same 1px inset the other two sizes leave.
+     The check is kept even, like the others, so the `translate(-50%, -50%)`
+     centring lands on a whole pixel instead of blurring the stroke against the
+     art behind it. */
+  --art: 42px;
+  --pair: 16px;
+  --check: 32px;
 
-.palace-row:has(.item-slot-wrap + .item-slot-wrap):not(
-    :has(.item-slot-wrap + .item-slot-wrap + .item-slot-wrap)
-  )
-  .item-slot
-  .item-pair
-  img {
-  width: 16px;
-  height: 16px;
-}
-
-/* Kept even, like the other checks, so the `translate(-50%, -50%)` centring lands
-   on a whole pixel instead of blurring the stroke against the art behind it. */
-.palace-row:has(.item-slot-wrap + .item-slot-wrap):not(
-    :has(.item-slot-wrap + .item-slot-wrap + .item-slot-wrap)
-  )
-  .item-slot-check {
-  width: 32px;
-  height: 32px;
+  /* Blocked: 44px of interior split 24 art + 16 plate, on the same 4px gap the
+     full-size slot leaves. */
+  --art-blocked: 24px;
+  --plate: 16px;
+  --pair-blocked: 10px;
+  --check-blocked: 18px;
 }
 
 /* The heart tally sits in Thunderbird's row, which holds no item slots, so it has
@@ -1047,6 +1026,24 @@
   background: #101010;
   border: 2px solid #f5f5f5;
   cursor: pointer;
+
+  /* What the slot's contents measure, set here and overridden by the two smaller
+     palace sizes above. Variables rather than a rule per size because the sizing
+     selectors up there run through `:has()` chains worth six classes apiece: a
+     plain `.item-slot-blocked` override could never outweigh one, so the blocked
+     state sets these values instead of fighting for the width property. */
+  --art: 50px;
+  --pair: 18px;
+  --check: 38px;
+
+  /* The same three when a block sits in the slot, plus the plate that shares the
+     interior with them. 52px of interior here: 28 art + 20 plate leaves a 4px gap
+     between them. Every value is even so the pixel art lands on whole pixels and
+     the check's `translate(-50%, -50%)` does not blur its stroke. */
+  --art-blocked: 28px;
+  --plate: 20px;
+  --pair-blocked: 12px;
+  --check-blocked: 22px;
 }
 
 .item-slot:hover {
@@ -1058,9 +1055,90 @@
   outline-offset: 2px;
 }
 
-.item-slot img {
-  width: 50px;
-  height: 50px;
+/* Direct child only, so this sizes the item art and leaves the block plates
+   alone - those are images too, nested in their own span. */
+.item-slot > img {
+  width: var(--art);
+  height: var(--art);
+  image-rendering: pixelated;
+}
+
+/* Sized so the two diagonal corners clear each other and the centre slash. */
+.item-slot .item-pair img {
+  width: var(--pair);
+  height: var(--pair);
+}
+
+.item-slot .item-slot-check {
+  width: var(--check);
+  height: var(--check);
+}
+
+/* A blocked palace slot. The plates take the right edge and the art shifts left
+   to clear them, the mirror of a blocked boss, which puts its plates on the left
+   and shifts its letter right.
+
+   Flush to the inner edge rather than inset a pixel, because the interiors do not
+   all divide evenly: at three slots there are only 28px for a 14px sprite and a
+   12px plate, and that pixel is the gap between them. */
+.item-slot-blocked {
+  justify-content: flex-start;
+}
+
+/* All three carry `.item-slot` as well, purely for weight: the plain consumers
+   above match at the same strength, and leaning on source order to settle it would
+   make these rules break if the file were ever reordered. */
+.item-slot.item-slot-blocked > img {
+  width: var(--art-blocked);
+  height: var(--art-blocked);
+}
+
+/* Paired art keeps its diagonal layout, just smaller, so a slot holding an
+   either/or pickup still reads as two sprites when blocked. */
+.item-slot.item-slot-blocked .item-pair img {
+  width: var(--pair-blocked);
+  height: var(--pair-blocked);
+}
+
+/* The check is a stamp over the item, so it follows the art left rather than
+   staying centred in the slot, where it would cover the plates it is meant to sit
+   beside. Centred on the art: half its width, from the interior's left edge. */
+.item-slot.item-slot-blocked .item-slot-check {
+  width: var(--check-blocked);
+  height: var(--check-blocked);
+  left: calc(var(--art-blocked) / 2);
+}
+
+/* Stretched top to bottom rather than pinned, since centring a stack of two needs
+   a full-height box to centre within - the same reason the boss plates do it. */
+.slot-block {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  /* Explicit, matching the plate size: without it the box is shrink-to-fit and the
+     global `img` reset's `max-width: 100%` resolves against an indefinite width,
+     collapsing the sprites to nothing. */
+  width: var(--plate);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  /* Clear of the ring each plate carries, so a stack of two reads as two. */
+  row-gap: 2px;
+  pointer-events: none;
+}
+
+/* Same treatment as the boss plates: a black field ringed in gold, which is what
+   lets a dark sprite sit over dark art and still read. Declared after the sizing
+   rules above so it wins on source order where specificity ties. */
+.slot-block img {
+  display: block;
+  width: var(--plate);
+  height: var(--plate);
+  background: #050505;
+  box-shadow: 0 0 0 1px #f2b21c;
   image-rendering: pixelated;
 }
 
@@ -1152,13 +1230,11 @@
    inside the sprite's box rather than covering it, so the item underneath stays
    identifiable at a glance.
 
-   Every size below is three quarters of what it was, and each is kept even so that
+   Every size is three quarters of the art it covers, and each is kept even so that
    the `translate(-50%, -50%)` centring lands on a whole pixel - an odd width would
-   put the stroke on a half pixel and blur it against the art behind. */
-.item-slot .item-slot-check {
-  width: 38px;
-  height: 38px;
-}
+   put the stroke on a half pixel and blur it against the art behind. Palace slots
+   size theirs from `--check`, up with the rest of the slot measurements; the two
+   contexts below stand outside that scale and set their own. */
 
 /* Smaller town slots hold smaller sprites, so their check follows suit. */
 .town-grid .item-slot .item-slot-check {
@@ -1645,12 +1721,6 @@
   color: #f5f5f5;
   font-size: 16px;
   line-height: 1;
-}
-
-/* Sized so the two diagonal corners clear each other and the centre slash. */
-.item-slot .item-pair img {
-  width: 18px;
-  height: 18px;
 }
 
 .item-picker-option .item-pair img {

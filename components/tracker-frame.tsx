@@ -395,7 +395,7 @@ const TOWN_MARKS = ['', 'W', 'E']
  * choice between two things the tracker already has art for, and the art reads
  * faster at this size than any word would.
  */
-const BOSS_BLOCKS: { id: string; name: string; src: string[] }[] = [
+const BLOCKS: { id: string; name: string; src: string[] }[] = [
   { id: '', name: '', src: [] },
   { id: 'glove', name: 'Glove', src: ['/images/items/glove.png'] },
   { id: 'fairy', name: 'Fairy', src: ['/images/spells/fairy.png'] },
@@ -645,9 +645,11 @@ export function TrackerFrame() {
   // Requirement letter shown over a town or boss; right click steps through
   // them. Keys are namespaced ("town-"/"boss-") so names cannot collide.
   const [iconMarks, setIconMarks] = useState<Record<string, string>>({})
-  // What is walling off each palace, keyed by the same "boss-" key as the letters
-  // and holding a `BOSS_BLOCKS` id. The wheel steps it; an absent key is unblocked.
-  const [bossBlocks, setBossBlocks] = useState<Record<string, string>>({})
+  // What is walling something off, holding a `BLOCKS` id. The wheel steps it; an
+  // absent key is unblocked. Covers both palace bosses, under their "boss-" key,
+  // and individual palace item slots, under the slot's own key - the two key
+  // shapes cannot collide, so one map serves both.
+  const [blocks, setBlocks] = useState<Record<string, string>>({})
   // Number shown in a counter slot, stepped through by left click.
   const [countValues, setCountValues] = useState<Record<string, string>>({})
   // Destination tagged on each connector end, keyed by row index and side. An
@@ -789,9 +791,10 @@ export function TrackerFrame() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [isShowingControls])
 
-  // Scrolling a boss steps what blocks its palace. One delegated listener on the
-  // grid rather than an `onWheel` per boss, because React registers wheel handlers
-  // as passive: `preventDefault` would be ignored there and the page would scroll
+  // Scrolling a boss steps what blocks its palace, and scrolling one of its item
+  // slots steps what blocks that slot. One delegated listener on the grid rather
+  // than an `onWheel` per target, because React registers wheel handlers as
+  // passive: `preventDefault` would be ignored there and the page would scroll
   // away under the cursor while the block cycled.
   useEffect(() => {
     const grid = palaceGridRef.current
@@ -802,15 +805,15 @@ export function TrackerFrame() {
 
     function handleWheel(event: WheelEvent) {
       const target = event.target as HTMLElement | null
-      const boss = target?.closest<HTMLElement>('[data-boss-key]')
-      const bossKey = boss?.dataset.bossKey
+      const blockable = target?.closest<HTMLElement>('[data-block-key]')
+      const blockKey = blockable?.dataset.blockKey
 
-      if (!bossKey || event.deltaY === 0) {
+      if (!blockKey || event.deltaY === 0) {
         return
       }
 
       event.preventDefault()
-      cycleBossBlock(bossKey, event.deltaY > 0 ? 1 : -1)
+      cycleBlock(blockKey, event.deltaY > 0 ? 1 : -1)
     }
 
     grid.addEventListener('wheel', handleWheel, { passive: false })
@@ -829,12 +832,22 @@ export function TrackerFrame() {
   function renderItemSlot(
     slotKey: string,
     label: string,
-    options?: { onCycleMark?: () => void },
+    options?: { canBlock?: boolean; onCycleMark?: () => void },
   ) {
     const item = allPickables.find((entry) => entry.id === slotItems[slotKey])
     const isCollected = Boolean(item && collected[slotKey])
     const cycleHint = options?.onCycleMark
       ? ' Shift right click to cycle the location.'
+      : ''
+    // Only the palace slots can be blocked: they are the ones inside the grid
+    // carrying the wheel listener, so a town slot would show a plate it had no
+    // way to cycle.
+    const block = options?.canBlock
+      ? BLOCKS.find((entry) => entry.id === blocks[slotKey])
+      : undefined
+    const blockLabel = block ? `, blocked by ${block.name}` : ''
+    const blockHint = options?.canBlock
+      ? ' Scroll to cycle what blocks it.'
       : ''
 
     return (
@@ -843,11 +856,13 @@ export function TrackerFrame() {
           aria-haspopup="dialog"
           aria-label={
             item
-              ? `${label}: ${item.name}${isCollected ? ', collected' : ''}. Left click to mark collected, right click to change, middle click to clear.${cycleHint}`
-              : `${label}: empty. Right click to choose an item.${cycleHint}`
+              ? `${label}: ${item.name}${isCollected ? ', collected' : ''}${blockLabel}. Left click to mark collected, right click to change, middle click to clear.${cycleHint}${blockHint}`
+              : `${label}: empty${blockLabel}. Right click to choose an item.${cycleHint}${blockHint}`
           }
           aria-pressed={item ? isCollected : undefined}
-          className={isCollected ? 'item-slot item-slot-collected' : 'item-slot'}
+          className={`${isCollected ? 'item-slot item-slot-collected' : 'item-slot'}${block ? ' item-slot-blocked' : ''}`}
+          // Read by the palace grid's wheel listener, the same way the bosses are.
+          data-block-key={options?.canBlock ? slotKey : undefined}
           // Middle click clears the item.
           onAuxClick={(event) => {
             if (event.button === 1) {
@@ -882,6 +897,17 @@ export function TrackerFrame() {
           type="button"
         >
           {item ? <ItemArt item={item} /> : null}
+          {/* Mirrors the boss plates, on the opposite edge: the plates take the
+              slot's right side and the item shifts left to clear them, where a
+              blocked boss puts its plates left and shifts its letter right.
+              Sizing is all in the stylesheet, which knows each slot size. */}
+          {block ? (
+            <span aria-hidden="true" className="slot-block">
+              {block.src.map((src) => (
+                <Image alt="" height={16} key={src} src={src} width={16} />
+              ))}
+            </span>
+          ) : null}
           {isCollected ? (
             <Check
               aria-hidden="true"
@@ -1105,13 +1131,13 @@ export function TrackerFrame() {
    * way around - with eight states that matters, and the wheel is the one control
    * here that has a natural backwards.
    */
-  function cycleBossBlock(bossKey: string, direction: number) {
-    setBossBlocks((current) => {
-      const index = BOSS_BLOCKS.findIndex(
+  function cycleBlock(bossKey: string, direction: number) {
+    setBlocks((current) => {
+      const index = BLOCKS.findIndex(
         (block) => block.id === (current[bossKey] ?? ''),
       )
-      const length = BOSS_BLOCKS.length
-      const block = BOSS_BLOCKS[(index + direction + length) % length]
+      const length = BLOCKS.length
+      const block = BLOCKS[(index + direction + length) % length]
       const next = { ...current }
 
       if (block.id) {
@@ -1298,7 +1324,7 @@ export function TrackerFrame() {
     setCollected({})
     setSlotCounts({})
     setIconMarks({})
-    setBossBlocks({})
+    setBlocks({})
     setCountValues({})
     setConnectorEnds({})
     setOpenSlot(null)
@@ -1319,7 +1345,7 @@ export function TrackerFrame() {
     setCollected(collectedFromPreset(preset))
     setSlotCounts({})
     setIconMarks({})
-    setBossBlocks({})
+    setBlocks({})
     setCountValues({ ...preset.counts })
     setConnectorEnds({})
     setActiveFlags(preset.id)
@@ -1484,8 +1510,8 @@ export function TrackerFrame() {
                     const bossKey = `boss-${palace.name}`
                     const isBeaten = Boolean(collected[bossKey])
                     const mark = iconMarks[bossKey]
-                    const block = BOSS_BLOCKS.find(
-                      (entry) => entry.id === bossBlocks[bossKey],
+                    const block = BLOCKS.find(
+                      (entry) => entry.id === blocks[bossKey],
                     )
                     // A boss that holds no items has no slot count worth reading
                     // out and nothing for middle click to do, so its label drops
@@ -1508,11 +1534,11 @@ export function TrackerFrame() {
                               ? 'town-icon icon-toggle boss-toggle-beaten'
                               : 'town-icon icon-toggle'
                           }
-                          // Read by the grid's wheel listener to find which boss was
+                          // Read by the grid's wheel listener to find what was
                           // scrolled. The listener sits on the grid rather than here
                           // because React registers `wheel` passively, which would
                           // leave the page scrolling as the block cycles.
-                          data-boss-key={bossKey}
+                          data-block-key={bossKey}
                           onAuxClick={(event) => {
                             if (event.button === 1) {
                               event.preventDefault()
@@ -1599,7 +1625,8 @@ export function TrackerFrame() {
                         {Array.from({ length: slots }, (_, index) =>
                           renderItemSlot(
                             `${palace.name}-${index}`,
-                            `${palace.name} item ${index + 1}`
+                            `${palace.name} item ${index + 1}`,
+                            { canBlock: true }
                           )
                         )}
                         {'heartTally' in palace ? (
