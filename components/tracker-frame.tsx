@@ -238,13 +238,20 @@ const items = [
   // the same run: repeatable pickups a slot can name, rather than one-off items.
   { id: 'bluejar', name: 'Blue Jar', src: '/images/items/bluejar.png' },
   { id: 'smallkey', name: 'Small Key', src: '/images/items/smallkey.png' },
-  // Kept alongside them: two sprites side by side, still meaning "either of these
-  // two pickups". The presets lean on it for filler checks where the half is not
-  // worth distinguishing, and it reads as the summary of the two boxes above.
+  // The junk check: all four filler pickups in one box, one to a corner. Stands
+  // for "this check holds something worthless" without saying which, so the
+  // presets can mark filler where the exact pickup is not worth distinguishing.
+  // It reads as the summary of the four boxes above it, and renaming it off
+  // `1up-redpotion` keeps the id honest now that it names more than two.
   {
-    id: '1up-redpotion',
-    name: '1-Up or Red Jar',
-    src: ['/images/items/1up.png', '/images/items/redpotion.png'],
+    id: 'junk',
+    name: 'Junk Check',
+    src: [
+      '/images/items/1up.png',
+      '/images/items/redpotion.png',
+      '/images/items/bluejar.png',
+      '/images/items/smallkey.png',
+    ],
   },
 ]
 
@@ -263,12 +270,11 @@ const spells: { id: string; name: string; src: string | string[] }[] = [
 // Every pickable entry, used to resolve whatever id a slot is holding.
 const allPickables = [...items, ...spells]
 
-// Pickups the collection tracker leaves out. Containers and point bags repeat
-// all over the map, and the 1-Up/Red Jar pickups are filler, so none of them are
-// one-off collectibles worth a checkbox. The two halves are listed alongside the
-// pair for the same reason it is: splitting filler into its own boxes makes it
-// placeable on a slot, not something to be collected once - and leaving them out
-// is what keeps the collection grid at its 16 items, two clean rows of eight.
+// Pickups the collection tracker leaves out. Containers and point bags repeat all
+// over the map, and the jars, keys and the junk check that stands for them are
+// filler, so none of them are one-off collectibles worth a checkbox. Filler is
+// placeable on a slot rather than collected once - and leaving it out is what keeps
+// the collection grid at its 16 items, two clean rows of eight.
 const UNTRACKED_IDS = new Set([
   'heartcontainer',
   'magiccontainer',
@@ -279,7 +285,7 @@ const UNTRACKED_IDS = new Set([
   // Keys are per-palace and there are many of them, so a single checkbox could
   // never say anything useful about how many have been found.
   'smallkey',
-  '1up-redpotion',
+  'junk',
 ])
 
 // The 16 tracked items, which fill two rows of eight above the spell row.
@@ -371,8 +377,8 @@ const PRESETS: {
       'location-East P-Bag Cave': 'pbag',
       'location-East P-Bag Cave 2': 'pbag',
       // These two checks are always filler, tracked as the 1-Up/Red Jar pair.
-      'location-Saria Table': '1up-redpotion',
-      'location-Nabooru Fountain': '1up-redpotion',
+      'location-Saria Table': 'junk',
+      'location-Nabooru Fountain': 'junk',
       // The stab teachers are swapped relative to their names.
       'location-Downstab Man': 'upstab',
       'location-Up Stab Man': 'downstab',
@@ -553,16 +559,21 @@ function slotLabel(slotKey: string) {
     .toUpperCase()
 }
 
-/** Draws a single sprite, or two sprites separated by a slash for pairs. */
+/**
+ * Draws a single sprite, or a multi-sprite entry as one sprite per corner.
+ *
+ * The corners come from the grid in CSS rather than from per-sprite classes here,
+ * so any number of sprites up to four lays itself out without this needing to know
+ * the count. No separator between them: at this size a slash cost more room than
+ * the sprites it divided, and four items in four corners already read as a set.
+ */
 function ItemArt({ item }: { item: (typeof allPickables)[number] }) {
   if (Array.isArray(item.src)) {
     return (
       <span className="item-pair">
-        <Image alt="" height={32} src={item.src[0]} width={32} />
-        <span aria-hidden="true" className="item-pair-slash">
-          /
-        </span>
-        <Image alt="" height={32} src={item.src[1]} width={32} />
+        {item.src.map((src) => (
+          <Image alt="" height={32} key={src} src={src} width={32} />
+        ))}
       </span>
     )
   }

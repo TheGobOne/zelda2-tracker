@@ -250,12 +250,6 @@
   opacity: 0.5;
 }
 
-/* Paired sprites sit on the diagonal, as they do in the menu. */
-.collection-slot .item-pair img {
-  width: 24px;
-  height: 24px;
-}
-
 /* Collecting lights the sprite back to full colour, which is the whole signal
    here, so no check is stamped over the art. */
 .collection-slot-collected {
@@ -734,17 +728,13 @@
   /* Art is flush to the 28px interior less the 1px inset the full-size slot
      leaves, so it keeps clear of its own border rather than bleeding into it. */
   --art: 26px;
-  --pair: 12px;
   --check: 20px;
 
   /* Blocked, this is the tightest of the three: 28px of interior split 14 art +
-     12 plate, leaving a 2px gap. Half the unblocked sprite, which is the cost of
-     showing both in a box this small. A stack of two plates comes to
+     12 plate, leaving a 2px gap. A stack of two plates comes to
      12 + 2 + 12 = 26px, so it still fits the 28px height. */
   --art-blocked: 14px;
   --plate: 12px;
-  --pair-blocked: 8px;
-  --slash-blocked: 7px;
   --check-blocked: 10px;
 }
 
@@ -772,15 +762,12 @@
      centring lands on a whole pixel instead of blurring the stroke against the
      art behind it. */
   --art: 42px;
-  --pair: 16px;
   --check: 32px;
 
   /* Blocked: 44px of interior split 24 art + 16 plate, on the same 4px gap the
      full-size slot leaves. */
   --art-blocked: 24px;
   --plate: 16px;
-  --pair-blocked: 10px;
-  --slash-blocked: 9px;
   --check-blocked: 18px;
 }
 
@@ -1133,17 +1120,14 @@
      plain `.item-slot-blocked` override could never outweigh one, so the blocked
      state sets these values instead of fighting for the width property. */
   --art: 50px;
-  --pair: 18px;
   --check: 38px;
 
-  /* The same three when a block sits in the slot, plus the plate that shares the
+  /* The same two when a block sits in the slot, plus the plate that shares the
      interior with them. 52px of interior here: 28 art + 20 plate leaves a 4px gap
      between them. Every value is even so the pixel art lands on whole pixels and
      the check's `translate(-50%, -50%)` does not blur its stroke. */
   --art-blocked: 28px;
   --plate: 20px;
-  --pair-blocked: 12px;
-  --slash-blocked: 10px;
   --check-blocked: 22px;
 }
 
@@ -1162,12 +1146,6 @@
   width: var(--art);
   height: var(--art);
   image-rendering: pixelated;
-}
-
-/* Sized so the two diagonal corners clear each other and the centre slash. */
-.item-slot .item-pair img {
-  width: var(--pair);
-  height: var(--pair);
 }
 
 .item-slot .item-slot-check {
@@ -1194,33 +1172,18 @@
   height: var(--art-blocked);
 }
 
-/* Paired art keeps its diagonal layout, just smaller, so a slot holding an
-   either/or pickup still reads as two sprites when blocked.
+/* Multi-sprite art keeps its corners when blocked, just smaller, so a slot holding
+   a junk check still reads as a set of sprites rather than one.
 
-   The box has to be pulled in as well as the sprites inside it. It is normally
-   the full interior with the second sprite pinned to its right edge, so shrinking
-   only the sprites would leave that one pinned under the plates - the box, not the
-   sprite, is what decides where it lands. Squared off to the art so the diagonal
-   still reads, and centred rather than stretched, since a stretched box would
-   drop the lower sprite past the art it is paired with. The slash it carries is
-   centred on the box, so it follows without a rule of its own. */
+   Only the box needs pulling in now: the quadrants divide whatever it is given, so
+   the sprites follow its width without sizes of their own. Squared off to the art
+   so the corners stay square and nothing stretches, and centred rather than
+   stretched, since a stretched box would push the lower two sprites past the art
+   they sit with. */
 .item-slot.item-slot-blocked .item-pair {
   width: var(--art-blocked);
   height: var(--art-blocked);
   align-self: center;
-}
-
-.item-slot.item-slot-blocked .item-pair img {
-  width: var(--pair-blocked);
-  height: var(--pair-blocked);
-}
-
-/* The slash is type, not a sprite, so it does not follow the sizes above on its
-   own - left alone it stays 16px and ends up wider than the sprites it separates.
-   It already clears the plates either way; this is only about proportion. Set only
-   for the blocked state, leaving the unblocked slots exactly as they were. */
-.item-slot.item-slot-blocked .item-pair-slash {
-  font-size: var(--slash-blocked);
 }
 
 /* The check is a stamp over the item, so it follows the art left rather than
@@ -1333,14 +1296,6 @@
 .town-grid .item-slot img {
   width: 53px;
   height: 53px;
-}
-
-/* Paired items keep their old size. Two sit side by side inside the same 56px slot,
-   so 23px each already spends most of the width available - scaling the pair to
-   match the single spell would push it outside the town's square. */
-.town-grid .item-slot .item-pair img {
-  width: 23px;
-  height: 23px;
 }
 
 /* Collected: the border turns green and a centred check sits over the item. The
@@ -1881,42 +1836,30 @@
   image-rendering: pixelated;
 }
 
-/* Two sprites split by a slash. Laid out on the diagonal — one sprite in the
-   top-left corner, one in the bottom-right — so the pair fits the box instead
-   of overflowing it as a single centred row would. */
+/* A multi-sprite entry: one sprite per corner on a 2x2 grid.
+
+   A grid rather than the absolute corners this used to place by hand, because the
+   quadrants divide whatever box the pair is given and so hold their corners at
+   every size the slot takes - the picker, the town squares, the palace rows and
+   the blocked slots all inherit the layout instead of each needing a rule. It also
+   scales itself: two sprites fill the top row, four fill the box, and neither case
+   needs a count in the markup. */
 .item-pair {
-  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
   width: 100%;
   height: 100%;
   align-self: stretch;
 }
 
-.item-pair img:first-of-type {
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-.item-pair img:last-of-type {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-}
-
-/* Separator between the two sprites of a paired item, held in the centre. */
-.item-pair-slash {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: #f5f5f5;
-  font-size: 16px;
-  line-height: 1;
-}
-
-.item-picker-option .item-pair img {
-  width: 24px;
-  height: 24px;
+/* Each sprite fills its own quadrant, which is what replaces the fixed pixel
+   sizes these carried per context. The sprites are square on square cells, so
+   nothing stretches, and their own transparent margins keep the four apart
+   without a gap - a gap here would only shrink the art. */
+.item-pair img {
+  width: 100%;
+  height: 100%;
 }
 
 /* The icon's own sprite only. Direct child, so the smaller block sprites stacked
