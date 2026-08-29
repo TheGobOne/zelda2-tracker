@@ -1098,7 +1098,17 @@ export function TrackerFrame() {
         activePreset.magicMax,
       ),
     }
-  }, [collected, slotItems, activePreset])
+    // The four figures rather than the preset holding them: under Custom that is
+    // rebuilt on every render to fold in the user's overrides, so depending on the
+    // object would defeat the memo entirely.
+  }, [
+    collected,
+    slotItems,
+    activePreset.heartStart,
+    activePreset.heartMax,
+    activePreset.magicStart,
+    activePreset.magicMax,
+  ])
 
   /**
    * Palace number to stamp on each item in the collection row: the palace it has
