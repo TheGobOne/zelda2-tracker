@@ -624,15 +624,6 @@ const CONTROL_GROUPS: {
   rows: { input: string; effect: string }[]
 }[] = [
   {
-    title: 'Item slots',
-    rows: [
-      { input: 'Left click', effect: 'Mark the item collected' },
-      { input: 'Right click', effect: 'Choose or change the item' },
-      { input: 'Middle click', effect: 'Clear the slot' },
-      { input: 'Scroll', effect: 'Cycle what blocks the slot' },
-    ],
-  },
-  {
     title: 'Palace bosses',
     rows: [
       { input: 'Left click', effect: 'Mark the boss defeated' },
@@ -642,37 +633,32 @@ const CONTROL_GROUPS: {
     ],
   },
   {
-    title: 'Item list',
-    rows: [
-      { input: 'Left click', effect: 'Mark found, or clear it again' },
-      {
-        input: 'Right click',
-        effect: 'Cycle the location, until the item is found',
-      },
-    ],
-  },
-  {
-    title: 'Locations',
+    // "Palace items" rather than the generic "item slots": these are the slots
+    // hanging off the boss rows above, so naming the palace ties the two panels
+    // together in the order they are now read.
+    title: 'Palace items',
     rows: [
       { input: 'Left click', effect: 'Mark the item collected' },
       { input: 'Right click', effect: 'Choose or change the item' },
       { input: 'Middle click', effect: 'Clear the slot' },
+      { input: 'Scroll', effect: 'Cycle what blocks the slot' },
     ],
   },
   {
-    // Named for the sprites rather than the mechanism, since "container tallies"
-    // is the code's word for them and not something written anywhere on the board.
-    title: 'Heart and magic tallies',
-    note: 'Only changeable under Custom flags - every other ruleset fixes its own figures, so its tallies are read-only.',
+    title: 'Continent connectors',
     rows: [
-      {
-        // Both buttons open the same panel, so they share one row rather than
-        // being listed twice with identical effects.
-        input: 'Any click',
-        // Both sides, because the tally reads `found/total` and one panel sets
-        // the pair.
-        effect: 'Set the starting count and the total',
-      },
+      { input: 'Left click', effect: 'Cycle forward through destinations' },
+      { input: 'Right click', effect: 'Cycle back' },
+    ],
+  },
+  {
+    // Distinguished from the palace items above, which are also locations in the
+    // loose sense - these are the overworld checks.
+    title: 'Item locations',
+    rows: [
+      { input: 'Left click', effect: 'Mark the item collected' },
+      { input: 'Right click', effect: 'Choose or change the item' },
+      { input: 'Middle click', effect: 'Clear the slot' },
     ],
   },
   {
@@ -684,6 +670,16 @@ const CONTROL_GROUPS: {
     ],
   },
   {
+    title: 'Item collection',
+    rows: [
+      { input: 'Left click', effect: 'Mark found, or clear it again' },
+      {
+        input: 'Right click',
+        effect: 'Cycle the location, until the item is found',
+      },
+    ],
+  },
+  {
     title: 'Overworld maps',
     note: 'Click a palette icon to hold it, click it again to put it down.',
     rows: [
@@ -692,10 +688,19 @@ const CONTROL_GROUPS: {
     ],
   },
   {
-    title: 'Connector ends',
+    // Named for the sprites rather than the mechanism, since "container tallies"
+    // is the code's word for them and not something written anywhere on the board.
+    title: 'Heart/magic containers',
+    note: 'Only changeable under Custom flags - every other ruleset fixes its own figures, so its tallies are read-only.',
     rows: [
-      { input: 'Left click', effect: 'Cycle forward through destinations' },
-      { input: 'Right click', effect: 'Cycle back' },
+      {
+        // Both buttons open the same panel, so they share one row rather than
+        // being listed twice with identical effects.
+        input: 'Any click',
+        // Both sides, because the tally reads `found/total` and one panel sets
+        // the pair.
+        effect: 'Set the starting count and the total',
+      },
     ],
   },
 ]
