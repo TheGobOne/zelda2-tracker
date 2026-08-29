@@ -241,15 +241,17 @@ const items = [
   // The junk check: all four filler pickups in one box, one to a corner. Stands
   // for "this check holds something worthless" without saying which, so the
   // presets can mark filler where the exact pickup is not worth distinguishing.
-  // It reads as the summary of the four boxes above it, and renaming it off
-  // `1up-redpotion` keeps the id honest now that it names more than two.
+  // It reads as the summary of the four boxes above it.
   {
     id: 'junk',
     name: 'Junk Check',
+    // Listed in the order the 2x2 grid fills its corners: top-left, top-right,
+    // bottom-left, bottom-right. The blue jar leads with the 1-Up below it, so
+    // the two jars sit side by side across the top row.
     src: [
-      '/images/items/1up.png',
-      '/images/items/redpotion.png',
       '/images/items/bluejar.png',
+      '/images/items/redpotion.png',
+      '/images/items/1up.png',
       '/images/items/smallkey.png',
     ],
   },
@@ -376,7 +378,7 @@ const PRESETS: {
       'location-West P-Bag Cave': 'pbag',
       'location-East P-Bag Cave': 'pbag',
       'location-East P-Bag Cave 2': 'pbag',
-      // These two checks are always filler, tracked as the 1-Up/Red Jar pair.
+      // These two checks are always filler, tracked as the junk check.
       'location-Saria Table': 'junk',
       'location-Nabooru Fountain': 'junk',
       // The stab teachers are swapped relative to their names.
