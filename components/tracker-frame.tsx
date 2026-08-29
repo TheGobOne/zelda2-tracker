@@ -2402,10 +2402,6 @@ export function TrackerFrame() {
                     </button>
                   </div>
 
-                  <p className="controls-intro">
-                    The tracker is only mouse controlled. No keyboard shortcuts.
-                  </p>
-
                   <div className="controls-groups">
                     {CONTROL_GROUPS.map((group) => (
                       <section className="controls-group" key={group.title}>
