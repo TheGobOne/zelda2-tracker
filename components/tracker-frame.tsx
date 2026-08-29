@@ -1559,19 +1559,27 @@ export function TrackerFrame() {
                               rather than matched in CSS with `:has()`, which the
                               stylesheet's browser targets compile away.
 
-                              Single letters only. A two-letter mark is 54px of ink
-                              against the 34px left free beside the plates, so
-                              shifting one would hang it off the icon and into the
-                              row beside it - worse than the overlap it set out to
-                              fix. Those stay centred. */}
+                              MI and DV need more than the shift. At scale 3 a pair
+                              runs 48px of ink against the 34px free beside the
+                              plates, so shifting alone would hang it off the icon;
+                              dropping to scale 2 brings the pair to 32px, which
+                              fits that gap with a pixel either side. Single letters
+                              are 24px and stay at scale 3.
+
+                              The two cases also align differently, so they take
+                              different classes: a pair is set from the plate edge
+                              rightward, a single letter from the icon's right edge
+                              leftward. See the stylesheet for why. */}
                           {mark ? (
                             <GlyphText
                               className={
-                                block && mark.length === 1
-                                  ? 'icon-mark-glyph icon-mark-glyph-shifted'
+                                block
+                                  ? mark.length > 1
+                                    ? 'icon-mark-glyph icon-mark-glyph-pair'
+                                    : 'icon-mark-glyph icon-mark-glyph-shifted'
                                   : 'icon-mark-glyph'
                               }
-                              scale={3}
+                              scale={block && mark.length > 1 ? 2 : 3}
                             >
                               {mark}
                             </GlyphText>

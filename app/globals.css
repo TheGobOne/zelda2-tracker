@@ -621,6 +621,23 @@
   padding-right: 2px;
 }
 
+/* A two-letter mark on a blocked boss - MI or DV. The component drops these to
+   scale 2, where the pair is 32px of ink and clears the 34px beside the plates.
+
+   Set from the left, unlike the single letters above, because a glyph run carries
+   trailing dead space: each cell is 10 units wide but the letterforms only fill 7
+   of them, so a pair's box runs 4px past its own ink. Aligning that box to the
+   right edge would push the ink 4px left, back onto the plates it is meant to
+   clear. Anchoring the left edge instead puts the ink where the padding says.
+
+   22px is the plate column exactly - 1px inset plus 21px of plate - so the letter
+   starts where the plates stop. The box overruns the icon by 2px, but that overrun
+   is the dead space, not ink, so nothing shows outside the sprite. */
+.icon-mark-glyph-pair {
+  justify-content: flex-start;
+  padding-left: 22px;
+}
+
 /* What blocks a palace, stacked over the boss art down the icon's left edge and
    centred on its height. A stack of two means either one opens the way, and it grows
    from the middle outward, so one plate and two both read as one column.
