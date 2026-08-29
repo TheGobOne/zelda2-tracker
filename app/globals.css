@@ -321,11 +321,87 @@
    to the left instead, on the 2px gap the full rows work out to (520px less nine
    56px icons, split across eight gaps). That gap is what lines these four up with
    the columns above: the rows share a 40px left edge and a 58px stride, so these
-   four land on the first four positions rather than floating mid row. */
+   four land on the first four positions rather than floating mid row. The flags
+   readout then takes the five positions left over. */
 .location-row-third {
   top: calc(404px + 56px * 2 + var(--sep) * 3);
   gap: 2px;
   justify-content: flex-start;
+}
+
+/* The flags readout, filling what row three's four icons leave behind. `flex: 1`
+   spends exactly the remainder rather than a measured width - 288px, once the
+   row's 2px gap comes off the 290px free - so it stays correct if a fifth
+   location is ever added to the row. 56px matches the icons beside it, top and
+   bottom, and the black fill with a grey keyline is the same treatment as the
+   item boxes in the rows above, so it reads as board furniture. */
+.flags-panel {
+  display: flex;
+  flex: 1;
+  height: 56px;
+  align-items: center;
+  column-gap: 12px;
+  padding: 0 10px;
+  background: #000000;
+  border: 2px solid #3a3a3a;
+}
+
+.flags-panel-name {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  row-gap: 3px;
+}
+
+/* Says what the panel is, since it sits among the location sprites with nothing
+   else to identify it. */
+.flags-panel-label {
+  margin: 0;
+  color: #8a8a8a;
+  font-size: 8px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Gold, the same as the checked entry in the menu this is set from, so the two
+   answer "which flags" in one colour. */
+.flags-panel-value {
+  margin: 0;
+  color: #f2b21c;
+  font-size: 13px;
+}
+
+/* Ruled off from the name, so the panel reads as a title and its figures rather
+   than one run of text. */
+.flags-panel-stats {
+  display: flex;
+  margin: 0;
+  flex-direction: column;
+  padding-left: 12px;
+  border-left: 2px solid #3a3a3a;
+  row-gap: 2px;
+}
+
+.flags-panel-stat {
+  display: flex;
+  align-items: baseline;
+  column-gap: 6px;
+}
+
+/* Fixed, so all three figures start at the same x and the column scans. */
+.flags-panel-key {
+  flex: none;
+  width: 42px;
+  color: #8a8a8a;
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.flags-panel-figure {
+  margin: 0;
+  color: #f5f5f5;
+  font-size: 9px;
+  line-height: 1.4;
 }
 
 /* Anchors the overlaid item and check inside the location art, and matches the
