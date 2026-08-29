@@ -122,7 +122,7 @@ const COUNT_VALUES = ['', '5', '6', '7']
  * ruleset starts Link with rather than from zero, and neither has an empty state -
  * the opening figure is a real reading, not "unset".
  *
- * How many Link opens with, and how many exist at all, are rules of the flagset,
+ * How many Link opens with, and how many exist at all, are set by the flags,
  * so those figures live on each preset. Magic happens to cap at eight under both
  * current rulesets, but hearts do not, so the cap is per-preset for both rather
  * than a constant for one and a field for the other.
@@ -669,18 +669,18 @@ export function TrackerFrame() {
   const [isConfirmingClear, setIsConfirmingClear] = useState(false)
   const [isShowingControls, setIsShowingControls] = useState(false)
   // Which ruleset is loaded. Standard is the default, so the board opens matching
-  // it rather than needing the flagset picked by hand. Still tracked now that the
+  // it rather than needing the flags picked by hand. Still tracked now that the
   // picker is a menu, to mark the active entry.
   const [activeFlags, setActiveFlags] = useState(PRESETS[0].id)
   // The container figures the loaded ruleset plays by: Standard runs 4 of 8 hearts
-  // and magic, SGL 3 of 6 hearts and 3 of 8 magic. Switching flagsets moves both
+  // and magic, SGL 3 of 6 hearts and 3 of 8 magic. Switching flags moves both
   // tallies' floors and totals with it. Read off the preset rather than switched on
   // its id, so a new ruleset only has to declare its own numbers. Falls back to
   // Standard if an id ever goes missing.
   const activePreset =
     PRESETS.find((preset) => preset.id === activeFlags) ?? PRESETS[0]
-  // Clear and the flagsets share one hamburger button, so a single flag covers
-  // the whole menu rather than just the flagset list.
+  // Clear and the flags entries share one hamburger button, so a single piece of
+  // state covers the whole menu rather than just the flags list.
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   // Which icon sits on each overworld cell, keyed by grid id and coordinates.
   // Only filled cells are stored, so an absent key is an empty square.
@@ -930,11 +930,11 @@ export function TrackerFrame() {
    * How many hearts and magic containers Link is carrying: what the ruleset starts
    * him with, plus every matching container checked off out on the map. Counting
    * slots rather than tracking numbers of their own means unchecking a container
-   * takes its tally back down, one cannot be counted twice, and Clear and a flagset
+   * takes its tally back down, one cannot be counted twice, and Clear and a ruleset
    * switch reset both for free.
    *
    * A run only ever holds enough containers to reach the caps, but the clamp keeps
-   * the readings honest under a flagset that shuffles in more than that.
+   * the readings honest under a ruleset that shuffles in more than that.
    */
   const { heartCount, magicCount } = useMemo(() => {
     let hearts = 0
@@ -1696,7 +1696,7 @@ export function TrackerFrame() {
                           className="tracker-menu"
                           role="menu"
                         >
-                          <p className="tracker-menu-heading">Flagset</p>
+                          <p className="tracker-menu-heading">Flags</p>
 
                           {PRESETS.map((preset) => (
                             <button
@@ -1715,7 +1715,7 @@ export function TrackerFrame() {
                           ))}
 
                           {/* Opens the controls reference. Sits below the
-                              flagsets and above Clear, so the menu runs from
+                              flags entries and above Clear, so the menu runs from
                               harmless to destructive top to bottom. */}
                           <button
                             className="tracker-menu-option tracker-menu-option-bordered"
@@ -1730,7 +1730,7 @@ export function TrackerFrame() {
                           </button>
 
                           {/* Clearing wipes the board, so it is set apart from
-                              the flagsets above it and tinted with the frame's
+                              the flags entries above it and tinted with the frame's
                               red. Still routed through the confirm dialog. */}
                           <button
                             className="tracker-menu-option tracker-menu-option-danger"

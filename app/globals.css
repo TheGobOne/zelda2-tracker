@@ -1234,7 +1234,7 @@
   box-shadow: 0 0 0 3px #233bea;
 }
 
-/* Names the flagset list, since the entries are bare ruleset names and the
+/* Names the flags list, since the entries are bare ruleset names and the
    hamburger gives no hint of what they are on their own. */
 .tracker-menu-heading {
   margin: 0;
@@ -1264,23 +1264,23 @@
   background: #233bea;
 }
 
-/* The loaded flagset, marked in the frame's gold so the menu still answers which
+/* The loaded ruleset, marked in the frame's gold so the menu still answers which
    ruleset is active - the job the closed dropdown used to do by showing its name. */
 .tracker-menu-option[aria-checked='true'] {
   color: #f2b21c;
 }
 
-/* Separated from the flagsets above it, since it throws the board away, and set in
-   the frame's red so it reads as destructive at rest rather than only on hover.
-   Gold would be wrong here: gold is what marks the active flagset just above, so a
-   gold Clear looked like a fourth selectable ruleset. */
-/* Ruled off from the flagset list above it the same way Clear is, so the menu
-   reads as three separate things rather than one long list. */
+/* Ruled off from the flags list above it the same way Clear is, so the menu reads
+   as three separate things rather than one long list. */
 .tracker-menu-option-bordered {
   margin-top: 4px;
   border-top: 3px solid #f5f5f5;
 }
 
+/* Separated from the flags entries above it, since it throws the board away, and
+   set in the frame's red so it reads as destructive at rest rather than only on
+   hover. Gold would be wrong here: gold is what marks the active ruleset just
+   above, so a gold Clear looked like a fourth selectable ruleset. */
 .tracker-menu-option-danger {
   margin-top: 4px;
   border-top: 3px solid #f5f5f5;
@@ -1380,7 +1380,7 @@
   border: 2px solid #3a3a3a;
 }
 
-/* Gold, matching the flagset heading in the menu this panel opens from. */
+/* Gold, matching the Flags heading in the menu this panel opens from. */
 .controls-group-title {
   margin: 0;
   color: #f2b21c;
