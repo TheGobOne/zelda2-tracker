@@ -364,9 +364,9 @@ const PRESETS: {
     id: 'custom',
     name: 'Custom',
     collectedIds: [],
-    // Starting at nothing, but still counted against the vanilla totals - those
-    // are the ceiling the game itself imposes, not something a ruleset relaxes, so
-    // they stay put while the starting figures drop to zero.
+    // Opening figures only. Unlike the presets above, whose numbers describe a
+    // published ruleset and so are fixed, these are a starting point: right
+    // clicking either tally sets both of its sides.
     heartStart: 0,
     heartMax: 8,
     magicStart: 0,
@@ -375,6 +375,47 @@ const PRESETS: {
     counts: {},
   },
 ]
+
+/** The one ruleset whose container figures are the user's to set. */
+const CUSTOM_FLAGS_ID = 'custom'
+
+/**
+ * The four figures behind the two container tallies: what Link starts with, and
+ * the ceiling each count runs to. Only the Custom ruleset exposes them for
+ * editing - the rest state their own, and those are a property of the ruleset
+ * rather than a preference.
+ */
+type ContainerLimits = Pick<
+  (typeof PRESETS)[number],
+  'heartStart' | 'heartMax' | 'magicStart' | 'magicMax'
+>
+
+/** Which tally a limit belongs to, and which side of the slash it sets. */
+type ContainerKind = 'heart' | 'magic'
+type ContainerSide = 'start' | 'max'
+
+/**
+ * Values offered on either side of the slash. Capped at 8 because that is the
+ * game's own ceiling for both containers, so there is no meaningful figure above
+ * it; a total of 0 is dropped for the same reason, since a tally that can never
+ * fill is not a ruleset anyone plays.
+ */
+const CONTAINER_LIMIT_CHOICES = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+
+/** Reads the four figures off a preset, for seeding the editable copy. */
+function containerLimitsOf(preset: (typeof PRESETS)[number]): ContainerLimits {
+  return {
+    heartStart: preset.heartStart,
+    heartMax: preset.heartMax,
+    magicStart: preset.magicStart,
+    magicMax: preset.magicMax,
+  }
+}
+
+/** The Custom entry's opening figures, which its tallies reset to. */
+const CUSTOM_LIMIT_DEFAULTS = containerLimitsOf(
+  PRESETS.find((preset) => preset.id === CUSTOM_FLAGS_ID) ?? PRESETS[0],
+)
 
 /**
  * Turns a preset's item list into the `collected` map the board holds. Shared by
@@ -619,6 +660,16 @@ const CONTROL_GROUPS: {
     ],
   },
   {
+    title: 'Container tallies',
+    note: 'Only under Custom flags. Every other ruleset states its own figures, so its tallies are read-only.',
+    rows: [
+      {
+        input: 'Right click',
+        effect: 'Set the starting count and the total',
+      },
+    ],
+  },
+  {
     title: "Granny's Basement",
     note: 'Finishes on its own when the New Kasuto magic container is checked off.',
     rows: [
@@ -687,8 +738,30 @@ export function TrackerFrame() {
   // tallies' floors and totals with it. Read off the preset rather than switched on
   // its id, so a new ruleset only has to declare its own numbers. Falls back to
   // Standard if an id ever goes missing.
-  const activePreset =
+  const loadedPreset =
     PRESETS.find((preset) => preset.id === activeFlags) ?? PRESETS[0]
+
+  // The Custom ruleset's container figures, which right clicking either tally
+  // sets. Held outside `PRESETS` so that entry stays the blank slate it describes,
+  // and so a run's edits cannot leak into the next board built from it.
+  const [customLimits, setCustomLimits] = useState<ContainerLimits>(
+    CUSTOM_LIMIT_DEFAULTS,
+  )
+
+  // Custom is the one ruleset whose numbers are a choice, so its tallies read
+  // through the overrides. Everything downstream keeps taking the figures off
+  // `activePreset`, which is what lets the tallies stay unaware of the difference.
+  const activePreset =
+    loadedPreset.id === CUSTOM_FLAGS_ID
+      ? { ...loadedPreset, ...customLimits }
+      : loadedPreset
+
+  // Which tally has its dropdown open, if either. One at a time: they sit in
+  // different columns and both hang the same panel, so opening the second closes
+  // the first rather than leaving two open.
+  const [openLimitPicker, setOpenLimitPicker] = useState<ContainerKind | null>(
+    null,
+  )
 
   // Clear and the flags entries share one hamburger button, so a single piece of
   // state covers the whole menu rather than just the flags list.
@@ -701,6 +774,37 @@ export function TrackerFrame() {
   // clicking it again puts it down.
   const [armedIcon, setArmedIcon] = useState<string | null>(null)
   const palaceGridRef = useRef<HTMLDivElement | null>(null)
+
+  /**
+   * Sets one side of a Custom container tally, keeping the pair coherent: a start
+   * above the total would read as `9/8`, which is not a state the game can be in.
+   *
+   * The side just picked is the one that stands, and the other gives way to it.
+   * Clamping the picked value instead would quietly ignore the choice just made -
+   * picking a start of 6 against a total of 4 would leave 4/4 - and the dropdown
+   * would look like it had dropped the click.
+   */
+  function setContainerLimit(
+    kind: ContainerKind,
+    side: ContainerSide,
+    value: number,
+  ) {
+    setCustomLimits((current) => {
+      const startKey = kind === 'heart' ? 'heartStart' : 'magicStart'
+      const maxKey = kind === 'heart' ? 'heartMax' : 'magicMax'
+      const next = { ...current }
+
+      if (side === 'start') {
+        next[startKey] = value
+        next[maxKey] = Math.max(next[maxKey], value)
+      } else {
+        next[maxKey] = value
+        next[startKey] = Math.min(next[startKey], value)
+      }
+
+      return next
+    })
+  }
 
   /** Steps a counter slot to the next value, wrapping back around to empty. */
   function cycleCount(slotKey: string, step: 1 | -1) {
@@ -1348,6 +1452,10 @@ export function TrackerFrame() {
     setConnectorEnds({})
     setOpenSlot(null)
     setIsConfirmingClear(false)
+    setOpenLimitPicker(null)
+    // `customLimits` deliberately survives: Clear empties the board but keeps the
+    // loaded ruleset, and these figures describe that ruleset rather than the run.
+    // Resetting them would make a blank board mean re-entering the flags too.
   }
 
   /**
@@ -1368,6 +1476,14 @@ export function TrackerFrame() {
     setCountValues({ ...preset.counts })
     setConnectorEnds({})
     setActiveFlags(preset.id)
+    // Back to the Custom entry's opening figures. Loading a ruleset is the start
+    // of a new run, so figures typed for the last one would be stale - and for the
+    // fixed presets they are unreachable anyway, which would leave them waiting to
+    // reappear the next time Custom was picked.
+    setCustomLimits(CUSTOM_LIMIT_DEFAULTS)
+    // The tallies are about to be rebuilt underneath it, and on a fixed preset the
+    // panel cannot be reopened at all.
+    setOpenLimitPicker(null)
   }
 
   function assignItem(slotKey: string, itemId: string) {
@@ -1433,6 +1549,155 @@ export function TrackerFrame() {
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId)
     }
+  }
+
+  /**
+   * One of the two container tallies. Both read the same way - sprite, then
+   * `found/total` - and differ only in which sprite and which pair of figures, so
+   * they render through here rather than as two near-identical blocks.
+   *
+   * Under a fixed ruleset this is a readout: the count follows the containers
+   * ticked off out on the map and the total is the ruleset's, so there is nothing
+   * to click and it stays a `role="img"` with its label. Under Custom the figures
+   * are the user's to set, so it becomes a button that opens the dropdown on right
+   * click. `aria-live` announces the count either way, since it moves when a
+   * container is checked off elsewhere on the board.
+   */
+  function renderContainerTally(kind: ContainerKind) {
+    const isHeart = kind === 'heart'
+    const count = isHeart ? heartCount : magicCount
+    const start = isHeart ? activePreset.heartStart : activePreset.magicStart
+    const max = isHeart ? activePreset.heartMax : activePreset.magicMax
+    const name = isHeart ? 'Heart containers' : 'Magic containers'
+    const src = isHeart
+      ? '/images/items/heartcontainer.png'
+      : '/images/items/magiccontainer.png'
+    // Only Custom exposes these figures; every other ruleset states its own.
+    const isEditable = activeFlags === CUSTOM_FLAGS_ID
+    const isOpen = openLimitPicker === kind
+
+    const face = (
+      <>
+        <Image
+          alt=""
+          height={32}
+          // Eager because this sits above the fold and Next flags it as the
+          // largest contentful paint.
+          loading="eager"
+          src={src}
+          width={32}
+        />
+        {/* Inline SVG glyphs rather than text, so the tally sets in the same
+            letterforms as the requirement marks instead of introducing a second
+            typeface. */}
+        <GlyphText className="container-tally-count" scale={2}>
+          {`${count}/${max}`}
+        </GlyphText>
+      </>
+    )
+
+    if (!isEditable) {
+      return (
+        <div
+          aria-label={`${name}: ${count} of ${max}`}
+          aria-live="polite"
+          className="container-tally"
+          role="img"
+        >
+          {face}
+        </div>
+      )
+    }
+
+    return (
+      // Positioning context for the dropdown, mirroring the hamburger's wrap.
+      <div className="container-tally-wrap">
+        <button
+          aria-expanded={isOpen}
+          aria-haspopup="menu"
+          aria-label={`${name}: ${count} of ${max}, starting from ${start}. Right click to set the starting count and the total.`}
+          aria-live="polite"
+          className="container-tally container-tally-editable"
+          onContextMenu={(event) => {
+            event.preventDefault()
+            setOpenLimitPicker(isOpen ? null : kind)
+          }}
+          type="button"
+        >
+          {face}
+        </button>
+
+        {isOpen ? (
+          <div
+            aria-label={`${name} figures`}
+            className="limit-picker"
+            role="menu"
+          >
+            {/* Two columns in the order the tally reads them, so the left list
+                sets the number left of the slash and the right list the one right
+                of it. Naming them "Start" and "Total" rather than the figures'
+                field names, because what the left number means is the count Link
+                begins the run with - the tally climbs from there as containers are
+                found. */}
+            {(
+              [
+                {
+                  side: 'start' as ContainerSide,
+                  title: 'Start',
+                  // Spelled out for screen readers, where "Start" alone does not
+                  // say what it starts. The visible heading stays short to fit the
+                  // column.
+                  label: `${name} starting count`,
+                  value: start,
+                },
+                {
+                  side: 'max' as ContainerSide,
+                  title: 'Total',
+                  label: `${name} total`,
+                  value: max,
+                },
+              ]
+            ).map((column) => (
+              // Grouped rather than left as plain divs, because a `menu` only
+              // takes menu items and groups as children - the columns would
+              // otherwise break the panel's own role.
+              <div
+                aria-label={column.label}
+                className="limit-picker-column"
+                key={column.side}
+                role="group"
+              >
+                <p aria-hidden="true" className="limit-picker-heading">
+                  {column.title}
+                </p>
+
+                <div className="limit-picker-choices">
+                  {CONTAINER_LIMIT_CHOICES
+                    // A total of 0 is dropped: a tally that can never fill is not
+                    // a ruleset anyone plays, and it would also force the start to
+                    // 0 and strand both lists at a single value.
+                    .filter((choice) => column.side === 'start' || choice > 0)
+                    .map((choice) => (
+                      <button
+                        aria-checked={choice === column.value}
+                        className="limit-picker-option"
+                        key={choice}
+                        onClick={() =>
+                          setContainerLimit(kind, column.side, choice)
+                        }
+                        role="menuitemradio"
+                        type="button"
+                      >
+                        {choice}
+                      </button>
+                    ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : null}
+      </div>
+    )
   }
 
   return (
@@ -1509,13 +1774,14 @@ export function TrackerFrame() {
             <div className="section-divider section-divider-towns" />
 
             {/* The grid carries a transform, so it is its own stacking context and
-                the menu's own z-index cannot lift the panel past the sections that
-                follow it in the DOM - the grid is what has to move. Raised only
-                while the menu is open, so the board's paint order is otherwise
-                untouched. */}
+                a panel's own z-index cannot lift it past the sections that follow
+                in the DOM - the grid is what has to move. Raised for either panel
+                that hangs out of it, the options menu and a container tally's
+                figures, and only while one is open, so the board's paint order is
+                otherwise untouched. */}
             <div
               aria-label="Palace locations"
-              className={`palace-grid${isMenuOpen ? ' palace-grid-raised' : ''}`}
+              className={`palace-grid${isMenuOpen || openLimitPicker ? ' palace-grid-raised' : ''}`}
               ref={palaceGridRef}
             >
               {palaceColumns.map((column) => (
@@ -1648,36 +1914,7 @@ export function TrackerFrame() {
                             { canBlock: true }
                           )
                         )}
-                        {'heartTally' in palace ? (
-                          // A readout, not a control: the count follows the heart
-                          // containers checked off on the map, so there is nothing
-                          // to click here. role="img" carries the label because the
-                          // number is drawn as sprites, and aria-live announces the
-                          // change when a heart is picked up somewhere else on the
-                          // board.
-                          <div
-                            aria-label={`Heart containers: ${heartCount} of ${activePreset.heartMax}`}
-                            aria-live="polite"
-                            className="container-tally"
-                            role="img"
-                          >
-                            <Image
-                              alt=""
-                              height={32}
-                              // Eager because this sits above the fold and Next
-                              // flags it as the largest contentful paint.
-                              loading="eager"
-                              src="/images/items/heartcontainer.png"
-                              width={32}
-                            />
-                            {/* Inline SVG glyphs rather than text, so the tally
-                                sets in the same letterforms as the requirement
-                                marks instead of introducing a second typeface. */}
-                            <GlyphText className="container-tally-count" scale={2}>
-                              {`${heartCount}/${activePreset.heartMax}`}
-                            </GlyphText>
-                          </div>
-                        ) : null}
+                        {'heartTally' in palace ? renderContainerTally('heart') : null}
                       </div>
                     )
                   })}
@@ -1692,31 +1929,10 @@ export function TrackerFrame() {
                       two tallies up on the same left edge. */}
                   {column.id === 'right' ? (
                     <div className="tracker-utility-row">
-                      {/* Reads like the heart tally above it and for the same
-                          reason: the count follows the magic containers checked off
-                          on the map, so there is nothing to click. Both its floor
-                          and its total are the loaded ruleset's, which is why they
-                          come off `activePreset` rather than being fixed here. */}
-                      <div
-                        aria-label={`Magic containers: ${magicCount} of ${activePreset.magicMax}`}
-                        aria-live="polite"
-                        className="container-tally"
-                        role="img"
-                      >
-                        <Image
-                          alt=""
-                          height={32}
-                          // Eager for the same reason as the heart sprite above:
-                          // it is above the fold and Next flags it as the largest
-                          // contentful paint.
-                          loading="eager"
-                          src="/images/items/magiccontainer.png"
-                          width={32}
-                        />
-                        <GlyphText className="container-tally-count" scale={2}>
-                          {`${magicCount}/${activePreset.magicMax}`}
-                        </GlyphText>
-                      </div>
+                      {/* Reads like the heart tally above it and is built by the
+                          same renderer, so both behave alike: readouts under a
+                          fixed ruleset, editable under Custom. */}
+                      {renderContainerTally('magic')}
 
                       <div className="tracker-menu-wrap">
                       <button
@@ -2074,6 +2290,18 @@ export function TrackerFrame() {
                 aria-label="Close tracker options"
                 className="tracker-menu-backdrop"
                 onClick={() => setIsMenuOpen(false)}
+                type="button"
+              />
+            ) : null}
+
+            {/* The same catcher for a tally's figures, and for the same reason.
+                Kept separate from the menu's rather than driven by an `||`, so
+                clicking out of one panel cannot close the other along with it. */}
+            {openLimitPicker ? (
+              <button
+                aria-label="Close container figures"
+                className="tracker-menu-backdrop"
+                onClick={() => setOpenLimitPicker(null)}
                 type="button"
               />
             ) : null}

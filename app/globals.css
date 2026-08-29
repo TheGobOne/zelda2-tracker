@@ -846,6 +846,104 @@
   transform: translateX(-7px);
 }
 
+/* Positioning context for the figures panel, mirroring the hamburger's wrap. Only
+   the Custom ruleset renders this, so the fixed presets keep the bare readout and
+   the layout it sits in is untouched. */
+.container-tally-wrap {
+  position: relative;
+  display: flex;
+}
+
+/* Under Custom the tally is a button, so the element defaults have to be undone -
+   a button brings its own background, border, and centred text that would
+   otherwise box the sprite in. Everything the readout sets is kept; this only
+   strips what the tag adds and restores the pointer the base rule turns off,
+   since here there genuinely is something to click. */
+.container-tally-editable {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+/* Gold, the frame's "this is yours to set" colour, rather than a fill: the tally
+   has no plate of its own, so a background would invent a box the readout never
+   had. Applied to the glyph keyline, which is the only surface here that can carry
+   a colour without touching the sprite. */
+.container-tally-editable:hover .container-tally-count,
+.container-tally-editable[aria-expanded='true'] .container-tally-count {
+  color: #f2b21c;
+}
+
+/* Hangs below the tally, framed like the options menu so the two panels read as
+   the same kind of thing. Centred on the tally rather than pinned to an edge,
+   because these sit mid-board with room either side, where the hamburger's panel
+   has to stay inside the right edge. */
+.limit-picker {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  z-index: 5;
+  display: flex;
+  padding: 6px;
+  background: #101010;
+  border: 3px solid #f5f5f5;
+  box-shadow: 0 0 0 3px #233bea;
+  column-gap: 8px;
+  transform: translateX(-50%);
+}
+
+/* Divided down the middle so the two lists cannot be mistaken for one, in the
+   order the tally reads them: start left of the slash, total right. */
+.limit-picker-column + .limit-picker-column {
+  padding-left: 8px;
+  border-left: 3px solid #f5f5f5;
+}
+
+.limit-picker-heading {
+  margin: 0 0 4px;
+  color: #f2b21c;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* A 3x3 block rather than a column of nine. Nine values stacked vertically made a
+   panel taller than the palace rows it hangs from, which pushed the magic tally's
+   copy off the bottom of the board; as a grid it is three rows deep and clears
+   everything. The total's list is one short, so its last row holds two. */
+.limit-picker-choices {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+
+/* Square, so the digits sit on a consistent target and the two grids line up
+   whatever their row counts. */
+.limit-picker-option {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  background: #101010;
+  border: 2px solid #f5f5f5;
+  color: #f5f5f5;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.limit-picker-option:hover {
+  background: #233bea;
+}
+
+/* The figure currently in force, marked in the same gold the options menu uses for
+   the loaded ruleset. */
+.limit-picker-option[aria-checked='true'] {
+  border-color: #f2b21c;
+  color: #f2b21c;
+}
+
 /* Pin rows to their outer edge so added slots never shift the boss icons. The
    left column carries a fourth boss, so at the shared 14px gap it grew to 266px
    and came within 2px of the dividers above and below. A 6px gap brings it to
