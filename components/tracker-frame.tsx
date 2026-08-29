@@ -679,17 +679,7 @@ export function TrackerFrame() {
   // Standard if an id ever goes missing.
   const activePreset =
     PRESETS.find((preset) => preset.id === activeFlags) ?? PRESETS[0]
-  // What the loaded ruleset hands Link at the start, named rather than left as
-  // ids so the readout below reads as English. Resolved against the same item and
-  // spell lists the board draws its sprites from, so a preset that starts Link
-  // with something new needs no work here. An id with no entry falls back to
-  // itself, which shows up as odd copy rather than a blank.
-  const startingItemNames = activePreset.collectedIds.map(
-    (id) =>
-      items.find((entry) => entry.id === id)?.name ??
-      spells.find((entry) => entry.id === id)?.name ??
-      id,
-  )
+
   // Clear and the flags entries share one hamburger button, so a single piece of
   // state covers the whole menu rather than just the flags list.
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -1938,50 +1928,18 @@ export function TrackerFrame() {
                 })}
 
                 {/* Row three fills four of its nine icon positions, so the flags
-                    in play are written into the space left over instead of it
-                    staying black. Every figure comes off `activePreset`, so
-                    switching flags rewrites the panel rather than needing its own
-                    copy kept in step.
+                    in play are named in the space left over instead of it staying
+                    black. The name comes off `activePreset`, so switching flags
+                    rewrites this rather than needing its own copy kept in step.
 
                     Rendered inside the row, not as its own absolutely positioned
                     block, so the row's own flex layout lines it up with the icons
                     and it stays lined up if a fifth location is ever added. The
                     label is what keeps it from being read as another location. */}
                 {rowIndex === 2 ? (
-                  <div
-                    aria-label="Flags in play"
-                    className="flags-panel"
-                    role="group"
-                  >
-                    <div className="flags-panel-name">
-                      <p className="flags-panel-label">Flags</p>
-                      <p className="flags-panel-value">{activePreset.name}</p>
-                    </div>
-
-                    {/* Each figure really is a term and its value, so a
-                        description list rather than a stack of paragraphs. */}
-                    <dl className="flags-panel-stats">
-                      <div className="flags-panel-stat">
-                        <dt className="flags-panel-key">Hearts</dt>
-                        <dd className="flags-panel-figure">
-                          {`${activePreset.heartStart} of ${activePreset.heartMax}`}
-                        </dd>
-                      </div>
-
-                      <div className="flags-panel-stat">
-                        <dt className="flags-panel-key">Magic</dt>
-                        <dd className="flags-panel-figure">
-                          {`${activePreset.magicStart} of ${activePreset.magicMax}`}
-                        </dd>
-                      </div>
-
-                      <div className="flags-panel-stat">
-                        <dt className="flags-panel-key">Start</dt>
-                        <dd className="flags-panel-figure">
-                          {startingItemNames.join(', ')}
-                        </dd>
-                      </div>
-                    </dl>
+                  <div className="flags-panel">
+                    <p className="flags-panel-label">Flags</p>
+                    <p className="flags-panel-value">{activePreset.name}</p>
                   </div>
                 ) : null}
               </div>
