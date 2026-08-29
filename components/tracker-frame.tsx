@@ -303,6 +303,14 @@ const PALACE_NOTES: { src: string; alt: string }[] = [
 const PRESETS: {
   id: string
   name: string
+  /**
+   * Which submenu the entry belongs to. Absent for the rulesets that sit at the
+   * top level of the flags list. Tagging them here rather than holding a second
+   * array keeps every preset in one place, so the lookups that turn `activeFlags`
+   * back into a ruleset - and the panel that prints its name - need no changes to
+   * cover the weeks.
+   */
+  group?: 'upstarts'
   collectedIds: string[]
   heartStart: number
   heartMax: number
@@ -374,7 +382,35 @@ const PRESETS: {
     placements: {},
     counts: {},
   },
+  // The Upstarts weeks. Held at the end of the array because they render from
+  // their own submenu rather than in list order, and generated rather than typed
+  // out six times over: every week currently carries the same opening state, so
+  // six near-identical literals would only invite one of them to drift.
+  //
+  // Placeholder flags. Each week is a vanilla-shaped board - candle in hand,
+  // four of eight containers each, nothing known in advance - until the real
+  // flagsets are filled in. Only this block needs editing to do that; the menu
+  // and the tallies read whatever is here.
+  ...Array.from({ length: 6 }, (_, index) => ({
+    id: `upstarts-week-${index + 1}`,
+    name: `Week ${index + 1}`,
+    group: 'upstarts' as const,
+    collectedIds: ['candle'],
+    heartStart: 4,
+    heartMax: 8,
+    magicStart: 4,
+    magicMax: 8,
+    placements: {},
+    counts: {},
+  })),
 ]
+
+/**
+ * The rulesets shown at the top level of the flags list, and the weeks behind the
+ * Upstarts entry. Split once here so the menu does not filter on every render.
+ */
+const TOP_LEVEL_PRESETS = PRESETS.filter((preset) => !preset.group)
+const UPSTARTS_PRESETS = PRESETS.filter((preset) => preset.group === 'upstarts')
 
 /** The one ruleset whose container figures are the user's to set. */
 const CUSTOM_FLAGS_ID = 'custom'
@@ -768,6 +804,12 @@ export function TrackerFrame() {
       ? { ...loadedPreset, ...customLimits }
       : loadedPreset
 
+  // Whether the loaded ruleset is one of the Upstarts weeks, which is what marks
+  // the collapsed submenu as holding the active entry.
+  const isUpstartsActive = UPSTARTS_PRESETS.some(
+    (preset) => preset.id === activeFlags,
+  )
+
   // Which tally has its dropdown open, if either. One at a time: they sit in
   // different columns and both hang the same panel, so opening the second closes
   // the first rather than leaving two open.
@@ -778,6 +820,10 @@ export function TrackerFrame() {
   // Clear and the flags entries share one hamburger button, so a single piece of
   // state covers the whole menu rather than just the flags list.
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  // Whether the Upstarts weeks are flown out beside the menu. Separate from
+  // `isMenuOpen` so the submenu can be opened and shut without disturbing the
+  // menu holding it.
+  const [isUpstartsOpen, setIsUpstartsOpen] = useState(false)
   // Which icon sits on each overworld cell, keyed by grid id and coordinates.
   // Only filled cells are stored, so an absent key is an empty square.
   const [overworldCells, setOverworldCells] = useState<Record<string, string>>({})
@@ -1485,6 +1531,16 @@ export function TrackerFrame() {
    * at the top of a run, so starting clean avoids leaving stale placements from
    * whatever was on screen before.
    */
+  /**
+   * Shuts the options menu and the Upstarts flyout together. The submenu lives
+   * inside the menu, so leaving it open would have it spring back out the next
+   * time the hamburger was pressed.
+   */
+  function closeMenu() {
+    setIsMenuOpen(false)
+    setIsUpstartsOpen(false)
+  }
+
   function applyPreset(preset: (typeof PRESETS)[number]) {
     // The maps describe the seed being played, so a new ruleset empties them
     // along with everything else.
@@ -1972,7 +2028,12 @@ export function TrackerFrame() {
                         aria-haspopup="menu"
                         aria-label="Tracker options"
                         className="tracker-menu-toggle"
-                        onClick={() => setIsMenuOpen((current) => !current)}
+                        // Closing from the hamburger goes through the same helper
+                        // as the backdrop, so the flyout cannot be left open
+                        // behind a shut menu.
+                        onClick={() =>
+                          isMenuOpen ? closeMenu() : setIsMenuOpen(true)
+                        }
                         type="button"
                       >
                         {/* Three chunky bars, drawn as blocks to match the pixel
@@ -1990,13 +2051,13 @@ export function TrackerFrame() {
                         >
                           <p className="tracker-menu-heading">Flags</p>
 
-                          {PRESETS.map((preset) => (
+                          {TOP_LEVEL_PRESETS.map((preset) => (
                             <button
                               aria-checked={preset.id === activeFlags}
                               className="tracker-menu-option"
                               key={preset.id}
                               onClick={() => {
-                                setIsMenuOpen(false)
+                                closeMenu()
                                 applyPreset(preset)
                               }}
                               role="menuitemradio"
@@ -2006,13 +2067,66 @@ export function TrackerFrame() {
                             </button>
                           ))}
 
+                          {/* The Upstarts weeks, behind one entry rather than six
+                              loose ones: they are a series, and spelling them all
+                              out would make the weeks the bulk of a menu that also
+                              has to hold Controls and Clear. */}
+                          <div className="tracker-submenu-wrap">
+                            <button
+                              aria-expanded={isUpstartsOpen}
+                              aria-haspopup="menu"
+                              // Gold while one of its weeks is loaded, so a
+                              // collapsed submenu still shows where the active
+                              // ruleset came from - the job the entries above do
+                              // for themselves.
+                              aria-checked={isUpstartsActive}
+                              className="tracker-menu-option tracker-submenu-toggle"
+                              onClick={() => setIsUpstartsOpen((open) => !open)}
+                              role="menuitemradio"
+                              type="button"
+                            >
+                              Upstarts
+                              {/* Points the way the panel opens. Drawn with
+                                  borders so it stays crisp like the hamburger's
+                                  bars rather than softening at zoom. */}
+                              <span
+                                aria-hidden="true"
+                                className="tracker-submenu-arrow"
+                              />
+                            </button>
+
+                            {isUpstartsOpen ? (
+                              <div
+                                aria-label="Upstarts weeks"
+                                className="tracker-submenu"
+                                role="menu"
+                              >
+                                {UPSTARTS_PRESETS.map((preset) => (
+                                  <button
+                                    aria-checked={preset.id === activeFlags}
+                                    className="tracker-menu-option"
+                                    key={preset.id}
+                                    onClick={() => {
+                                      closeMenu()
+                                      applyPreset(preset)
+                                    }}
+                                    role="menuitemradio"
+                                    type="button"
+                                  >
+                                    {preset.name}
+                                  </button>
+                                ))}
+                              </div>
+                            ) : null}
+                          </div>
+
                           {/* Opens the controls reference. Sits below the
                               flags entries and above Clear, so the menu runs from
                               harmless to destructive top to bottom. */}
                           <button
                             className="tracker-menu-option tracker-menu-option-bordered"
                             onClick={() => {
-                              setIsMenuOpen(false)
+                              closeMenu()
                               setIsShowingControls(true)
                             }}
                             role="menuitem"
@@ -2027,7 +2141,7 @@ export function TrackerFrame() {
                           <button
                             className="tracker-menu-option tracker-menu-option-danger"
                             onClick={() => {
-                              setIsMenuOpen(false)
+                              closeMenu()
                               setIsConfirmingClear(true)
                             }}
                             role="menuitem"
@@ -2321,7 +2435,7 @@ export function TrackerFrame() {
               <button
                 aria-label="Close tracker options"
                 className="tracker-menu-backdrop"
-                onClick={() => setIsMenuOpen(false)}
+                onClick={closeMenu}
                 type="button"
               />
             ) : null}

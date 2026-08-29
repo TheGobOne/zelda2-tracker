@@ -1535,6 +1535,57 @@
   color: #f2b21c;
 }
 
+/* Holds the Upstarts entry and the panel that flies out of it. Stays a plain flex
+   item in the menu column so the entry keeps its place in the list, and only the
+   panel is taken out of flow. */
+.tracker-submenu-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Room on the right for the arrow, which is absolutely placed so the label stays
+   optically centred with the entries above it rather than being pushed off centre
+   by a glyph on one side. */
+.tracker-submenu-toggle {
+  position: relative;
+  padding-right: 26px;
+}
+
+.tracker-submenu-arrow {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  width: 0;
+  height: 0;
+  margin-top: -4px;
+  /* Solid left-pointing triangle, matching the direction the panel opens. */
+  border-top: 4px solid transparent;
+  border-right: 6px solid #f5f5f5;
+  border-bottom: 4px solid transparent;
+}
+
+/* Opens to the left of the menu, not below it: the menu is already pinned to the
+   board's right edge, so a panel hanging further right would run off the frame.
+   Bottom-aligned to the entry for the same reason vertically - six weeks is taller
+   than the space left under the entry, so it grows upward into the open board
+   instead of past the bottom rail. */
+.tracker-submenu {
+  position: absolute;
+  /* Offset clears the menu itself, not just this entry: the wrap sits inside the
+     menu's 6px padding and 3px border, so a bare `100%` left the panel overlapping
+     that edge. 6 + 3 for those, plus a 6px gap between the two panels. */
+  right: calc(100% + 15px);
+  bottom: 0;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+  background: #101010;
+  border: 3px solid #f5f5f5;
+  box-shadow: 0 0 0 3px #233bea;
+}
+
 /* Ruled off from the flags list above it the same way Clear is, so the menu reads
    as three separate things rather than one long list. */
 .tracker-menu-option-bordered {
