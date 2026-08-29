@@ -549,6 +549,92 @@ function overworldIconColumns() {
   return OVERWORLD_ICON_COLUMNS
 }
 
+/**
+ * The controls reference, grouped by what you are pointing at. Every board
+ * element here answers to more than one mouse button, and nothing on the board
+ * advertises that on its own, so this is the one place it is written down.
+ *
+ * Kept as data rather than markup so each group renders through the same row,
+ * and so a control added to a handler has an obvious place to be recorded.
+ * These strings must track the handlers in this file - if a button changes
+ * there, it changes here.
+ */
+const CONTROL_GROUPS: {
+  title: string
+  note?: string
+  rows: { input: string; effect: string }[]
+}[] = [
+  {
+    title: 'Item slots',
+    note: 'The boxes beside each palace boss and under each town.',
+    rows: [
+      { input: 'Left click', effect: 'Mark the item collected' },
+      { input: 'Right click', effect: 'Choose or change the item' },
+      { input: 'Middle click', effect: 'Empty the slot' },
+      {
+        input: 'Shift + right click',
+        effect: 'Cycle the letter on the town underneath',
+      },
+    ],
+  },
+  {
+    title: 'Palace bosses',
+    rows: [
+      { input: 'Left click', effect: 'Mark the boss defeated' },
+      { input: 'Right click', effect: 'Cycle the requirement letter' },
+      { input: 'Middle click', effect: 'Change how many item slots it shows' },
+      { input: 'Scroll', effect: 'Cycle what blocks the palace' },
+    ],
+  },
+  {
+    title: 'Towns',
+    note: 'A town holding an item slot cycles its letter with shift + right click.',
+    rows: [{ input: 'Right click', effect: 'Cycle the requirement letter' }],
+  },
+  {
+    title: 'Item list',
+    note: 'The collection down the side of the board.',
+    rows: [
+      { input: 'Left click', effect: 'Mark found, or clear it again' },
+      {
+        input: 'Right click',
+        effect: 'Cycle the letter, until the item is found',
+      },
+    ],
+  },
+  {
+    title: 'Locations',
+    rows: [
+      { input: 'Left click', effect: 'Mark the item collected' },
+      { input: 'Right click', effect: 'Choose or change the item' },
+      { input: 'Middle click', effect: 'Empty the slot' },
+    ],
+  },
+  {
+    title: 'Spell item count',
+    note: 'Finishes on its own when the New Kasuto magic container is checked off.',
+    rows: [
+      { input: 'Left click', effect: 'Next count' },
+      { input: 'Right click', effect: 'Previous count' },
+    ],
+  },
+  {
+    title: 'Overworld maps',
+    note: 'Click a palette icon to hold it, click it again to put it down.',
+    rows: [
+      { input: 'Left click', effect: 'Drop the held icon on a square' },
+      { input: 'Right click', effect: 'Clear the square' },
+    ],
+  },
+  {
+    title: 'Connector ends',
+    rows: [
+      { input: 'Left click', effect: 'Step forward through destinations' },
+      { input: 'Right click', effect: 'Step back' },
+    ],
+  },
+]
+
 function clampScale(value: number) {
   return Math.min(MAX_SCALE, Math.max(MIN_SCALE, value))
 }
@@ -581,6 +667,7 @@ export function TrackerFrame() {
   const [openSlot, setOpenSlot] = useState<string | null>(null)
   // Clearing is destructive, so it waits on a confirmation dialog.
   const [isConfirmingClear, setIsConfirmingClear] = useState(false)
+  const [isShowingControls, setIsShowingControls] = useState(false)
   // Which ruleset is loaded. Standard is the default, so the board opens matching
   // it rather than needing the flagset picked by hand. Still tracked now that the
   // picker is a menu, to mark the active entry.
@@ -691,6 +778,26 @@ export function TrackerFrame() {
       root.removeEventListener('keyup', blockActivationKeys, true)
     }
   }, [])
+
+  // Escape closes the controls. The board itself takes no keystrokes, which is
+  // why its menus close on an outside click instead, but this one is a modal
+  // panel of copy - Escape is the expected way out of it, and the listener is
+  // only mounted while it is open, so the board is never listening.
+  useEffect(() => {
+    if (!isShowingControls) {
+      return
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setIsShowingControls(false)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isShowingControls])
 
   // Scrolling a boss steps what blocks its palace. One delegated listener on the
   // grid rather than an `onWheel` per boss, because React registers wheel handlers
@@ -1607,6 +1714,21 @@ export function TrackerFrame() {
                             </button>
                           ))}
 
+                          {/* Opens the controls reference. Sits below the
+                              flagsets and above Clear, so the menu runs from
+                              harmless to destructive top to bottom. */}
+                          <button
+                            className="tracker-menu-option tracker-menu-option-bordered"
+                            onClick={() => {
+                              setIsMenuOpen(false)
+                              setIsShowingControls(true)
+                            }}
+                            role="menuitem"
+                            type="button"
+                          >
+                            Controls
+                          </button>
+
                           {/* Clearing wipes the board, so it is set apart from
                               the flagsets above it and tinted with the frame's
                               red. Still routed through the confirm dialog. */}
@@ -1929,6 +2051,70 @@ export function TrackerFrame() {
                       Clear
                     </button>
                   </div>
+                </div>
+              </div>
+            ) : null}
+
+            {isShowingControls ? (
+              <div className="tracker-dialog-overlay">
+                <button
+                  aria-label="Close the controls"
+                  className="item-picker-backdrop"
+                  onClick={() => setIsShowingControls(false)}
+                  type="button"
+                />
+                <div
+                  aria-labelledby="controls-title"
+                  aria-modal="true"
+                  className="tracker-dialog controls-dialog"
+                  role="dialog"
+                >
+                  <div className="item-picker-header">
+                    <p className="item-picker-title" id="controls-title">
+                      Controls
+                    </p>
+                    <button
+                      aria-label="Close the controls"
+                      className="item-picker-close"
+                      onClick={() => setIsShowingControls(false)}
+                      type="button"
+                    >
+                      <span aria-hidden="true">X</span>
+                    </button>
+                  </div>
+
+                  <p className="controls-intro">
+                    Everything on the board is worked with the mouse. Nothing
+                    here needs the keyboard.
+                  </p>
+
+                  <div className="controls-groups">
+                    {CONTROL_GROUPS.map((group) => (
+                      <section className="controls-group" key={group.title}>
+                        <h3 className="controls-group-title">{group.title}</h3>
+
+                        {/* A description list, since each row really is a term
+                            and its meaning - the input and what it does. */}
+                        <dl className="controls-list">
+                          {group.rows.map((row) => (
+                            <div className="controls-row" key={row.input}>
+                              <dt className="controls-input">{row.input}</dt>
+                              <dd className="controls-effect">{row.effect}</dd>
+                            </div>
+                          ))}
+                        </dl>
+
+                        {group.note ? (
+                          <p className="controls-note">{group.note}</p>
+                        ) : null}
+                      </section>
+                    ))}
+                  </div>
+
+                  <p className="controls-footnote">
+                    The heart and magic tallies count themselves from the board,
+                    so they take no clicks.
+                  </p>
                 </div>
               </div>
             ) : null}

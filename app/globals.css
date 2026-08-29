@@ -1274,6 +1274,13 @@
    the frame's red so it reads as destructive at rest rather than only on hover.
    Gold would be wrong here: gold is what marks the active flagset just above, so a
    gold Clear looked like a fourth selectable ruleset. */
+/* Ruled off from the flagset list above it the same way Clear is, so the menu
+   reads as three separate things rather than one long list. */
+.tracker-menu-option-bordered {
+  margin-top: 4px;
+  border-top: 3px solid #f5f5f5;
+}
+
 .tracker-menu-option-danger {
   margin-top: 4px;
   border-top: 3px solid #f5f5f5;
@@ -1324,6 +1331,105 @@
   display: flex;
   justify-content: center;
   gap: 12px;
+}
+
+/* The controls reference. `.tracker-dialog` shrinks to fit two buttons, so this
+   overrides its sizing for a panel of copy: a column, near the canvas width, and
+   capped at 88% of the board's height so a long list scrolls inside the frame
+   rather than running off the top and bottom of it. */
+.controls-dialog {
+  flex-direction: column;
+  width: 536px;
+  max-height: 88%;
+  padding: 16px;
+  row-gap: 12px;
+  overflow-y: auto;
+  text-align: left;
+}
+
+.controls-intro,
+.controls-footnote {
+  margin: 0;
+  color: #b9b9b9;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+/* Set off from the groups above it, since it explains an absence of controls
+   rather than another set of them. */
+.controls-footnote {
+  padding-top: 10px;
+  border-top: 3px solid #3a3a3a;
+}
+
+/* Two columns, so all eight groups are visible without scrolling on a full
+   board. The groups are short and self-contained, so they read fine side by
+   side. */
+.controls-groups {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.controls-group {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 10px;
+  row-gap: 6px;
+  background: #161616;
+  border: 2px solid #3a3a3a;
+}
+
+/* Gold, matching the flagset heading in the menu this panel opens from. */
+.controls-group-title {
+  margin: 0;
+  color: #f2b21c;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Each pair is stacked, so the gap between pairs has to be clearly larger than
+   the gap inside one, or the list reads as a single run of lines. */
+.controls-list {
+  display: flex;
+  margin: 0;
+  flex-direction: column;
+  row-gap: 7px;
+}
+
+/* The input stacked over its effect. Side by side was the first attempt and it
+   did not fit: this tile font is wide, so a fixed input column left the effect
+   about twenty characters, wrapping nearly every one to three or four lines and
+   pushing the panel into a scroll. Stacking gives both the group's full width,
+   and the gold input still separates the pairs well enough to scan. */
+.controls-row {
+  display: flex;
+  flex-direction: column;
+}
+
+/* White for the input, grey for the effect. Gold is already the group title, so
+   it stays reserved for that - three golds in one tile would flatten the
+   hierarchy instead of separating the pairs. */
+.controls-input {
+  color: #f5f5f5;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.controls-effect {
+  margin: 0;
+  color: #a5a5a5;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+/* Exceptions and asides, held below the list they qualify. */
+.controls-note {
+  margin: 0;
+  color: #8a8a8a;
+  font-size: 9px;
+  line-height: 1.5;
 }
 
 /* Palette of every item. Always opens in the same spot, spanning the tracker. */
