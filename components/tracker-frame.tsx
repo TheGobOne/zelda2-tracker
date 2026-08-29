@@ -618,8 +618,8 @@ const CONTROL_GROUPS: {
   {
     title: 'Connector ends',
     rows: [
-      { input: 'Left click', effect: 'Step forward through destinations' },
-      { input: 'Right click', effect: 'Step back' },
+      { input: 'Left click', effect: 'Cycle forward through destinations' },
+      { input: 'Right click', effect: 'Cycle back' },
     ],
   },
 ]
