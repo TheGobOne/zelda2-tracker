@@ -744,6 +744,7 @@
   --art-blocked: 14px;
   --plate: 12px;
   --pair-blocked: 8px;
+  --slash-blocked: 7px;
   --check-blocked: 10px;
 }
 
@@ -779,6 +780,7 @@
   --art-blocked: 24px;
   --plate: 16px;
   --pair-blocked: 10px;
+  --slash-blocked: 9px;
   --check-blocked: 18px;
 }
 
@@ -1043,6 +1045,7 @@
   --art-blocked: 28px;
   --plate: 20px;
   --pair-blocked: 12px;
+  --slash-blocked: 10px;
   --check-blocked: 22px;
 }
 
@@ -1094,10 +1097,32 @@
 }
 
 /* Paired art keeps its diagonal layout, just smaller, so a slot holding an
-   either/or pickup still reads as two sprites when blocked. */
+   either/or pickup still reads as two sprites when blocked.
+
+   The box has to be pulled in as well as the sprites inside it. It is normally
+   the full interior with the second sprite pinned to its right edge, so shrinking
+   only the sprites would leave that one pinned under the plates - the box, not the
+   sprite, is what decides where it lands. Squared off to the art so the diagonal
+   still reads, and centred rather than stretched, since a stretched box would
+   drop the lower sprite past the art it is paired with. The slash it carries is
+   centred on the box, so it follows without a rule of its own. */
+.item-slot.item-slot-blocked .item-pair {
+  width: var(--art-blocked);
+  height: var(--art-blocked);
+  align-self: center;
+}
+
 .item-slot.item-slot-blocked .item-pair img {
   width: var(--pair-blocked);
   height: var(--pair-blocked);
+}
+
+/* The slash is type, not a sprite, so it does not follow the sizes above on its
+   own - left alone it stays 16px and ends up wider than the sprites it separates.
+   It already clears the plates either way; this is only about proportion. Set only
+   for the blocked state, leaving the unblocked slots exactly as they were. */
+.item-slot.item-slot-blocked .item-pair-slash {
+  font-size: var(--slash-blocked);
 }
 
 /* The check is a stamp over the item, so it follows the art left rather than
