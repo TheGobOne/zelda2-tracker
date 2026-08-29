@@ -2438,7 +2438,7 @@ export function TrackerFrame() {
                       rather than the count. */}
                   <p className="controls-footnote">
                     The heart/magic containers will increment on their own when
-                    collected. Setting a custom flagset allows selection.
+                    collected. Setting the flags to Custom allows selection.
                   </p>
                 </div>
               </div>
