@@ -663,7 +663,7 @@ const CONTROL_GROUPS: {
   },
   {
     title: "Granny's Basement",
-    note: 'Finishes on its own when the New Kasuto magic container is checked off.',
+    note: "Completes on its own when Granny's item is collected.",
     rows: [
       { input: 'Left click', effect: 'Next count' },
       { input: 'Right click', effect: 'Previous count' },
