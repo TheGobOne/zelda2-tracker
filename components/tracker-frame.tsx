@@ -660,11 +660,15 @@ const CONTROL_GROUPS: {
     ],
   },
   {
-    title: 'Container tallies',
-    note: 'Only under Custom flags. Every other ruleset states its own figures, so its tallies are read-only.',
+    // Named for the sprites rather than the mechanism, since "container tallies"
+    // is the code's word for them and not something written anywhere on the board.
+    title: 'Heart and magic tallies',
+    note: 'Only changeable under Custom flags - every other ruleset fixes its own figures, so its tallies are read-only.',
     rows: [
       {
         input: 'Right click',
+        // Both sides, because the tally reads `found/total` and one panel sets
+        // the pair.
         effect: 'Set the starting count and the total',
       },
     ],
@@ -2408,9 +2412,13 @@ export function TrackerFrame() {
                     ))}
                   </div>
 
+                  {/* Reworded once the tallies became settable under Custom: they
+                      no longer "take no clicks", but the half that still holds is
+                      the part worth stating, since it is why setting the start does
+                      not stop the count from moving on its own. */}
                   <p className="controls-footnote">
-                    The heart and magic tallies count themselves from the board,
-                    so they take no clicks.
+                    The heart and magic counts still come from the board - finding a
+                    container is what moves them, never a click on the tally.
                   </p>
                 </div>
               </div>
