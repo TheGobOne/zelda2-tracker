@@ -2402,8 +2402,7 @@ export function TrackerFrame() {
                   </div>
 
                   <p className="controls-intro">
-                    Everything on the board is worked with the mouse. Nothing
-                    here needs the keyboard.
+                    The tracker is only mouse controlled. No keyboard shortcuts.
                   </p>
 
                   <div className="controls-groups">
