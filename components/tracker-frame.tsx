@@ -570,6 +570,7 @@ const CONTROL_GROUPS: {
       { input: 'Left click', effect: 'Mark the item collected' },
       { input: 'Right click', effect: 'Choose or change the item' },
       { input: 'Middle click', effect: 'Clear the slot' },
+      { input: 'Scroll', effect: 'Cycle what blocks the slot' },
     ],
   },
   {
