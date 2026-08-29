@@ -621,7 +621,14 @@ function overworldIconColumns() {
 const CONTROL_GROUPS: {
   title: string
   note?: string
-  rows: { input: string; effect: string }[]
+  /** Absent on a group that carries a credit instead of controls. */
+  rows?: { input: string; effect: string }[]
+  /**
+   * Standalone line, for the sign-off box. Kept a separate field from `rows`
+   * because a credit is not an input paired with an effect, and forcing it into
+   * that shape would style the name as if it were a mouse button.
+   */
+  credit?: string
 }[] = [
   {
     title: 'Palace bosses',
@@ -688,20 +695,10 @@ const CONTROL_GROUPS: {
     ],
   },
   {
-    // Named for the sprites rather than the mechanism, since "container tallies"
-    // is the code's word for them and not something written anywhere on the board.
-    title: 'Heart/magic containers',
-    note: 'Only changeable under Custom flags - every other ruleset fixes its own figures, so its tallies are read-only.',
-    rows: [
-      {
-        // Both buttons open the same panel, so they share one row rather than
-        // being listed twice with identical effects.
-        input: 'Any click',
-        // Both sides, because the tally reads `found/total` and one panel sets
-        // the pair.
-        effect: 'Set the starting count and the total',
-      },
-    ],
+    // Takes the slot the heart/magic controls held: the footnote below the grid
+    // already states both of that panel's facts, so the box was repeating itself.
+    title: 'Made By',
+    credit: 'TheGobOne',
   },
 ]
 
@@ -2411,15 +2408,23 @@ export function TrackerFrame() {
                         <h3 className="controls-group-title">{group.title}</h3>
 
                         {/* A description list, since each row really is a term
-                            and its meaning - the input and what it does. */}
-                        <dl className="controls-list">
-                          {group.rows.map((row) => (
-                            <div className="controls-row" key={row.input}>
-                              <dt className="controls-input">{row.input}</dt>
-                              <dd className="controls-effect">{row.effect}</dd>
-                            </div>
-                          ))}
-                        </dl>
+                            and its meaning - the input and what it does. Skipped
+                            entirely for a credit box, so no empty list is left
+                            behind to space the box out. */}
+                        {group.rows ? (
+                          <dl className="controls-list">
+                            {group.rows.map((row) => (
+                              <div className="controls-row" key={row.input}>
+                                <dt className="controls-input">{row.input}</dt>
+                                <dd className="controls-effect">{row.effect}</dd>
+                              </div>
+                            ))}
+                          </dl>
+                        ) : null}
+
+                        {group.credit ? (
+                          <p className="controls-credit">{group.credit}</p>
+                        ) : null}
 
                         {group.note ? (
                           <p className="controls-note">{group.note}</p>
