@@ -1836,7 +1836,8 @@
   image-rendering: pixelated;
 }
 
-/* A multi-sprite entry: one sprite per corner on a 2x2 grid.
+/* A multi-sprite entry: one sprite per corner on a 2x2 grid, plus an optional
+   fifth laid over the middle.
 
    A grid rather than the absolute corners this used to place by hand, because the
    quadrants divide whatever box the pair is given and so hold their corners at
@@ -1851,15 +1852,39 @@
   width: 100%;
   height: 100%;
   align-self: stretch;
+  /* Anchors the centre sprite below, which is placed against this box rather than
+     given a cell of its own - the grid has no middle cell to hand it. */
+  position: relative;
 }
 
-/* Each sprite fills its own quadrant, which is what replaces the fixed pixel
-   sizes these carried per context. The sprites are square on square cells, so
-   nothing stretches, and their own transparent margins keep the four apart
-   without a gap - a gap here would only shrink the art. */
+/* Each corner sprite fills its own quadrant, which is what replaces the fixed
+   pixel sizes these carried per context. The sprites are square on square cells,
+   so nothing stretches, and their own transparent margins keep them apart without
+   a gap - a gap here would only shrink the art. */
 .item-pair img {
   width: 100%;
   height: 100%;
+}
+
+/* The centre sprite, laid over the four corners.
+
+   Sized as a share of the box rather than in pixels so it tracks the corners
+   through every slot size, and kept small enough to clear the corner art: each
+   quadrant is half the box and its sprite covers about 78% of that, so the corner
+   art reaches roughly 39% in from each edge. A third of the box leaves that
+   untouched, and the point bag's own transparent margin adds a little more.
+
+   Qualified with `img` so this outweighs the broad per-context image rules - the
+   town grid sizes every image inside a slot, and without the extra weight here
+   that rule would size the centre sprite too and blow it up to a corner's size. */
+.item-pair img.item-pair-center {
+  z-index: 1;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 34%;
+  height: 34%;
+  transform: translate(-50%, -50%);
 }
 
 /* The icon's own sprite only. Direct child, so the smaller block sprites stacked

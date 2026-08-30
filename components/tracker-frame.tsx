@@ -254,6 +254,11 @@ const items = [
       '/images/items/1up.png',
       '/images/items/smallkey.png',
     ],
+    // The point bag sits in the middle, over the four corners. Kept in its own
+    // field rather than appended to `src`, because that array is positional - a
+    // fifth entry would be handed the grid's next cell and land bottom-left of a
+    // 3x2, not in the centre.
+    center: '/images/items/pbag.png',
   },
 ]
 
@@ -571,11 +576,26 @@ function slotLabel(slotKey: string) {
  */
 function ItemArt({ item }: { item: (typeof allPickables)[number] }) {
   if (Array.isArray(item.src)) {
+    // Only the junk check carries a centre sprite, so the field is read off the
+    // entry rather than being required of every multi-sprite item.
+    // The `typeof` is what narrows this to a string: only some entries in the
+    // union declare `center`, so the `in` check alone leaves it untyped.
+    const center =
+      'center' in item && typeof item.center === 'string' ? item.center : null
     return (
       <span className="item-pair">
         {item.src.map((src) => (
           <Image alt="" height={32} key={src} src={src} width={32} />
         ))}
+        {center ? (
+          <Image
+            alt=""
+            className="item-pair-center"
+            height={32}
+            src={center}
+            width={32}
+          />
+        ) : null}
       </span>
     )
   }
