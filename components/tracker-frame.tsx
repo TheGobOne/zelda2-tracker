@@ -2404,19 +2404,23 @@ export function TrackerFrame() {
                     and it stays lined up if a fifth location is ever added. The
                     label is what keeps it from being read as another location.
 
-                    Grouped rulesets print their group instead of their own name:
-                    "Week 3" only means something next to the other weeks in the
-                    submenu, whereas here the ruleset in play is Upstarts. Taken
-                    off `group` rather than matched against week names, so further
-                    weeks - or a second group - are covered without a change. */}
+                    A grouped ruleset needs both halves named - "Week 3" alone only
+                    means something beside the other weeks in the submenu, and
+                    "Upstarts" alone loses which week is in play - so the group
+                    joins the label and the week stays in the value. Both on the
+                    value line wrapped to two, which the 48px row cannot seat, and
+                    this split is the better reading anyway: the label already
+                    carries the fixed identifier and the value the part that
+                    changes. Keyed off `group`, so further weeks or a second group
+                    need no change here. */}
                 {rowIndex === 2 ? (
                   <div className="flags-panel">
-                    <p className="flags-panel-label">Flags</p>
-                    <p className="flags-panel-value">
+                    <p className="flags-panel-label">
                       {activePreset.group === 'upstarts'
-                        ? 'Upstarts'
-                        : activePreset.name}
+                        ? 'Upstarts Flags'
+                        : 'Flags'}
                     </p>
+                    <p className="flags-panel-value">{activePreset.name}</p>
                   </div>
                 ) : null}
               </div>
