@@ -327,17 +327,27 @@ const PALACE_NOTES: { src: string; alt: string }[] = [
 ]
 
 /**
- * The board the Upstarts weeks share: same palace requirements, same known
- * checks. Held once and spread into each week because the weeks differ only in
- * what Link starts with, so copying these literals per week would only invite one
- * copy to drift.
+ * Thunderbird's requirement, which every Upstarts week fixes. Held on its own
+ * because some weeks state this one and nothing else, and naming it twice would
+ * let the two copies disagree.
+ *
+ * Palace 7 is Thunderbird - the boss art names the row, not the number.
+ */
+const UPSTARTS_THUNDERBIRD_MARK = { 'boss-Palace 7': 'DV' }
+
+/**
+ * The board the Upstarts weeks share: the known checks, plus the full set of
+ * palace requirements. Held once and spread into each week because the weeks
+ * differ only around the edges, so copying these literals per week would only
+ * invite one copy to drift. A week that departs from it overrides the one field
+ * it disagrees on after the spread.
  *
  * Safe to share by reference - the apply step copies both maps rather than
  * writing through them, so a run cannot leak edits back into the table.
  */
 const UPSTARTS_KNOWN_BOARD = {
-  // Palace requirements: the first three gate on W, Palace 4 on MI, the two
-  // right-column palaces on E, and Thunderbird on DV.
+  // The first three palaces gate on W, Palace 4 on MI, and the two right-column
+  // palaces on E.
   marks: {
     'boss-Palace 1': 'W',
     'boss-Palace 2': 'W',
@@ -345,8 +355,7 @@ const UPSTARTS_KNOWN_BOARD = {
     'boss-Palace 4': 'MI',
     'boss-Palace 5': 'E',
     'boss-Palace 6': 'E',
-    // Palace 7 is Thunderbird - the boss art names the row, not the number.
-    'boss-Palace 7': 'DV',
+    ...UPSTARTS_THUNDERBIRD_MARK,
   },
   // Known checks. Both stab teachers hold their own stab under these flagsets,
   // unlike SGL where the two are swapped.
@@ -397,6 +406,14 @@ const UPSTARTS_WEEK_FLAGS: Record<
     // simply not being named - `startsWith` lists a week's extras rather than
     // subtracting from a running total.
     startsWith: ['shield-spell'],
+  },
+  3: {
+    ...UPSTARTS_KNOWN_BOARD,
+    startsWith: ['shield-spell'],
+    // Week 2's board, but the palaces go in unlabelled - only Thunderbird's
+    // requirement is fixed. Replaces the shared `marks` outright rather than
+    // deleting from it, so the six that are unknown here simply go unnamed.
+    marks: UPSTARTS_THUNDERBIRD_MARK,
   },
 }
 
