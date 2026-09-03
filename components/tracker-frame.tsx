@@ -383,6 +383,22 @@ const UPSTARTS_UNLABELLED_PALACES_BOARD = {
 }
 
 /**
+ * The shared board reduced to its known checks: nothing fixed about the palaces,
+ * not even Thunderbird, and nothing picked up yet. Its own variant because more
+ * than one week runs it.
+ *
+ * Spread from the full board and blanked rather than built from `placements`
+ * alone, so a check added to the shared board still reaches the weeks using this.
+ * Both fields are empty values rather than absent ones: the spread supplies a mark
+ * and a tick, so omitting the keys would inherit them.
+ */
+const UPSTARTS_CHECKS_ONLY_BOARD = {
+  ...UPSTARTS_KNOWN_BOARD,
+  marks: {},
+  checkedSlots: [],
+}
+
+/**
  * What each Upstarts week fixes in advance, keyed by week number.
  *
  * Kept apart from the weeks themselves because the weeks are generated: every
@@ -429,17 +445,13 @@ const UPSTARTS_WEEK_FLAGS: Record<
     ...UPSTARTS_UNLABELLED_PALACES_BOARD,
   },
   5: {
-    // Week 4's board with nothing known about the palaces at all - not even
-    // Thunderbird - and nothing pre-ticked, so the known checks are all this week
-    // fixes. Spread from the full board and blanked rather than built from
-    // `placements` alone, so a later check added to the shared board still
-    // reaches this week.
-    //
-    // Both overrides are empty values rather than absent fields: the spread above
-    // supplies a mark and a tick, so omitting the keys would inherit them.
-    ...UPSTARTS_KNOWN_BOARD,
-    marks: {},
-    checkedSlots: [],
+    // Week 4's board with nothing known about the palaces and nothing pre-ticked,
+    // so the known checks are all this week fixes.
+    ...UPSTARTS_CHECKS_ONLY_BOARD,
+  },
+  6: {
+    // Same as Week 5, down to starting on the candle alone.
+    ...UPSTARTS_CHECKS_ONLY_BOARD,
   },
 }
 
