@@ -327,6 +327,42 @@ const PALACE_NOTES: { src: string; alt: string }[] = [
 ]
 
 /**
+ * The board the Upstarts weeks share: same palace requirements, same known
+ * checks. Held once and spread into each week because the weeks differ only in
+ * what Link starts with, so copying these literals per week would only invite one
+ * copy to drift.
+ *
+ * Safe to share by reference - the apply step copies both maps rather than
+ * writing through them, so a run cannot leak edits back into the table.
+ */
+const UPSTARTS_KNOWN_BOARD = {
+  // Palace requirements: the first three gate on W, Palace 4 on MI, the two
+  // right-column palaces on E, and Thunderbird on DV.
+  marks: {
+    'boss-Palace 1': 'W',
+    'boss-Palace 2': 'W',
+    'boss-Palace 3': 'W',
+    'boss-Palace 4': 'MI',
+    'boss-Palace 5': 'E',
+    'boss-Palace 6': 'E',
+    // Palace 7 is Thunderbird - the boss art names the row, not the number.
+    'boss-Palace 7': 'DV',
+  },
+  // Known checks. Both stab teachers hold their own stab under these flagsets,
+  // unlike SGL where the two are swapped.
+  placements: {
+    'location-Downstab Man': 'downstab',
+    'location-Up Stab Man': 'upstab',
+    'location-Saria Table': 'mirror',
+    'location-Bagu': 'noteforriverman',
+    'location-Nabooru Fountain': 'water',
+  },
+  // Downstab is the one of those already in hand; the rest are known but still
+  // out there, so they stay unticked.
+  checkedSlots: ['location-Downstab Man'],
+}
+
+/**
  * What each Upstarts week fixes in advance, keyed by week number.
  *
  * Kept apart from the weeks themselves because the weeks are generated: every
@@ -351,32 +387,16 @@ const UPSTARTS_WEEK_FLAGS: Record<
   }
 > = {
   1: {
+    ...UPSTARTS_KNOWN_BOARD,
     // Link opens this week already knowing Life and Fairy.
     startsWith: ['life-spell', 'fairy-spell'],
-    // Palace requirements: the first three gate on W, Palace 4 on MI, the two
-    // right-column palaces on E, and Thunderbird on DV.
-    marks: {
-      'boss-Palace 1': 'W',
-      'boss-Palace 2': 'W',
-      'boss-Palace 3': 'W',
-      'boss-Palace 4': 'MI',
-      'boss-Palace 5': 'E',
-      'boss-Palace 6': 'E',
-      // Palace 7 is Thunderbird - the boss art names the row, not the number.
-      'boss-Palace 7': 'DV',
-    },
-    // Known checks. Both stab teachers hold their own stab under this flagset,
-    // unlike SGL where the two are swapped.
-    placements: {
-      'location-Downstab Man': 'downstab',
-      'location-Up Stab Man': 'upstab',
-      'location-Saria Table': 'mirror',
-      'location-Bagu': 'noteforriverman',
-      'location-Nabooru Fountain': 'water',
-    },
-    // Downstab is the one of those already in hand; the rest are known but still
-    // out there, so they stay unticked.
-    checkedSlots: ['location-Downstab Man'],
+  },
+  2: {
+    ...UPSTARTS_KNOWN_BOARD,
+    // Week 2 runs the same board on Shield alone. Life and Fairy are dropped by
+    // simply not being named - `startsWith` lists a week's extras rather than
+    // subtracting from a running total.
+    startsWith: ['shield-spell'],
   },
 }
 
