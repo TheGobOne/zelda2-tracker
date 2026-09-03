@@ -327,6 +327,52 @@ const PALACE_NOTES: { src: string; alt: string }[] = [
 ]
 
 /**
+ * What each Upstarts week fixes in advance, keyed by week number.
+ *
+ * Kept apart from the weeks themselves because the weeks are generated: every
+ * other field they carry is shared, so this table holds only the differences and
+ * a week with no entry falls back to the placeholder board. Filling in a further
+ * week means adding a key here and nothing else.
+ *
+ * Declared above `PRESETS` because that array reads it while being built.
+ */
+const UPSTARTS_WEEK_FLAGS: Record<
+  number,
+  {
+    marks?: Record<string, string>
+    placements?: Record<string, string>
+    checkedSlots?: string[]
+  }
+> = {
+  1: {
+    // Palace requirements: the first three gate on W, Palace 4 on MI, the two
+    // right-column palaces on E, and Thunderbird on DV.
+    marks: {
+      'boss-Palace 1': 'W',
+      'boss-Palace 2': 'W',
+      'boss-Palace 3': 'W',
+      'boss-Palace 4': 'MI',
+      'boss-Palace 5': 'E',
+      'boss-Palace 6': 'E',
+      // Palace 7 is Thunderbird - the boss art names the row, not the number.
+      'boss-Palace 7': 'DV',
+    },
+    // Known checks. Both stab teachers hold their own stab under this flagset,
+    // unlike SGL where the two are swapped.
+    placements: {
+      'location-Downstab Man': 'downstab',
+      'location-Up Stab Man': 'upstab',
+      'location-Saria Table': 'mirror',
+      'location-Bagu': 'noteforriverman',
+      'location-Nabooru Fountain': 'water',
+    },
+    // Downstab is the one of those already in hand; the rest are known but still
+    // out there, so they stay unticked.
+    checkedSlots: ['location-Downstab Man'],
+  },
+}
+
+/**
  * Starting states for the rulesets the tracker knows, plus a blank entry for the
  * ones it does not. A preset both lights pickups Link begins with and fills the
  * checks whose contents that ruleset fixes in advance, so a run only has to record
@@ -350,6 +396,19 @@ const PRESETS: {
   magicMax: number
   placements: Record<string, string>
   counts: Record<string, string>
+  /**
+   * Requirement letters the ruleset already knows, keyed the way the board keys
+   * them - `boss-Palace 3` and the like. Optional because most rulesets fix none,
+   * and an absent map is the same as an empty one.
+   */
+  marks?: Record<string, string>
+  /**
+   * Checks the ruleset starts already ticked off, as full slot keys. Separate from
+   * `collectedIds`, which lights entries in the collection row: a known placement
+   * that has also been picked up is a property of the check, not of the item, and
+   * the two are stored under different keys.
+   */
+  checkedSlots?: string[]
 }[] = [
   {
     // Vanilla flags: Link only ever starts with the candle, and nothing on the
@@ -416,25 +475,32 @@ const PRESETS: {
   },
   // The Upstarts weeks. Held at the end of the array because they render from
   // their own submenu rather than in list order, and generated rather than typed
-  // out six times over: every week currently carries the same opening state, so
-  // six near-identical literals would only invite one of them to drift.
+  // out six times over: the weeks share their whole opening state bar what
+  // `UPSTARTS_WEEK_FLAGS` states, so six near-identical literals would only
+  // invite one of them to drift.
   //
-  // Placeholder flags. Each week is a vanilla-shaped board - candle in hand,
-  // four of eight containers each, nothing known in advance - until the real
-  // flagsets are filled in. Only this block needs editing to do that; the menu
-  // and the tallies read whatever is here.
-  ...Array.from({ length: 6 }, (_, index) => ({
-    id: `upstarts-week-${index + 1}`,
-    name: `Week ${index + 1}`,
-    group: 'upstarts' as const,
-    collectedIds: ['candle'],
-    heartStart: 4,
-    heartMax: 8,
-    magicStart: 4,
-    magicMax: 8,
-    placements: {},
-    counts: {},
-  })),
+  // A week with no entry in that table is still a vanilla-shaped placeholder -
+  // candle in hand, four of eight containers each, nothing known in advance -
+  // until its real flagset is filled in there.
+  ...Array.from({ length: 6 }, (_, index) => {
+    const week = index + 1
+    const flags = UPSTARTS_WEEK_FLAGS[week] ?? {}
+
+    return {
+      id: `upstarts-week-${week}`,
+      name: `Week ${week}`,
+      group: 'upstarts' as const,
+      collectedIds: ['candle'],
+      heartStart: 4,
+      heartMax: 8,
+      magicStart: 4,
+      magicMax: 8,
+      placements: flags.placements ?? {},
+      counts: {},
+      marks: flags.marks ?? {},
+      checkedSlots: flags.checkedSlots ?? [],
+    }
+  }),
 ]
 
 /** The one ruleset whose container figures are the user's to set. */
@@ -505,6 +571,12 @@ function collectedFromPreset(preset: (typeof PRESETS)[number]) {
 
   for (const itemId of preset.collectedIds) {
     next[`collection-${itemId}`] = true
+  }
+
+  // Checks the ruleset opens already ticked. These are board slots rather than
+  // collection entries, so they are keyed as they come rather than prefixed.
+  for (const slotKey of preset.checkedSlots ?? []) {
+    next[slotKey] = true
   }
 
   return next
@@ -1611,7 +1683,9 @@ export function TrackerFrame() {
     setSlotItems({ ...preset.placements })
     setCollected(collectedFromPreset(preset))
     setSlotCounts({})
-    setIconMarks({})
+    // Seeded from the ruleset rather than emptied, so a week that already knows
+    // its palace requirements opens with them showing.
+    setIconMarks({ ...preset.marks })
     setBlocks({})
     setCountValues({ ...preset.counts })
     setConnectorEnds({})
