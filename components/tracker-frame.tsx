@@ -372,6 +372,17 @@ const UPSTARTS_KNOWN_BOARD = {
 }
 
 /**
+ * The shared board with the palaces left unlabelled - same known checks, but only
+ * Thunderbird's requirement fixed. Held as its own variant because more than one
+ * week runs it, and restating the override per week would let those copies
+ * disagree about which palaces are known.
+ */
+const UPSTARTS_UNLABELLED_PALACES_BOARD = {
+  ...UPSTARTS_KNOWN_BOARD,
+  marks: UPSTARTS_THUNDERBIRD_MARK,
+}
+
+/**
  * What each Upstarts week fixes in advance, keyed by week number.
  *
  * Kept apart from the weeks themselves because the weeks are generated: every
@@ -408,12 +419,14 @@ const UPSTARTS_WEEK_FLAGS: Record<
     startsWith: ['shield-spell'],
   },
   3: {
-    ...UPSTARTS_KNOWN_BOARD,
+    // Week 2's board, but with the palaces unlabelled.
+    ...UPSTARTS_UNLABELLED_PALACES_BOARD,
     startsWith: ['shield-spell'],
-    // Week 2's board, but the palaces go in unlabelled - only Thunderbird's
-    // requirement is fixed. Replaces the shared `marks` outright rather than
-    // deleting from it, so the six that are unknown here simply go unnamed.
-    marks: UPSTARTS_THUNDERBIRD_MARK,
+  },
+  4: {
+    // Week 3's board opened empty-handed: no `startsWith` at all, which leaves
+    // Link on the candle every week carries.
+    ...UPSTARTS_UNLABELLED_PALACES_BOARD,
   },
 }
 
