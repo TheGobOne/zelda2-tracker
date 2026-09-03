@@ -19,14 +19,13 @@ const BASE_HEIGHT = 1138
 /**
  * Board height with the overworld maps hidden.
  *
- * The maps are the last block on the board, so dropping them leaves the divider
- * that closes the collection as the final element. That divider ends at 874px,
- * and the full board carries 42px of space below its last element - so keeping
- * that same 42px puts the frame's bottom edge, and the red corner blocks and
- * resize grips pinned to it, the same distance below the last thing on the board
- * either way.
+ * The maps are the last block on the board, and the divider above them goes when
+ * they do, so the collection becomes the final element. It ends at 846px, and the
+ * full board carries 42px of space below its last element - so keeping that same
+ * 42px puts the frame's bottom edge, and the red corner blocks and resize grips
+ * pinned to it, the same distance below the last thing on the board either way.
  */
-const MAPLESS_HEIGHT = 916
+const MAPLESS_HEIGHT = 888
 const MIN_SCALE = 0.35
 const MAX_SCALE = 1.75
 
@@ -2669,14 +2668,19 @@ export function TrackerFrame() {
               </div>
             </section>
 
-            {/* Closes the collection off, bracketing the overworld maps below. */}
-            <div className="section-divider section-divider-collection" />
-
             {/* The two overworlds, with the icon palette between them so either
                 map is an equally short trip from the icon being placed. Optional,
                 since a run that is not mapping the overworld has no use for the
-                tallest block on the board. */}
+                tallest block on the board.
+
+                The divider goes with them: it exists to split the collection from
+                the maps, so with nothing below it to bracket it would just be a
+                rule hanging off the end of the board. */}
             {isMapVisible ? (
+            <>
+            {/* Closes the collection off, bracketing the overworld maps below. */}
+            <div className="section-divider section-divider-collection" />
+
             <section aria-label="Overworld maps" className="overworld">
               {OVERWORLDS.map((world, worldIndex) => (
                 <Fragment key={world.id}>
@@ -2736,6 +2740,7 @@ export function TrackerFrame() {
                 </Fragment>
               ))}
             </section>
+            </>
             ) : null}
 
             {/* Closes the menu on any outside click, since the board takes no
