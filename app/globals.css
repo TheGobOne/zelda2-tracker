@@ -133,14 +133,17 @@
   cursor: nesw-resize;
 }
 
-/* Fixed 600x1138 tracker surface; all sections position against it. */
+/* 600px-wide tracker surface; all sections position against it.
+
+   The height is set inline by tracker-frame.tsx rather than fixed here, because
+   it changes with the overworld maps being shown or hidden. It used to be a
+   hardcoded 1138px that BASE_HEIGHT had to mirror, and one board height that both
+   files had to agree on was already a standing risk of them drifting apart - two
+   would have doubled it. The frame rails and corners derive from this box, so they
+   follow whatever height it is given. */
 .game-canvas {
   position: relative;
   width: 600px;
-  /* The collection is the last block and ends at 846px, so everything past that
-     is deliberate free space kept for future sections. Mirrored by BASE_HEIGHT in
-     tracker-frame.tsx, which scales the board to fit. */
-  height: 1138px;
   flex-shrink: 0;
   overflow: hidden;
   background: var(--canvas);
@@ -1546,6 +1549,32 @@
 .tracker-menu-option-bordered {
   margin-top: 4px;
   border-top: 3px solid #f5f5f5;
+}
+
+/* Tick box for the menu's checkbox entry, drawn as a square block to match the
+   pixel art rather than a vector glyph. Inline-block rather than flex so the
+   option's centred text stays centred with the box riding alongside it. Sized in
+   `em` so it tracks the option's own type. */
+.tracker-menu-check {
+  display: inline-block;
+  width: 0.85em;
+  height: 0.85em;
+  margin-right: 7px;
+  border: 2px solid currentColor;
+  vertical-align: -0.05em;
+}
+
+/* Filled with the text colour, which `aria-checked` has already turned gold, so
+   the box agrees with the label without naming the colour twice.
+ 
+   The fill is held off the border by a padding ring and clipped to the content
+   box, so the gap between the two shows whatever is behind the option rather than
+   a colour of its own - which keeps it right over both the menu's black and the
+   blue it turns on hover. */
+.tracker-menu-check.is-checked {
+  padding: 2px;
+  background: currentColor;
+  background-clip: content-box;
 }
 
 /* Separated from the flags entries above it, since it throws the board away, and

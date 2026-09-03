@@ -13,9 +13,20 @@ import {
 import { GlyphText } from '@/components/glyph-text'
 
 const BASE_WIDTH = 600
-// Must match the `.game-canvas` height in globals.css, since the board is scaled
-// to fit against these dimensions.
+// The board's full height, with the overworld maps on it. Applied to the canvas
+// as well as scaled against, so `.game-canvas` sets no height of its own.
 const BASE_HEIGHT = 1138
+/**
+ * Board height with the overworld maps hidden.
+ *
+ * The maps are the last block on the board, so dropping them leaves the divider
+ * that closes the collection as the final element. That divider ends at 874px,
+ * and the full board carries 42px of space below its last element - so keeping
+ * that same 42px puts the frame's bottom edge, and the red corner blocks and
+ * resize grips pinned to it, the same distance below the last thing on the board
+ * either way.
+ */
+const MAPLESS_HEIGHT = 916
 const MIN_SCALE = 0.35
 const MAX_SCALE = 1.75
 
@@ -1041,6 +1052,13 @@ export function TrackerFrame() {
   // `isMenuOpen` so the submenu can be opened and shut without disturbing the
   // menu holding it.
   const [isUpstartsOpen, setIsUpstartsOpen] = useState(false)
+  // Whether the overworld maps are on the board. Not every run maps the
+  // overworld, and the two grids are the tallest block on it, so they can be put
+  // away to leave a shorter board that is all tracking.
+  //
+  // Hiding them only takes them off screen - `overworldCells` is left alone, so
+  // anything already marked is still there when they come back.
+  const [isMapVisible, setIsMapVisible] = useState(true)
   // Which icon sits on each overworld cell, keyed by grid id and coordinates.
   // Only filled cells are stored, so an absent key is an empty square.
   const [overworldCells, setOverworldCells] = useState<Record<string, string>>({})
@@ -1049,6 +1067,10 @@ export function TrackerFrame() {
   // clicking it again puts it down.
   const [armedIcon, setArmedIcon] = useState<string | null>(null)
   const palaceGridRef = useRef<HTMLDivElement | null>(null)
+  // How tall the board currently stands. Everything that has to agree with the
+  // board's height reads this rather than `BASE_HEIGHT`, so the canvas, the stage
+  // the grips hang off, and the drag arithmetic cannot disagree about it.
+  const canvasHeight = isMapVisible ? BASE_HEIGHT : MAPLESS_HEIGHT
 
   /**
    * Sets one side of a Custom container tally, keeping the pair coherent: a start
@@ -1834,7 +1856,9 @@ export function TrackerFrame() {
     // Dragging outward always grows; each active axis contributes evenly.
     const axes = Math.abs(handle.x) + Math.abs(handle.y)
     const deltaX = (handle.x * (event.clientX - drag.x)) / BASE_WIDTH
-    const deltaY = (handle.y * (event.clientY - drag.y)) / BASE_HEIGHT
+    // Against the board's current height, so a vertical drag moves the scale at
+    // the same rate per pixel travelled whether or not the maps are showing.
+    const deltaY = (handle.y * (event.clientY - drag.y)) / canvasHeight
 
     setScale(clampScale(drag.scale + ((deltaX + deltaY) * 2) / axes))
   }
@@ -2021,14 +2045,16 @@ export function TrackerFrame() {
         className={`tracker-stage${activeHandle ? ' is-resizing' : ''}`}
         style={{
           width: BASE_WIDTH * scale,
-          height: BASE_HEIGHT * scale,
+          // The grips sit against the stage's edges, so shrinking it with the
+          // board is what carries them up when the maps are put away.
+          height: canvasHeight * scale,
         }}
       >
         <div
           className="tracker-scaler"
           style={{
             width: BASE_WIDTH,
-            height: BASE_HEIGHT,
+            height: canvasHeight,
             // `zoom` scales during layout, so the sprites rasterize at their
             // final on-screen size. `transform: scale()` instead rasterizes at
             // the base size and stretches that bitmap, which is why the art
@@ -2040,6 +2066,9 @@ export function TrackerFrame() {
             aria-label="Zelda II portrait tracker canvas with an eight-bit frame"
             className="game-canvas"
             role="img"
+            // Owned here rather than in the stylesheet: the board has two heights
+            // now, and this is where the choice between them is already made.
+            style={{ height: canvasHeight }}
           >
             <div aria-label="Town locations" className="town-grid">
               {towns.map((town) => {
@@ -2359,11 +2388,34 @@ export function TrackerFrame() {
                             </button>
                           ) : null}
 
+                          {/* Puts the overworld maps away. A checkbox rather than
+                              another radio, since it is not one of the mutually
+                              exclusive rulesets above - and set apart from them by
+                              the same border Controls uses, so the flags run reads
+                              as one group.
+
+                              Left open on click: this is the one entry worth
+                              toggling twice to see the board both ways, and
+                              closing the menu each time would fight that. */}
+                          <button
+                            aria-checked={!isMapVisible}
+                            className="tracker-menu-option tracker-menu-option-bordered"
+                            onClick={() => setIsMapVisible((current) => !current)}
+                            role="menuitemcheckbox"
+                            type="button"
+                          >
+                            <span
+                              aria-hidden="true"
+                              className={`tracker-menu-check${isMapVisible ? '' : ' is-checked'}`}
+                            />
+                            Hide maps
+                          </button>
+
                           {/* Opens the controls reference. Sits below the
                               flags entries and above Clear, so the menu runs from
                               harmless to destructive top to bottom. */}
                           <button
-                            className="tracker-menu-option tracker-menu-option-bordered"
+                            className="tracker-menu-option"
                             onClick={() => {
                               closeMenu()
                               setIsShowingControls(true)
@@ -2621,7 +2673,10 @@ export function TrackerFrame() {
             <div className="section-divider section-divider-collection" />
 
             {/* The two overworlds, with the icon palette between them so either
-                map is an equally short trip from the icon being placed. */}
+                map is an equally short trip from the icon being placed. Optional,
+                since a run that is not mapping the overworld has no use for the
+                tallest block on the board. */}
+            {isMapVisible ? (
             <section aria-label="Overworld maps" className="overworld">
               {OVERWORLDS.map((world, worldIndex) => (
                 <Fragment key={world.id}>
@@ -2681,6 +2736,7 @@ export function TrackerFrame() {
                 </Fragment>
               ))}
             </section>
+            ) : null}
 
             {/* Closes the menu on any outside click, since the board takes no
                 keystrokes and so has no Escape to fall back on. */}
