@@ -429,11 +429,16 @@ const UPSTARTS_WEEK_FLAGS: Record<
     ...UPSTARTS_UNLABELLED_PALACES_BOARD,
   },
   5: {
-    // Week 4's board with nothing pre-ticked. Downstab is still known to sit with
-    // its teacher, but it has not been picked up, so the check stays open - an
-    // empty list rather than an absent field, to override the shared board's one
-    // collected entry.
-    ...UPSTARTS_UNLABELLED_PALACES_BOARD,
+    // Week 4's board with nothing known about the palaces at all - not even
+    // Thunderbird - and nothing pre-ticked, so the known checks are all this week
+    // fixes. Spread from the full board and blanked rather than built from
+    // `placements` alone, so a later check added to the shared board still
+    // reaches this week.
+    //
+    // Both overrides are empty values rather than absent fields: the spread above
+    // supplies a mark and a tick, so omitting the keys would inherit them.
+    ...UPSTARTS_KNOWN_BOARD,
+    marks: {},
     checkedSlots: [],
   },
 }
