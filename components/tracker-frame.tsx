@@ -428,6 +428,14 @@ const UPSTARTS_WEEK_FLAGS: Record<
     // Link on the candle every week carries.
     ...UPSTARTS_UNLABELLED_PALACES_BOARD,
   },
+  5: {
+    // Week 4's board with nothing pre-ticked. Downstab is still known to sit with
+    // its teacher, but it has not been picked up, so the check stays open - an
+    // empty list rather than an absent field, to override the shared board's one
+    // collected entry.
+    ...UPSTARTS_UNLABELLED_PALACES_BOARD,
+    checkedSlots: [],
+  },
 }
 
 /**
