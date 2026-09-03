@@ -342,9 +342,17 @@ const UPSTARTS_WEEK_FLAGS: Record<
     marks?: Record<string, string>
     placements?: Record<string, string>
     checkedSlots?: string[]
+    /**
+     * Pickups this week starts with, beyond the candle every week opens holding.
+     * Added to that rather than replacing it, so a week only has to name its
+     * extras.
+     */
+    startsWith?: string[]
   }
 > = {
   1: {
+    // Link opens this week already knowing Life and Fairy.
+    startsWith: ['life-spell', 'fairy-spell'],
     // Palace requirements: the first three gate on W, Palace 4 on MI, the two
     // right-column palaces on E, and Thunderbird on DV.
     marks: {
@@ -490,7 +498,7 @@ const PRESETS: {
       id: `upstarts-week-${week}`,
       name: `Week ${week}`,
       group: 'upstarts' as const,
-      collectedIds: ['candle'],
+      collectedIds: ['candle', ...(flags.startsWith ?? [])],
       heartStart: 4,
       heartMax: 8,
       magicStart: 4,
