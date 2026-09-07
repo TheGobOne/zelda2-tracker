@@ -324,6 +324,30 @@ const CONNECTOR_MARKS: { src: string; alt: string }[] = [
 ]
 
 /**
+ * Builds the connector-ends map a ruleset opens with from one [left, right] pair
+ * per connector, in PALACE_NOTES order. Each entry names a CONNECTOR_MARKS letter;
+ * an empty string leaves that end unmarked.
+ *
+ * The ends are stored keyed by row index and side and valued by sprite src, which
+ * reads as a wall of `connector-2-first: /images/notes/w.png` when written out. A
+ * ruleset states its connectors as "cave, cave, raft, bridge" instead, and this
+ * turns that back into the shape the board holds - so the letters cannot fall out
+ * of step with the sprite paths, and adding a connector row shifts the keys for
+ * free.
+ */
+function connectorEndsFrom(pairs: [left: string, right: string][]) {
+  const srcByLetter = new Map(CONNECTOR_MARKS.map((mark) => [mark.alt, mark.src]))
+  const ends: Record<string, string> = {}
+
+  pairs.forEach(([left, right], index) => {
+    if (left) ends[`connector-${index}-first`] = srcByLetter.get(left)!
+    if (right) ends[`connector-${index}-second`] = srcByLetter.get(right)!
+  })
+
+  return ends
+}
+
+/**
  * Connector art centered in the palace section. Each entry renders one row, flanked
  * by a clickable destination marker per end. Add sprites here as
  * { src, alt } and the column renders them in order. The same src may repeat,
@@ -430,12 +454,24 @@ const UPSTARTS_WEEK_FLAGS: Record<
      * extras.
      */
     startsWith?: string[]
+    /**
+     * Letters fixed on the palace-section connector ends, keyed and valued as the
+     * board holds them. Built with `connectorEndsFrom` rather than written out.
+     */
+    connectorEnds?: Record<string, string>
   }
 > = {
   1: {
     ...UPSTARTS_KNOWN_BOARD,
     // Link opens this week already knowing Life and Fairy.
     startsWith: ['life-spell', 'fairy-spell'],
+    // The two caves both run W to DM; the raft W to E and the bridge E to MI.
+    connectorEnds: connectorEndsFrom([
+      ['W', 'DM'], // cave
+      ['W', 'DM'], // cave
+      ['W', 'E'], // raft
+      ['E', 'MI'], // bridge
+    ]),
   },
   2: {
     ...UPSTARTS_KNOWN_BOARD,
@@ -502,6 +538,11 @@ const PRESETS: {
    * the two are stored under different keys.
    */
   checkedSlots?: string[]
+  /**
+   * Letters fixed on the palace-section connector ends. Optional like the maps
+   * above, since only a ruleset that knows its connections in advance sets any.
+   */
+  connectorEnds?: Record<string, string>
 }[] = [
   {
     // Vanilla flags: Link only ever starts with the candle, and nothing on the
@@ -592,6 +633,7 @@ const PRESETS: {
       counts: {},
       marks: flags.marks ?? {},
       checkedSlots: flags.checkedSlots ?? [],
+      connectorEnds: flags.connectorEnds ?? {},
     }
   }),
 ]
@@ -1792,7 +1834,9 @@ export function TrackerFrame() {
     setIconMarks({ ...preset.marks })
     setBlocks({})
     setCountValues({ ...preset.counts })
-    setConnectorEnds({})
+    // Seeded like the marks above, so a week that knows its cave, raft and bridge
+    // connections opens with them showing rather than blank.
+    setConnectorEnds({ ...preset.connectorEnds })
     setActiveFlags(preset.id)
     // Back to the Custom entry's opening figures. Loading a ruleset is the start
     // of a new run, so figures typed for the last one would be stale - and for the
