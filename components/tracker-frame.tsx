@@ -272,6 +272,16 @@ const items = [
   },
 ]
 
+/**
+ * The filler pickups - exactly the five sprites the junk check is built from. They
+ * are the small-footprint items, drawn at half the resolution of the rest (the two
+ * jars and the key are 18px against everyone else's 36px), so a slot that blows
+ * every item up to one size distorts these worst. The town slots read this to size
+ * them by a whole multiple of their own art instead. See `.town-grid
+ * .item-slot-minor` in globals.css.
+ */
+const MINOR_ITEM_IDS = new Set(['pbag', '1up', 'redjar', 'bluejar', 'smallkey'])
+
 // The eight spells, listed in their own menu section below the items.
 const spells: { id: string; name: string; src: string | string[] }[] = [
   { id: 'shield-spell', name: 'Shield', src: '/images/spells/shield.png' },
@@ -1297,6 +1307,9 @@ export function TrackerFrame() {
   ) {
     const item = allPickables.find((entry) => entry.id === slotItems[slotKey])
     const isCollected = Boolean(item && collected[slotKey])
+    // Small filler sprites need their own sizing so the town slot does not inflate
+    // them off their pixel grid; only the town slots act on this today.
+    const isMinorItem = item ? MINOR_ITEM_IDS.has(item.id) : false
     const cycleHint = options?.onCycleMark
       ? ' Shift right click to cycle the location.'
       : ''
@@ -1321,7 +1334,7 @@ export function TrackerFrame() {
               : `${label}: empty${blockLabel}. Right click to choose an item.${cycleHint}${blockHint}`
           }
           aria-pressed={item ? isCollected : undefined}
-          className={`${isCollected ? 'item-slot item-slot-collected' : 'item-slot'}${block ? ' item-slot-blocked' : ''}`}
+          className={`${isCollected ? 'item-slot item-slot-collected' : 'item-slot'}${block ? ' item-slot-blocked' : ''}${isMinorItem ? ' item-slot-minor' : ''}`}
           // Read by the palace grid's wheel listener, the same way the bosses are.
           data-block-key={options?.canBlock ? slotKey : undefined}
           // Middle click clears the item.

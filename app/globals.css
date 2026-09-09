@@ -1301,6 +1301,22 @@
   height: 53px;
 }
 
+/* The filler pickups - point bag, 1-Up, the two jars, the small key. The 53px
+   size and the blurred shadow above exist to let a spell overpower the town art;
+   applied to these small sprites they inflate them by a fractional factor - up to
+   2.9x for the 18px jars and key - and the 2px blur turns the result to mush.
+   Sized instead to a whole multiple of each sprite's own resolution (36px is 1x
+   for the 36px art and 2x for the 18px art), so every source pixel stays square,
+   with a hard 1px outline standing in for the blurred shadow to keep them legible
+   where they sit over the town. */
+.town-grid .item-slot-minor img {
+  /* 36px is 1x for the 36px sprites and 2x for the 18px jars and key. */
+  width: 36px;
+  height: 36px;
+  filter: drop-shadow(1px 0 0 #000000) drop-shadow(-1px 0 0 #000000)
+    drop-shadow(0 1px 0 #000000) drop-shadow(0 -1px 0 #000000);
+}
+
 /* Collected: the border turns green and a centred check sits over the item. The
    item itself keeps its full colour so it stays identifiable. */
 .item-slot-collected {
