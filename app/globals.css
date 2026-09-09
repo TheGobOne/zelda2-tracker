@@ -1296,7 +1296,11 @@
    that makes the spell read over the town art. 53px is about the ceiling: the slot
    it sits in is 56px, so this fills it to within a pixel and a half either side and
    anything more would spill past the town's own square. */
-.town-grid .item-slot img {
+/* Direct child only, so this sizes a single-sprite item but leaves the composite
+   junk check alone: its four corners live inside `.item-pair` and are sized by the
+   grid there. Without the `>`, this more specific selector beats `.item-pair img`
+   and stretches each corner to a full 53px, bursting the 2x2 out of the slot. */
+.town-grid .item-slot > img {
   width: 53px;
   height: 53px;
 }
@@ -1308,8 +1312,9 @@
    Sized instead to a whole multiple of each sprite's own resolution (36px is 1x
    for the 36px art and 2x for the 18px art), so every source pixel stays square,
    with a hard 1px outline standing in for the blurred shadow to keep them legible
-   where they sit over the town. */
-.town-grid .item-slot-minor img {
+   where they sit over the town. Direct child for the same reason as above: these
+   five are only ever placed as single sprites, never as the composite's corners. */
+.town-grid .item-slot-minor > img {
   /* 36px is 1x for the 36px sprites and 2x for the 18px jars and key. */
   width: 36px;
   height: 36px;
@@ -1895,8 +1900,15 @@
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(2, 1fr);
   width: 100%;
-  height: 100%;
-  align-self: stretch;
+  /* Height comes from the width, not from the parent. This box is dropped into
+     three kinds of holder - the item menu, the collection, and a town slot - and
+     the first two are square grid cells that made `height: 100%` resolve, so the
+     1fr rows split evenly. A town slot is a flex row instead, where that 100% has
+     no definite height to resolve against: the rows then fell back to content
+     height, each taking the full box, and the 2x2 spilled out the bottom of the
+     slot. Deriving height from the definite width keeps the box square in every
+     holder, so the row tracks always have a real height to divide. */
+  aspect-ratio: 1;
   /* Anchors the centre sprite below, which is placed against this box rather than
      given a cell of its own - the grid has no middle cell to hand it. */
   position: relative;
