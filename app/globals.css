@@ -1149,15 +1149,6 @@
   width: var(--art);
   height: var(--art);
   image-rendering: pixelated;
-  /* A hard eight-way 1px outline so a dark item keeps a defined silhouette
-     against both the near-black slot fill and the white border, rather than its
-     edges dissolving into whichever it happens to sit against. The four
-     diagonals close the corners the straight offsets leave open, so the ring is
-     continuous. Towns override this with their own copy tuned to the town art. */
-  filter: drop-shadow(1px 0 0 #000000) drop-shadow(-1px 0 0 #000000)
-    drop-shadow(0 1px 0 #000000) drop-shadow(0 -1px 0 #000000)
-    drop-shadow(1px 1px 0 #000000) drop-shadow(-1px -1px 0 #000000)
-    drop-shadow(1px -1px 0 #000000) drop-shadow(-1px 1px 0 #000000);
 }
 
 .item-slot .item-slot-check {
@@ -1270,38 +1261,9 @@
 }
 
 /* Without a solid fill the item art needs its own dark edge to stay legible
-   against the sprite behind it. A hard eight-way 1px outline traces a closed
-   silhouette - including the diagonals, so there are no gaps a bright town
-   pixel can bleed through - which reads far cleaner than the old soft blur that
-   just smeared a grey halo into the art it was meant to separate. */
+   against the sprite behind it. */
 .town-grid .item-slot img {
-  filter: drop-shadow(1px 0 0 #000000) drop-shadow(-1px 0 0 #000000)
-    drop-shadow(0 1px 0 #000000) drop-shadow(0 -1px 0 #000000)
-    drop-shadow(1px 1px 0 #000000) drop-shadow(-1px -1px 0 #000000)
-    drop-shadow(1px -1px 0 #000000) drop-shadow(-1px 1px 0 #000000);
-}
-
-/* A dark scrim sitting just behind the item art, dimming the busy town sprite
-   directly under it so the item pops without hiding the town. Kept to a radial
-   that fades out before the slot edge, so the town stays identifiable around it
-   rather than being boxed over. `z-index: -1` drops it below the item art but,
-   because the wrap owns the stacking context above the town sprite, it still
-   paints over the town rather than behind it. */
-.town-grid .item-slot::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 44px;
-  height: 44px;
-  transform: translate(-50%, -50%);
-  z-index: -1;
-  background: radial-gradient(
-    closest-side,
-    rgba(0, 0, 0, 0.62) 55%,
-    rgba(0, 0, 0, 0) 100%
-  );
-  pointer-events: none;
+  filter: drop-shadow(0 0 2px #000000) drop-shadow(0 0 2px #000000);
 }
 
 /* The letter is the town's own state, so it stays above the item art. */
