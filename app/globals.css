@@ -1154,6 +1154,10 @@
 .item-slot .item-slot-check {
   width: var(--check);
   height: var(--check);
+  /* Town and item checks sit 10% under full opacity so the check reads as a stamp
+     over the art rather than competing with it. Scoped to `.item-slot` so the
+     location checks (`.location-icon`) keep their full-strength green. */
+  opacity: 0.9;
 }
 
 /* A blocked palace slot. The plates take the right edge and the art shifts left
