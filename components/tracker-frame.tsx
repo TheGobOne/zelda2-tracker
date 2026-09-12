@@ -513,6 +513,14 @@ const UPSTARTS_WEEK_FLAGS: Record<
     // Week 3's board opened empty-handed: no `startsWith` at all, which leaves
     // Link on the candle every week carries.
     ...UPSTARTS_UNLABELLED_PALACES_BOARD,
+    // ...minus the mirror, letter, and water, which this week hides from their
+    // locations. Derived from the shared board so any check later added there
+    // still reaches Week 4.
+    placements: withoutPlacements(UPSTARTS_UNLABELLED_PALACES_BOARD.placements, [
+      'location-Saria Table', // mirror
+      'location-Bagu', // letter (note for the river man)
+      'location-Nabooru Fountain', // water
+    ]),
   },
   5: {
     // Week 4's board with nothing known about the palaces and nothing pre-ticked,
@@ -530,6 +538,14 @@ const UPSTARTS_WEEK_FLAGS: Record<
   6: {
     // Same as Week 5, down to starting on the candle alone.
     ...UPSTARTS_CHECKS_ONLY_BOARD,
+    // ...minus the mirror, letter, and water, which this week hides from their
+    // locations. Derived from the shared board so any check later added there
+    // still reaches Week 6.
+    placements: withoutPlacements(UPSTARTS_CHECKS_ONLY_BOARD.placements, [
+      'location-Saria Table', // mirror
+      'location-Bagu', // letter (note for the river man)
+      'location-Nabooru Fountain', // water
+    ]),
   },
 }
 
