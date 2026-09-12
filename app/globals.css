@@ -1149,10 +1149,6 @@
   width: var(--art);
   height: var(--art);
   image-rendering: pixelated;
-  /* Soft light glow plus a slight brightness lift makes the item stand out
-     from the near-black item-check slot fill. Town slots override this below
-     with their own glow-plus-dark-edge variant for the busy sprite backdrop. */
-  filter: brightness(1.1) drop-shadow(0 0 3px rgba(255, 255, 255, 0.8));
 }
 
 .item-slot .item-slot-check {
@@ -1265,12 +1261,9 @@
 }
 
 /* Without a solid fill the item art needs its own dark edge to stay legible
-   against the sprite behind it. A soft light glow plus a slight brightness lift
-   makes the item pop off the busy town art, and the thin dark edge underneath
-   keeps it defined where the glow meets a light background. */
+   against the sprite behind it. */
 .town-grid .item-slot img {
-  filter: brightness(1.12) drop-shadow(0 0 3px rgba(255, 255, 255, 0.85))
-    drop-shadow(0 0 2px #000000);
+  filter: drop-shadow(0 0 2px #000000);
 }
 
 /* The letter is the town's own state, so it stays above the item art. */
