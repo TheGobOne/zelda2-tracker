@@ -443,6 +443,20 @@ const UPSTARTS_CHECKS_ONLY_BOARD = {
 }
 
 /**
+ * A placements map with the named locations dropped. Used when a week runs a
+ * shared board but hides some of its known checks, so the surviving checks still
+ * come from the shared board rather than being restated here.
+ */
+function withoutPlacements(
+  placements: Record<string, string>,
+  locations: string[],
+): Record<string, string> {
+  const copy = { ...placements }
+  for (const location of locations) delete copy[location]
+  return copy
+}
+
+/**
  * What each Upstarts week fixes in advance, keyed by week number.
  *
  * Kept apart from the weeks themselves because the weeks are generated: every
@@ -504,6 +518,14 @@ const UPSTARTS_WEEK_FLAGS: Record<
     // Week 4's board with nothing known about the palaces and nothing pre-ticked,
     // so the known checks are all this week fixes.
     ...UPSTARTS_CHECKS_ONLY_BOARD,
+    // ...minus the mirror, letter, and water, which this week hides from their
+    // locations. Derived from the shared board so any check later added there
+    // still reaches Week 5.
+    placements: withoutPlacements(UPSTARTS_CHECKS_ONLY_BOARD.placements, [
+      'location-Saria Table', // mirror
+      'location-Bagu', // letter (note for the river man)
+      'location-Nabooru Fountain', // water
+    ]),
   },
   6: {
     // Same as Week 5, down to starting on the candle alone.
