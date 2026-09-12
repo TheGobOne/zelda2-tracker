@@ -1266,6 +1266,24 @@
   filter: drop-shadow(0 0 2px #000000);
 }
 
+/* A radial scrim dims the busy town sprite directly behind a held item so the
+   item reads clearly, then fades to transparent before the slot edge so the
+   surrounding town art stays identifiable. Scoped with :has(img) so only
+   filled slots get the scrim and empty towns keep their art untouched. */
+.town-grid .item-slot:has(img)::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.55) 40%,
+    rgba(0, 0, 0, 0) 72%
+  );
+  pointer-events: none;
+}
+
 /* The letter is the town's own state, so it stays above the item art. */
 .town-grid .icon-mark-glyph {
   z-index: 6;
