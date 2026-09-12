@@ -1260,28 +1260,14 @@
   border-color: transparent;
 }
 
-/* Without a solid fill the item art needs its own dark edge to stay legible
-   against the sprite behind it. */
+/* Without a solid fill the item art needs its own edge to stay legible against
+   the sprite behind it. A gold ring reads well against both light and dark town
+   art. Stacked offset shadows build a continuous 1px outline (the four axis
+   offsets) plus a soft outer glow (the final blurred shadow). */
 .town-grid .item-slot img {
-  filter: drop-shadow(0 0 2px #000000);
-}
-
-/* A radial scrim dims the busy town sprite directly behind a held item so the
-   item reads clearly, then fades to transparent before the slot edge so the
-   surrounding town art stays identifiable. Scoped with :has(img) so only
-   filled slots get the scrim and empty towns keep their art untouched. */
-.town-grid .item-slot:has(img)::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle at center,
-    rgba(0, 0, 0, 0.7) 0%,
-    rgba(0, 0, 0, 0.55) 40%,
-    rgba(0, 0, 0, 0) 72%
-  );
-  pointer-events: none;
+  filter: drop-shadow(1px 0 0 #f2c14e) drop-shadow(-1px 0 0 #f2c14e)
+    drop-shadow(0 1px 0 #f2c14e) drop-shadow(0 -1px 0 #f2c14e)
+    drop-shadow(0 0 2px #f2c14e);
 }
 
 /* The letter is the town's own state, so it stays above the item art. */
