@@ -410,9 +410,9 @@
 }
 
 /* The assigned item sits on top of the location art rather than in a box. Its
-   legibility now comes from the scrim below (`.location-icon:has(.location-item)`) -
-   the same placement dim towns and palace item-checks use - so it no longer needs
-   its own dark drop-shadow ring. */
+   legibility now comes from dimming the sprite below (`.location-icon:has(.location-item)`) -
+   the same placement dim towns use - so it no longer needs its own dark drop-shadow
+   ring. */
 /* Spans the whole 56px icon instead of shrinking to fit from left: 50%, which
    would cap the item art at 28px through the preflight max-width. */
 .location-item {
@@ -425,23 +425,15 @@
   pointer-events: none;
 }
 
-/* Placing an item on a location dims the sprite directly behind it, matching the
-   town/palace placement scrim. The location always carries its own sprite img, so
-   `:has(.location-item)` - the assigned-item overlay - is what gates the scrim,
-   not the presence of an img. Sits above the static sprite (z-index 0 over a
-   non-positioned img) and below the item overlay (z-index 1). */
-.location-icon:has(.location-item)::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background: radial-gradient(
-    circle at center,
-    rgba(0, 0, 0, 0.72) 0%,
-    rgba(0, 0, 0, 0.55) 45%,
-    transparent 74%
-  );
-  pointer-events: none;
+/* Placing an item on a location dims the sprite behind it, matching the exact
+   greyscale a location drops to once it is marked done (`.location-icon-collected
+   > img` below) - just triggered on assignment instead of on collection. The
+   location always carries its own sprite img, so `:has(.location-item)` - the
+   assigned-item overlay - is what gates the dim, not the presence of an img. Scoped
+   to the direct child so the assigned item on top stays at full colour. */
+.location-icon:has(.location-item) > img {
+  filter: grayscale(1);
+  opacity: 0.45;
 }
 
 .location-item img {
@@ -1280,36 +1272,22 @@
   border-color: transparent;
 }
 
-/* Placing an item dims the background directly behind it right away - the same
-   read as a collected town, but triggered on placement rather than on collection.
-   Towns are the point of it: the item no longer needs its own outline because the
-   busy overworld sprite it competes with is darkened under a radial scrim that
-   fades before the slot edge, keeping the town identifiable. Palace item-checks
-   share the rule for consistency; over their already-dark fill it just deepens the
-   area behind the item. Matched on the item art (a direct-child img or the
-   composite `.item-pair`) via `:has`, so empty slots and block-plate-only slots -
-   whose plates are nested, not direct children - stay clear. */
-:is(.town-grid, .palace-grid) .item-slot:has(> img)::before,
-:is(.town-grid, .palace-grid) .item-slot:has(> .item-pair)::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background: radial-gradient(
-    circle at center,
-    rgba(0, 0, 0, 0.72) 0%,
-    rgba(0, 0, 0, 0.55) 45%,
-    transparent 74%
-  );
-  pointer-events: none;
-}
-
-/* Lift the item art above its own scrim. The check overlay (z-index 2) still
-   sits above both, so a collected item keeps its stamp on top. */
-:is(.town-grid, .palace-grid) .item-slot > img,
-:is(.town-grid, .palace-grid) .item-slot > .item-pair {
-  position: relative;
-  z-index: 1;
+/* Placing an item dims the town sprite behind it right away - the exact greyscale
+   the sprite drops to once the town is collected (the rule below), just triggered
+   on placement instead. Dimming the background art rather than laying a scrim over
+   it is what makes the held item read: the busy overworld sprite it competes with
+   goes flat and dark while the item on top keeps its full colour. Read from the
+   column because the held flag lives on the slot, a later sibling of the icon.
+   Matched on the item art (a direct-child img or the composite `.item-pair`) via
+   `:has`, so empty slots and block-plate-only slots - whose plates are nested, not
+   direct children - leave the town at full strength. Palace item-checks sit on a
+   solid dark fill with no sprite behind them, so there is nothing there to dim.
+   The `.item-slot > img` inside `:has` is one flat relative selector, not a nested
+   `:has()` inside another `:has()`, which CSS forbids and would drop the whole
+   rule silently. */
+.town-grid .town-column:has(.item-slot > img) .town-icon img,
+.town-grid .town-column:has(.item-slot > .item-pair) .town-icon img {
+  filter: grayscale(1) brightness(0.7);
 }
 
 /* The letter is the town's own state, so it stays above the item art. */
