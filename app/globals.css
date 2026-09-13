@@ -19,15 +19,6 @@
 
   /* Default separation: the gap between the top border rail and the town grid. */
   --sep: 14px;
-
-  /* Gold legibility glow shared by every surface an item can be placed or
-     collected on (towns, palace item-checks, location checks, the collection).
-     A hard 1px outline built from four axis-offset shadows closes a continuous
-     ring, and a final blurred shadow adds a soft outer glow. Hoisted here so all
-     surfaces stay in sync when the treatment is tuned. */
-  --item-glow: drop-shadow(1px 0 0 #f2c14e) drop-shadow(-1px 0 0 #f2c14e)
-    drop-shadow(0 1px 0 #f2c14e) drop-shadow(0 -1px 0 #f2c14e)
-    drop-shadow(0 0 2px #f2c14e);
 }
 
 @layer base {
@@ -268,16 +259,6 @@
   border-color: #3aa63a;
 }
 
-/* Gold glow once an item is collected, matching the place surfaces (towns,
-   palace item-checks, location checks). Only the collected state glows -
-   un-collected art stays greyed and dim so the section still reads as a
-   checklist of what is missing. The `transition: filter` on the base image
-   eases the glow in as the item is collected. */
-.collection-slot-collected > img,
-.collection-slot-collected > .item-pair img {
-  filter: var(--item-glow);
-}
-
 /* Collected art needs no rules of its own: it simply keeps the sprite's own
    colour at full opacity once the dimming selector stops matching. */
 
@@ -447,13 +428,6 @@
   width: 45px;
   height: 45px;
   image-rendering: pixelated;
-}
-
-/* Gold glow on the item a location check holds, matching the other place/collect
-   surfaces. */
-.location-item > img,
-.location-item > .item-pair img {
-  filter: var(--item-glow);
 }
 
 /* Left click marks the location done, so the static sprite greys out. Scoped to
@@ -1182,15 +1156,6 @@
   height: var(--check);
 }
 
-/* Gold glow on palace item-check art, matching the towns. Direct child for the
-   single sprite and the composite's own images, so the block plates nested in
-   `.slot-block` are left untouched. Scoped to `.palace-grid` so it never fights
-   the town rule, which carries the same glow at higher weight. */
-.palace-grid .item-slot > img,
-.palace-grid .item-slot > .item-pair img {
-  filter: var(--item-glow);
-}
-
 /* A blocked palace slot. The plates take the right edge and the art shifts left
    to clear them, the mirror of a blocked boss, which puts its plates on the left
    and shifts its letter right.
@@ -1295,13 +1260,37 @@
   border-color: transparent;
 }
 
-/* Without a solid fill the item art needs its own edge to stay legible against
-   the sprite behind it. A gold ring reads well against both light and dark town
-   art. Stacked offset shadows build a continuous 1px outline (the four axis
-   offsets) plus a soft outer glow (the final blurred shadow). */
-  .town-grid .item-slot img {
-    filter: var(--item-glow);
-  }
+/* Placing an item dims the background directly behind it right away - the same
+   read as a collected town, but triggered on placement rather than on collection.
+   Towns are the point of it: the item no longer needs its own outline because the
+   busy overworld sprite it competes with is darkened under a radial scrim that
+   fades before the slot edge, keeping the town identifiable. Palace item-checks
+   share the rule for consistency; over their already-dark fill it just deepens the
+   area behind the item. Matched on the item art (a direct-child img or the
+   composite `.item-pair`) via `:has`, so empty slots and block-plate-only slots -
+   whose plates are nested, not direct children - stay clear. */
+:is(.town-grid, .palace-grid) .item-slot:has(> img)::before,
+:is(.town-grid, .palace-grid) .item-slot:has(> .item-pair)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 0, 0, 0.72) 0%,
+    rgba(0, 0, 0, 0.55) 45%,
+    transparent 74%
+  );
+  pointer-events: none;
+}
+
+/* Lift the item art above its own scrim. The check overlay (z-index 2) still
+   sits above both, so a collected item keeps its stamp on top. */
+:is(.town-grid, .palace-grid) .item-slot > img,
+:is(.town-grid, .palace-grid) .item-slot > .item-pair {
+  position: relative;
+  z-index: 1;
+}
 
 /* The letter is the town's own state, so it stays above the item art. */
 .town-grid .icon-mark-glyph {
