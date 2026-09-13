@@ -409,18 +409,38 @@
   outline-offset: 2px;
 }
 
-/* The assigned item sits on top of the location art rather than in a box, so
-   it gets a dark ring to stay legible against the sprite behind it. */
+/* The assigned item sits on top of the location art rather than in a box. Its
+   legibility now comes from the scrim below (`.location-icon:has(.location-item)`) -
+   the same placement dim towns and palace item-checks use - so it no longer needs
+   its own dark drop-shadow ring. */
 /* Spans the whole 56px icon instead of shrinking to fit from left: 50%, which
    would cap the item art at 28px through the preflight max-width. */
 .location-item {
   position: absolute;
   inset: 0;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(1px 0 0 #101010) drop-shadow(-1px 0 0 #101010)
-    drop-shadow(0 1px 0 #101010) drop-shadow(0 -1px 0 #101010);
+  pointer-events: none;
+}
+
+/* Placing an item on a location dims the sprite directly behind it, matching the
+   town/palace placement scrim. The location always carries its own sprite img, so
+   `:has(.location-item)` - the assigned-item overlay - is what gates the scrim,
+   not the presence of an img. Sits above the static sprite (z-index 0 over a
+   non-positioned img) and below the item overlay (z-index 1). */
+.location-icon:has(.location-item)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 0, 0, 0.72) 0%,
+    rgba(0, 0, 0, 0.55) 45%,
+    transparent 74%
+  );
   pointer-events: none;
 }
 
