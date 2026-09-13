@@ -2197,6 +2197,7 @@ export function TrackerFrame() {
                       ) : null}
                     </button>
                     {renderItemSlot(townKey, `${town.name} item`, {
+                      canCheckEmpty: true,
                       onCycleMark: () => cycleMark(townKey, TOWN_MARKS),
                     })}
                   </div>
@@ -2654,7 +2655,9 @@ export function TrackerFrame() {
                   const item = allPickables.find(
                     (entry) => entry.id === slotItems[slotKey]
                   )
-                  const isCollected = Boolean(item && collected[slotKey])
+                  // An empty location check can still be ticked off on its own,
+                  // so the checked state no longer requires a placed item.
+                  const isCollected = Boolean(collected[slotKey])
 
                   return (
                     <button
@@ -2662,9 +2665,9 @@ export function TrackerFrame() {
                       aria-label={
                         item
                           ? `${location.name}: ${item.name}${isCollected ? ', collected' : ''}. Left click to mark collected, right click to change, middle click to clear.`
-                          : `${location.name}: empty. Right click to choose an item.`
+                          : `${location.name}: ${isCollected ? 'checked' : 'empty'}. Left click to mark ${isCollected ? 'unchecked' : 'checked'}, right click to choose an item.`
                       }
-                      aria-pressed={item ? isCollected : undefined}
+                      aria-pressed={isCollected}
                       className={
                         isCollected
                           ? 'location-icon location-icon-collected'
@@ -2679,9 +2682,7 @@ export function TrackerFrame() {
                         }
                       }}
                       onClick={() => {
-                        if (item) {
-                          toggleCollected(slotKey)
-                        }
+                        toggleCollected(slotKey)
                       }}
                       // Right click opens the item menu.
                       onContextMenu={(event) => {
