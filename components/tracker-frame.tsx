@@ -1341,10 +1341,12 @@ export function TrackerFrame() {
   function renderItemSlot(
     slotKey: string,
     label: string,
-    options?: { canBlock?: boolean; onCycleMark?: () => void },
+    options?: { canBlock?: boolean; canCheckEmpty?: boolean; onCycleMark?: () => void },
   ) {
     const item = allPickables.find((entry) => entry.id === slotItems[slotKey])
-    const isCollected = Boolean(item && collected[slotKey])
+    // Item-check slots can be ticked off with nothing in them, so an empty slot
+    // still counts as collected when the option is on and the slot is marked.
+    const isCollected = Boolean(collected[slotKey] && (item || options?.canCheckEmpty))
     // Small filler sprites need their own sizing so the town slot does not inflate
     // them off their pixel grid; only the town slots act on this today.
     const isMinorItem = item ? MINOR_ITEM_IDS.has(item.id) : false
@@ -1369,9 +1371,9 @@ export function TrackerFrame() {
           aria-label={
             item
               ? `${label}: ${item.name}${isCollected ? ', collected' : ''}${blockLabel}. Left click to mark collected, right click to change, middle click to clear.${cycleHint}${blockHint}`
-              : `${label}: empty${blockLabel}. Right click to choose an item.${cycleHint}${blockHint}`
+              : `${label}: ${isCollected ? 'checked' : 'empty'}${blockLabel}. ${options?.canCheckEmpty ? `Left click to mark ${isCollected ? 'unchecked' : 'checked'}, ` : ''}Right click to choose an item.${cycleHint}${blockHint}`
           }
-          aria-pressed={item ? isCollected : undefined}
+          aria-pressed={item || options?.canCheckEmpty ? isCollected : undefined}
           className={`${isCollected ? 'item-slot item-slot-collected' : 'item-slot'}${block ? ' item-slot-blocked' : ''}${isMinorItem ? ' item-slot-minor' : ''}`}
           // Read by the palace grid's wheel listener, the same way the bosses are.
           data-block-key={options?.canBlock ? slotKey : undefined}
@@ -1382,9 +1384,10 @@ export function TrackerFrame() {
               clearItem(slotKey)
             }
           }}
-          // Left click marks the item as collected.
+          // Left click marks the item as collected. Item-check slots can be
+          // ticked off even while empty.
           onClick={() => {
-            if (item) {
+            if (item || options?.canCheckEmpty) {
               toggleCollected(slotKey)
             }
           }}
@@ -2341,7 +2344,7 @@ export function TrackerFrame() {
                           renderItemSlot(
                             `${palace.name}-${index}`,
                             `${palace.name} item ${index + 1}`,
-                            { canBlock: true }
+                            { canBlock: true, canCheckEmpty: true }
                           )
                         )}
                         {'heartTally' in palace ? renderContainerTally('heart') : null}
