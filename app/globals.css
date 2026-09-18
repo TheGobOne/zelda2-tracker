@@ -983,7 +983,9 @@
    gaps above and below both read 20px rather than 14px and 26px. */
 .overworld {
   position: absolute;
-  top: calc(818px + var(--sep) * 5 + 6px);
+  /* +10px nudge centers the maps in the 14px-flush bottom band (was +6px before
+  the frame went flush and moved the bottom rail's inner edge from 22px to 14px). */
+  top: calc(818px + var(--sep) * 5 + 10px);
   left: 40px;
   z-index: 3;
   display: flex;
