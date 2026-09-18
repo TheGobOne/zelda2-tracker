@@ -275,9 +275,11 @@
   transform: translateX(-50%);
 }
 
-/* Top rail ends at 22px; one separation unit below it. */
-.town-grid {
-  top: calc(22px + var(--sep));
+  /* The top rail's inner edge sits at 14px (the frame is flush to the board edge),
+  and the towns divider below is at 106px. Centring the 56px row in that 14->106
+  band puts its top at 32px, leaving an equal 18px gap above and below. */
+  .town-grid {
+  top: calc(18px + var(--sep));
   width: 520px;
   grid-template-columns: repeat(8, 1fr);
   column-gap: 8px;
