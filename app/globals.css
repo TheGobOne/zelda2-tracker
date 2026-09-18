@@ -203,18 +203,23 @@
   /* One separation unit below the divider that closes the location rows, which
      now sits after the third row and so ends at 614px. */
   top: calc(614px + var(--sep) * 3);
-  /* 520px centered inside the 600px canvas, matching the icon grids. */
-  left: 40px;
+  /* 544px, centred at left:28px, so its 14px side margins match this section's
+     14px gap above and below. */
+  left: 28px;
   z-index: 3;
   display: flex;
-  width: 520px;
+  width: 544px;
   flex-direction: column;
   row-gap: 8px;
 }
 
 .collection-grid {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
+  /* Fixed 58px columns spread with space-between rather than 1fr, so widening
+     the section to a 14px side margin does not enlarge the square slots: 1fr
+     would grow them taller and eat the 14px gap above and below. */
+  grid-template-columns: repeat(8, 58px);
+  justify-content: space-between;
   gap: 8px;
 }
 
@@ -280,7 +285,10 @@
   band puts its top at 32px, leaving an equal 18px gap above and below. */
   .town-grid {
   top: calc(18px + var(--sep));
-  width: 520px;
+  /* 540px so the end icons sit 18px from the frame, matching this section's
+     18px gap above and below. The 1fr columns centre the fixed 56px icon, so the
+     width is 2px wider than a flush layout would need to land the same margin. */
+  width: 540px;
   grid-template-columns: repeat(8, 1fr);
   column-gap: 8px;
   row-gap: var(--sep);
@@ -294,8 +302,10 @@
 .palace-grid {
   top: calc(120px + var(--sep));
   display: flex;
-  width: 520px;
-  max-width: 520px;
+  /* 544px so the outer bosses sit 14px from the frame, matching this section's
+     14px gap above and below. */
+  width: 544px;
+  max-width: 544px;
   align-items: center;
   justify-content: space-between;
 }
@@ -308,7 +318,9 @@
   left: 50%;
   z-index: 3;
   display: flex;
-  width: 520px;
+  /* 544px so the end icons sit 14px from the frame, matching this section's
+     14px gap above and below. */
+  width: 544px;
   align-items: center;
   justify-content: space-between;
   transform: translateX(-50%);
@@ -986,10 +998,12 @@
   /* +10px nudge centers the maps in the 14px-flush bottom band (was +6px before
   the frame went flush and moved the bottom rail's inner edge from 22px to 14px). */
   top: calc(818px + var(--sep) * 5 + 10px);
-  left: 40px;
+  /* 524px, centred at left:38px, so its 24px side margins match this section's
+     24px gap above and below. */
+  left: 38px;
   z-index: 3;
   display: flex;
-  width: 520px;
+  width: 524px;
   /* Stretch, so the palette between the maps is handed the maps' full height and
      can spread its icons over all of it. */
   align-items: stretch;
