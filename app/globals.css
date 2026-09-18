@@ -154,9 +154,12 @@
    its own offset, one separation unit below the section it follows. */
 .section-divider {
   position: absolute;
-  left: 24px;
+  /* Both ends run to the inner edge of the outer frame rails: the left rail
+     sits at x=0 and is 14px wide, and the right rail is 14px in from x=600, so
+     the bar spans 14px to 586px (600 - 14 - 14 = 572px wide). */
+  left: 14px;
   z-index: 3;
-  width: 552px;
+  width: 572px;
   height: 14px;
   background: #233bea;
   border-color: #f5f5f5;
