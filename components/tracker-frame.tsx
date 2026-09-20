@@ -2639,11 +2639,10 @@ export function TrackerFrame() {
                           src={location.src}
                           width={56}
                         />
-                        {/* The count comes off the sprite once she is complete,
-                            leaving just the greyed art. The chosen number stays in
-                            state rather than being wiped, so unchecking the
-                            container brings it back rather than losing it. */}
-                        {value && !isComplete ? (
+                        {/* The chosen number stays drawn on the sprite even once
+                            she is complete, so collecting the item never wipes the
+                            count you recorded. It just rides along on the greyed art. */}
+                        {value ? (
                           <span aria-hidden="true" className="icon-mark">
                             {value}
                           </span>
