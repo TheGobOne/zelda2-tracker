@@ -452,6 +452,11 @@
   width: 45px;
   height: 45px;
   image-rendering: pixelated;
+  /* Same tight 1px black outline as the town/palace slot items. The overworld
+     tiles behind a location are the busiest backgrounds on the board, so the
+     assigned item needs a crisp edge to stay readable on top of them. */
+  filter: drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000)
+    drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #000);
 }
 
 /* Left click marks the location done, so the static sprite greys out. Scoped to
@@ -1177,6 +1182,12 @@
   width: var(--art);
   height: var(--art);
   image-rendering: pixelated;
+  /* A placed item sits at full colour on top of a full-colour sprite, so its own
+     dark edges can blend into a busy background. Four stacked drop-shadows trace a
+     tight 1px black outline on every side, cutting the item cleanly out of whatever
+     is behind it without adding any extra UI element. */
+  filter: drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000)
+    drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #000);
 }
 
 .item-slot .item-slot-check {
