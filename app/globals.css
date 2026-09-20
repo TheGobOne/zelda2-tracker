@@ -442,16 +442,11 @@
   pointer-events: none;
 }
 
-/* Placing an item on a location dims the sprite behind it, matching the exact
-   greyscale a location drops to once it is marked done (`.location-icon-collected
-   > img` below) - just triggered on assignment instead of on collection. The
-   location always carries its own sprite img, so `:has(.location-item)` - the
-   assigned-item overlay - is what gates the dim, not the presence of an img. Scoped
-   to the direct child so the assigned item on top stays at full colour. */
-.location-icon:has(.location-item) > img {
-  filter: grayscale(1);
-  opacity: 0.45;
-}
+/* Placing an item on a location deliberately does NOT dim the sprite behind it.
+   Greyscale is reserved for the collected state (`.location-icon-collected > img`
+   below), so it means one thing only: the location is done. An assigned item reads
+   on its own - it sits on top of the sprite at full colour - so a location you have
+   only noted stays visibly distinct from one you have actually completed. */
 
 .location-item img {
   width: 45px;
