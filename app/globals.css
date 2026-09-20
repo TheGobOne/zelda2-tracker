@@ -1464,26 +1464,21 @@
   display: flex;
 }
 
-/* Square hamburger button, framed like the tracker's other controls but deliberately
-   small: it is a settings affordance, not part of the run, so it gives way to the
-   boss sprites it sits under rather than matching them.
-
-   24px, where half of its old 46px would be 23. The extra pixel keeps every part of
-   the glyph on whole pixels - the 2px border leaves a 20px interior, and the margin
-   that centres it in the 56px slot lands on 16px rather than 16.5, so it stays
-   aligned under Thunderbird without straddling a half pixel. */
+/* Square hamburger button, framed like the tracker's other controls. It is a
+   settings affordance rather than part of the run, but sized so the glyph reads
+   clearly: 36px, with a 10px margin centring it in the 56px slot. */
 .tracker-menu-toggle {
   display: flex;
-  width: 24px;
-  height: 24px;
+  width: 36px;
+  height: 36px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin: 16px;
+  margin: 10px;
   padding: 0;
   background: #101010;
   border: 2px solid #f5f5f5;
-  gap: 3px;
+  gap: 4.5px;
   cursor: pointer;
 }
 
@@ -1496,13 +1491,12 @@
   outline-offset: 2px;
 }
 
-/* Blocks rather than borders, so the bars stay crisp at any zoom. Halved with the
-   button, so the glyph keeps its proportions: three 2px bars on 3px gaps stack to
-   12px inside the 20px interior, leaving the same breathing room as before. */
+/* Blocks rather than borders, so the bars stay crisp at any zoom. Scaled with the
+   button: three 3px bars on 4.5px gaps stack to 18px inside the 32px interior. */
 .tracker-menu-bar {
   display: block;
-  width: 12px;
-  height: 2px;
+  width: 18px;
+  height: 3px;
   background: #f5f5f5;
 }
 
