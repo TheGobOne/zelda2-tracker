@@ -1293,23 +1293,11 @@
   border-color: transparent;
 }
 
-/* Placing an item dims the town sprite behind it right away - the exact greyscale
-   the sprite drops to once the town is collected (the rule below), just triggered
-   on placement instead. Dimming the background art rather than laying a scrim over
-   it is what makes the held item read: the busy overworld sprite it competes with
-   goes flat and dark while the item on top keeps its full colour. Read from the
-   column because the held flag lives on the slot, a later sibling of the icon.
-   Matched on the item art (a direct-child img or the composite `.item-pair`) via
-   `:has`, so empty slots and block-plate-only slots - whose plates are nested, not
-   direct children - leave the town at full strength. Palace item-checks sit on a
-   solid dark fill with no sprite behind them, so there is nothing there to dim.
-   The `.item-slot > img` inside `:has` is one flat relative selector, not a nested
-   `:has()` inside another `:has()`, which CSS forbids and would drop the whole
-   rule silently. */
-.town-grid .town-column:has(.item-slot > img) .town-icon img,
-.town-grid .town-column:has(.item-slot > .item-pair) .town-icon img {
-  filter: grayscale(1) brightness(0.7);
-}
+/* Placing an item deliberately does NOT dim the town sprite. Greyscale is reserved
+   for the collected state (the rule below), so it means one thing only: the town is
+   cleared. A placed item reads on its own - it sits on top of the sprite at full
+   colour with a drop shadow that cuts its edge against the busy overworld art, so a
+   town you have only noted stays visibly distinct from one you have actually done. */
 
 /* The letter is the town's own state, so it stays above the item art. */
 .town-grid .icon-mark-glyph {
