@@ -28,13 +28,19 @@ const BASE_HEIGHT = 1138
 const MAPLESS_HEIGHT = 888
 /**
  * Landscape board size. The five stacked sections split into two side-by-side
- * columns: the left keeps towns + bosses + locations (bottoming out ~628px), the
- * right holds the collection + maps re-based into a second 600px lane. So the
- * board is twice as wide and only as tall as the taller (left) column, plus the
- * same ~28px bottom band the portrait board carries below its last element.
+ * 600px lanes, each packed from the top so neither leaves a dead band:
+ *   - left lane:  bosses (242px) + the three location rows, bottoming out ~540px
+ *   - right lane: towns + collection + maps, bottoming out ~560px with the maps on
+ * The board is twice as wide and only as tall as the taller lane plus the same
+ * ~28px bottom band the portrait board carries below its last element.
+ *
+ * With the maps hidden the right lane loses its tallest block and stops at the
+ * collection (~320px), so the left lane governs the height instead - hence the
+ * separate mapless value, mirroring MAPLESS_HEIGHT in portrait.
  */
 const LANDSCAPE_WIDTH = 1200
-const LANDSCAPE_HEIGHT = 656
+const LANDSCAPE_HEIGHT = 592
+const LANDSCAPE_MAPLESS_HEIGHT = 568
 const MIN_SCALE = 0.35
 const MAX_SCALE = 1.75
 
@@ -1181,7 +1187,9 @@ export function TrackerFrame() {
   // hidden right-column maps block just leaves that lane shorter than its column.
   const canvasWidth = isLandscape ? LANDSCAPE_WIDTH : BASE_WIDTH
   const canvasHeight = isLandscape
-    ? LANDSCAPE_HEIGHT
+    ? isMapVisible
+      ? LANDSCAPE_HEIGHT
+      : LANDSCAPE_MAPLESS_HEIGHT
     : isMapVisible
       ? BASE_HEIGHT
       : MAPLESS_HEIGHT

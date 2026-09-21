@@ -195,43 +195,102 @@
   top: calc(804px + var(--sep) * 4);
 }
 
-/* Portrait: the wrapper emits no box, so the collection and maps position
-   against the canvas exactly as they did before this group was wrapped. */
+/* A plain grouping wrapper that emits no box of its own in either orientation, so
+   the collection and maps always position against the canvas. It exists only to
+   keep those two as one JSX unit; the landscape reflow is done per-section below
+   rather than by shifting this wrapper, so each lane can be packed independently. */
 .landscape-col {
   display: contents;
 }
 
-/* Landscape: the wrapper becomes the offset parent for its absolutely-positioned
-   children and shifts the whole group into the right lane. `left: 600px` places
-   it in the second column; the negative top cancels the collection's own portrait
-   origin (614px + sep*3) and re-seats it at a 22px inset, matching the towns' top
-   inset in the left column. Written in the same --sep and origin the collection
-   uses, so the two cannot drift apart. Height keeps the children's original
-   coordinate space (the maps run well past the visible landscape height, but the
-   canvas clips at LANDSCAPE_HEIGHT). */
-.game-canvas.is-landscape .landscape-col {
-  /* Must override the portrait `display: contents`. A contents box generates no
-     box of its own, so position/left/top would be ignored and the children would
-     hoist back onto the canvas at their portrait offsets. A real block box is
-     what lets this element become their offset parent and shift the group. */
-  display: block;
-  position: absolute;
-  left: 600px;
-  top: calc(22px - (614px + var(--sep) * 3));
-  width: 600px;
-  height: 1138px;
+/* ============================================================================
+   Landscape: two 600px lanes side by side on the 1200px canvas, each packed from
+   the top so neither leaves a dead band. The portrait board is one tall column of
+   absolutely-positioned sections; here every section that moves gets an explicit
+   landscape top (and, for the right lane, a +600px left) rather than inheriting
+   its portrait offset, which is what let the old single-shift approach leave the
+   right lane stranded at the top with empty canvas beneath it.
+
+   Left lane  (centred on x=300): bosses, then locations
+   Right lane (centred on x=900): towns, then collection, then maps
+
+   Sep-relative offsets are chained off each block's real height (bosses 242px,
+   towns 56px, collection 190px) so a change to --sep or a block keeps the stack
+   tight instead of drifting.
+   ============================================================================ */
+
+/* Horizontal placement. The centred grids (town/palace/location/notes) resolve
+   `left: 50%` against the 1200px canvas, so 50% lands at 600px - the lane seam.
+   Pin each to its lane centre instead: 300px on the left, 900px on the right. The
+   left-anchored blocks (dividers, collection, maps) shift a full lane (+600px)
+   into the second column. */
+.game-canvas.is-landscape .palace-grid,
+.game-canvas.is-landscape .palace-notes,
+.game-canvas.is-landscape .location-row {
+  left: 300px;
 }
 
-/* The left-column sections are centred with `left: 50%; translateX(-50%)`, which
-   resolves against the canvas width. Doubling the canvas to 1200px in landscape
-   pushed their midline to 600px, dropping them onto the right column. Re-anchor
-   the midline to 300px (the centre of the 600px left lane) so they stay in the
-   first column while everything below keeps its own centring transform. */
-.game-canvas.is-landscape .town-grid,
+.game-canvas.is-landscape .town-grid {
+  left: 900px;
+}
+
+.game-canvas.is-landscape .section-divider-towns,
+.game-canvas.is-landscape .section-divider-collection {
+  left: 614px;
+}
+
+.game-canvas.is-landscape .collection {
+  left: 628px;
+}
+
+.game-canvas.is-landscape .overworld {
+  left: 638px;
+}
+
+/* --- Left lane vertical stack: bosses packed to the top, then the three location
+   rows. The boss grid is 242px tall (32 -> 274). --- */
 .game-canvas.is-landscape .palace-grid,
-.game-canvas.is-landscape .location-row,
 .game-canvas.is-landscape .palace-notes {
-  left: 300px;
+  top: calc(18px + var(--sep));
+}
+
+.game-canvas.is-landscape .section-divider-bosses {
+  top: calc(274px + var(--sep));
+}
+
+.game-canvas.is-landscape .location-row {
+  top: calc(302px + var(--sep));
+}
+
+.game-canvas.is-landscape .location-row-second {
+  top: calc(302px + 56px + var(--sep) * 2);
+}
+
+.game-canvas.is-landscape .location-row-third {
+  top: calc(302px + 112px + var(--sep) * 3);
+}
+
+.game-canvas.is-landscape .section-divider-locations {
+  top: calc(512px + var(--sep));
+}
+
+/* --- Right lane vertical stack: towns keep their portrait top (32px, already the
+   lane inset), then the collection, then the maps. The town row is 56px (32 -> 88)
+   and the collection 190px (130 -> 320). --- */
+.game-canvas.is-landscape .section-divider-towns {
+  top: calc(88px + var(--sep));
+}
+
+.game-canvas.is-landscape .collection {
+  top: calc(88px + var(--sep) * 2 + 14px);
+}
+
+.game-canvas.is-landscape .section-divider-collection {
+  top: calc(320px + var(--sep));
+}
+
+.game-canvas.is-landscape .overworld {
+  top: calc(348px + var(--sep));
 }
 
 /* Session checklist of every one-off collectible, under the overworld rows. The
