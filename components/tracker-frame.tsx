@@ -608,7 +608,7 @@ const PRESETS: {
   },
   {
     id: 'sgl',
-    name: 'SGL',
+    name: 'SGL 2026',
     // Candle and cross only: the fire spell is not a starting item under this
     // ruleset, so it stays unmarked until it is actually found.
     collectedIds: ['candle', 'cross'],
@@ -1141,6 +1141,10 @@ export function TrackerFrame() {
   // `isMenuOpen` so the submenu can be opened and shut without disturbing the
   // menu holding it.
   const [isUpstartsOpen, setIsUpstartsOpen] = useState(false)
+  // Whether the ruleset pickers are flown out beside the menu. Like
+  // `isUpstartsOpen`, kept apart from `isMenuOpen` so the flyout opens and
+  // shuts without disturbing the settings menu holding it.
+  const [isFlagsOpen, setIsFlagsOpen] = useState(false)
   // Whether the overworld maps are on the board. Not every run maps the
   // overworld, and the two grids are the tallest block on it, so they can be put
   // away to leave a shorter board that is all tracking.
@@ -1873,6 +1877,7 @@ export function TrackerFrame() {
   function closeMenu() {
     setIsMenuOpen(false)
     setIsUpstartsOpen(false)
+    setIsFlagsOpen(false)
   }
 
   function applyPreset(preset: (typeof PRESETS)[number]) {
@@ -2391,59 +2396,35 @@ export function TrackerFrame() {
                           className="tracker-menu"
                           role="menu"
                         >
-                          <p className="tracker-menu-heading">Flags</p>
-
-                          {NAMED_PRESETS.map((preset) => (
-                            <button
-                              aria-checked={preset.id === activeFlags}
-                              className="tracker-menu-option"
-                              key={preset.id}
-                              onClick={() => {
-                                closeMenu()
-                                applyPreset(preset)
-                              }}
-                              role="menuitemradio"
-                              type="button"
-                            >
-                              {preset.name}
-                            </button>
-                          ))}
-
-                          {/* The Upstarts weeks, behind one entry rather than six
-                              loose ones: they are a series, and spelling them all
-                              out would make the weeks the bulk of a menu that also
-                              has to hold Controls and Clear. */}
+                          {/* Every ruleset picker now lives behind one Flags
+                              entry rather than sitting loose at the top of the
+                              menu, so the settings menu opens as a short list of
+                              actions and the rulesets fly out only when asked
+                              for. Mirrors the Upstarts pattern, with that weeks
+                              submenu nested one level deeper inside. */}
                           <div className="tracker-submenu-wrap">
                             <button
-                              aria-expanded={isUpstartsOpen}
+                              aria-expanded={isFlagsOpen}
                               aria-haspopup="menu"
-                              // Gold while one of its weeks is loaded, so a
-                              // collapsed submenu still shows where the active
-                              // ruleset came from - the job the entries above do
-                              // for themselves.
-                              aria-checked={isUpstartsActive}
                               className="tracker-menu-option tracker-submenu-toggle"
-                              onClick={() => setIsUpstartsOpen((open) => !open)}
-                              role="menuitemradio"
+                              onClick={() => setIsFlagsOpen((open) => !open)}
+                              role="menuitem"
                               type="button"
                             >
-                              Upstarts
-                              {/* Points the way the panel opens. Drawn with
-                                  borders so it stays crisp like the hamburger's
-                                  bars rather than softening at zoom. */}
+                              Flags
                               <span
                                 aria-hidden="true"
                                 className="tracker-submenu-arrow"
                               />
                             </button>
 
-                            {isUpstartsOpen ? (
+                            {isFlagsOpen ? (
                               <div
-                                aria-label="Upstarts weeks"
+                                aria-label="Flags"
                                 className="tracker-submenu"
                                 role="menu"
                               >
-                                {UPSTARTS_PRESETS.map((preset) => (
+                                {NAMED_PRESETS.map((preset) => (
                                   <button
                                     aria-checked={preset.id === activeFlags}
                                     className="tracker-menu-option"
@@ -2458,29 +2439,84 @@ export function TrackerFrame() {
                                     {preset.name}
                                   </button>
                                 ))}
+
+                                {/* The Upstarts weeks, behind one entry rather
+                                    than six loose ones: they are a series, and
+                                    spelling them all out would make the weeks the
+                                    bulk of the flags flyout. */}
+                                <div className="tracker-submenu-wrap">
+                                  <button
+                                    aria-expanded={isUpstartsOpen}
+                                    aria-haspopup="menu"
+                                    // Gold while one of its weeks is loaded, so a
+                                    // collapsed submenu still shows where the
+                                    // active ruleset came from - the job the
+                                    // entries above do for themselves.
+                                    aria-checked={isUpstartsActive}
+                                    className="tracker-menu-option tracker-submenu-toggle"
+                                    onClick={() =>
+                                      setIsUpstartsOpen((open) => !open)
+                                    }
+                                    role="menuitemradio"
+                                    type="button"
+                                  >
+                                    Upstarts
+                                    {/* Points the way the panel opens. Drawn with
+                                        borders so it stays crisp like the gear's
+                                        glyph rather than softening at zoom. */}
+                                    <span
+                                      aria-hidden="true"
+                                      className="tracker-submenu-arrow"
+                                    />
+                                  </button>
+
+                                  {isUpstartsOpen ? (
+                                    <div
+                                      aria-label="Upstarts weeks"
+                                      className="tracker-submenu"
+                                      role="menu"
+                                    >
+                                      {UPSTARTS_PRESETS.map((preset) => (
+                                        <button
+                                          aria-checked={preset.id === activeFlags}
+                                          className="tracker-menu-option"
+                                          key={preset.id}
+                                          onClick={() => {
+                                            closeMenu()
+                                            applyPreset(preset)
+                                          }}
+                                          role="menuitemradio"
+                                          type="button"
+                                        >
+                                          {preset.name}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  ) : null}
+                                </div>
+
+                                {/* Custom last, below the named rulesets and the
+                                    Upstarts submenu. Rendered from its own
+                                    constant rather than in list order so it stays
+                                    pinned to the foot of the flags run however
+                                    many entries appear above it. */}
+                                {CUSTOM_PRESET ? (
+                                  <button
+                                    aria-checked={CUSTOM_PRESET.id === activeFlags}
+                                    className="tracker-menu-option"
+                                    onClick={() => {
+                                      closeMenu()
+                                      applyPreset(CUSTOM_PRESET)
+                                    }}
+                                    role="menuitemradio"
+                                    type="button"
+                                  >
+                                    {CUSTOM_PRESET.name}
+                                  </button>
+                                ) : null}
                               </div>
                             ) : null}
                           </div>
-
-                          {/* Custom last, below the named rulesets and the
-                              Upstarts submenu. Rendered from its own constant
-                              rather than in list order so it stays pinned to the
-                              foot of the flags run however many entries appear
-                              above it. */}
-                          {CUSTOM_PRESET ? (
-                            <button
-                              aria-checked={CUSTOM_PRESET.id === activeFlags}
-                              className="tracker-menu-option"
-                              onClick={() => {
-                                closeMenu()
-                                applyPreset(CUSTOM_PRESET)
-                              }}
-                              role="menuitemradio"
-                              type="button"
-                            >
-                              {CUSTOM_PRESET.name}
-                            </button>
-                          ) : null}
 
                           {/* Puts the overworld maps away. A checkbox rather than
                               another radio, since it is not one of the mutually
