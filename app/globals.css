@@ -221,17 +221,19 @@
 
 /* Horizontal placement. The centred grids (town/palace/location/notes) resolve
    `left: 50%` against the 1200px canvas, so 50% lands at 600px - the lane seam.
-   Pin each to its lane centre instead: 300px on the left, 900px on the right. The
-   left-anchored blocks (dividers, collection, maps) take an explicit x: the
-   dividers and item checks sit in the right lane, the maps in the left lane. */
+   Pin each to its true lane centre instead. With the thin 14px separator at the
+   seam, the real lanes run x14->x593 (left) and x607->x1186 (right), whose centres
+   are 303.5px and 896.5px - not the old 300/900. The left-anchored blocks
+   (dividers, collection, maps) take an explicit x shifted by the same 3.5px toward
+   the separator so every section sits centred in its lane. */
 .game-canvas.is-landscape .palace-grid,
 .game-canvas.is-landscape .palace-notes {
-  left: 300px;
+  left: 303.5px;
 }
 
 .game-canvas.is-landscape .town-grid,
 .game-canvas.is-landscape .location-row {
-  left: 900px;
+  left: 896.5px;
 }
 
 /* Right-lane dividers span from the center separator (x607) to the inner edge
@@ -243,13 +245,13 @@
 }
 
 .game-canvas.is-landscape .collection {
-  left: 628px;
+  left: 624.5px;
 }
 
-/* Maps drop into the left lane, so they take the left-anchored portrait x
-   (38px + 524px + 38px = 600px, centered in the 600px left lane). */
+/* Maps drop into the left lane. Shifted 3.5px right of the portrait x (38px) so
+   the 524px block sits centred in the real left lane (x14 -> x593, centre 303.5). */
 .game-canvas.is-landscape .overworld {
-  left: 38px;
+  left: 41.5px;
 }
 
 /* --- Left lane vertical stack: bosses packed to the top, then the maps. The boss
@@ -317,10 +319,10 @@
    ============================================================================ */
 
 /* Item checks leave the right lane for the bottom of the left lane: centred in
-   the 600px lane (left inset 28px) and one gap below the boss divider, closing
-   the lane flush with the shrunken frame bottom (302 + 190 = 492 = 520 - 28). */
+   the real left lane (x14->x593, centre 303.5, so left inset 31.5px) and one gap
+   below the boss divider, closing the lane flush with the shrunken frame bottom. */
 .game-canvas.is-landscape.maps-hidden .collection {
-  left: 28px;
+  left: 31.5px;
   top: calc(274px + var(--sep) * 2);
 }
 
