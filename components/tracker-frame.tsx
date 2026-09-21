@@ -20,12 +20,13 @@ const BASE_HEIGHT = 1138
  * Board height with the overworld maps hidden.
  *
  * The maps are the last block on the board, and the divider above them goes when
- * they do, so the collection becomes the final element. It ends at 846px, and the
- * full board carries 42px of space below its last element - so keeping that same
- * 42px puts the frame's bottom edge, and the red corner blocks and resize grips
- * pinned to it, the same distance below the last thing on the board either way.
+ * they do, so the collection becomes the final element. It ends at 846px. The
+ * board's first element sits 18px below the top rail, so the bottom edge is placed
+ * to leave the same 18px below the collection: 846 + 18 margin + 14 bottom rail =
+ * 878. Matching the top margin centres the stack vertically instead of leaving a
+ * wider band of black at the foot of the board.
  */
-const MAPLESS_HEIGHT = 888
+const MAPLESS_HEIGHT = 878
 /**
  * Landscape board size. The five stacked sections split into two side-by-side
  * 600px lanes, each packed from the top so neither leaves a dead band:
