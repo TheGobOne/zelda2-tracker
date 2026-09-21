@@ -234,9 +234,12 @@
   left: 900px;
 }
 
+/* Right-lane dividers span from the center separator (x607) to the inner edge
+   of the right frame rail (x1186), so they butt the thin separator with no gap. */
 .game-canvas.is-landscape .section-divider-towns,
 .game-canvas.is-landscape .section-divider-collection {
-  left: 614px;
+  left: 607px;
+  width: 579px;
 }
 
 .game-canvas.is-landscape .collection {
@@ -256,8 +259,11 @@
   top: calc(18px + var(--sep));
 }
 
+/* Left-lane divider spans from the inner edge of the left frame rail (x14) to
+   the center separator (x593), butting the thin separator with no gap. */
 .game-canvas.is-landscape .section-divider-bosses {
   top: calc(274px + var(--sep));
+  width: 579px;
 }
 
 .game-canvas.is-landscape .overworld {
@@ -2186,9 +2192,9 @@
   display: block;
   position: absolute;
   top: 14px;
-  left: calc(50% - 14px);
+  left: calc(50% - 7px);
   z-index: 3;
-  width: 28px;
+  width: 14px; /* thin center separator; lane rails extend to meet it */
   height: calc(100% - 28px);
   background: #233bea;
   border-color: #f5f5f5;
