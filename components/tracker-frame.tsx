@@ -35,14 +35,12 @@ const MAPLESS_HEIGHT = 888
  * plus the same ~28px bottom band the portrait board carries below its last
  * element.
  *
- * Maps live in the left lane below the bosses. Hiding them frees that slot, so
- * the item checks drop out of the right lane into the bottom-left, leaving two
- * shorter columns (bosses + checks | towns + locations). The board then shrinks
- * to that filled left lane, which is why the mapless value is smaller.
+ * Maps live in the left lane below the bosses. Hiding them just empties that
+ * slot - every other section stays put, so the right lane still governs the
+ * board height and the value is the same whether or not the maps are showing.
  */
 const LANDSCAPE_WIDTH = 1200
 const LANDSCAPE_HEIGHT = 577
-const LANDSCAPE_MAPLESS_HEIGHT = 520
 const MIN_SCALE = 0.35
 const MAX_SCALE = 1.75
 
@@ -1189,9 +1187,7 @@ export function TrackerFrame() {
   // hidden right-column maps block just leaves that lane shorter than its column.
   const canvasWidth = isLandscape ? LANDSCAPE_WIDTH : BASE_WIDTH // landscape: two 600px lanes
   const canvasHeight = isLandscape
-    ? isMapVisible
-      ? LANDSCAPE_HEIGHT
-      : LANDSCAPE_MAPLESS_HEIGHT
+    ? LANDSCAPE_HEIGHT
     : isMapVisible
       ? BASE_HEIGHT
       : MAPLESS_HEIGHT
