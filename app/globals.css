@@ -270,8 +270,10 @@
   top: calc(302px + 112px + var(--sep) * 3);
 }
 
+/* Locations is the last section in the left lane in landscape, so its divider
+   would dangle at the bottom with nothing after it — hide it. */
 .game-canvas.is-landscape .section-divider-locations {
-  top: calc(512px + var(--sep));
+  display: none;
 }
 
 /* --- Right lane vertical stack: towns keep their portrait top (32px, already the
