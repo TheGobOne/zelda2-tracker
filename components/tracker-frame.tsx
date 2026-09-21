@@ -2848,19 +2848,17 @@ export function TrackerFrame() {
               </div>
             </section>
 
+            {/* Closes the collection off. In portrait/landscape with maps shown it
+                brackets the overworld maps below; with maps hidden it still caps
+                the collection so the right lane keeps its bottom separator. */}
+            <div className="section-divider section-divider-collection" />
+
             {/* The two overworlds, with the icon palette between them so either
                 map is an equally short trip from the icon being placed. Optional,
                 since a run that is not mapping the overworld has no use for the
-                tallest block on the board.
-
-                The divider goes with them: it exists to split the collection from
-                the maps, so with nothing below it to bracket it would just be a
-                rule hanging off the end of the board. */}
+                tallest block on the board. */}
             {isMapVisible ? (
             <>
-            {/* Closes the collection off, bracketing the overworld maps below. */}
-            <div className="section-divider section-divider-collection" />
-
             <section aria-label="Overworld maps" className="overworld">
               {OVERWORLDS.map((world, worldIndex) => (
                 <Fragment key={world.id}>
