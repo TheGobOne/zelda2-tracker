@@ -222,6 +222,18 @@
   height: 1138px;
 }
 
+/* The left-column sections are centred with `left: 50%; translateX(-50%)`, which
+   resolves against the canvas width. Doubling the canvas to 1200px in landscape
+   pushed their midline to 600px, dropping them onto the right column. Re-anchor
+   the midline to 300px (the centre of the 600px left lane) so they stay in the
+   first column while everything below keeps its own centring transform. */
+.game-canvas.is-landscape .town-grid,
+.game-canvas.is-landscape .palace-grid,
+.game-canvas.is-landscape .location-row,
+.game-canvas.is-landscape .palace-notes {
+  left: 300px;
+}
+
 /* Session checklist of every one-off collectible, under the overworld rows. The
    width and column count mirror the item menu, so a box lands at the same 58px
    and a sprite reads the same in both places. */
