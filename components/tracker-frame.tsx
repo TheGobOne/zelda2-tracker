@@ -26,6 +26,15 @@ const BASE_HEIGHT = 1138
  * pinned to it, the same distance below the last thing on the board either way.
  */
 const MAPLESS_HEIGHT = 888
+/**
+ * Landscape board size. The five stacked sections split into two side-by-side
+ * columns: the left keeps towns + bosses + locations (bottoming out ~628px), the
+ * right holds the collection + maps re-based into a second 600px lane. So the
+ * board is twice as wide and only as tall as the taller (left) column, plus the
+ * same ~28px bottom band the portrait board carries below its last element.
+ */
+const LANDSCAPE_WIDTH = 1200
+const LANDSCAPE_HEIGHT = 656
 const MIN_SCALE = 0.35
 const MAX_SCALE = 1.75
 
@@ -1152,6 +1161,10 @@ export function TrackerFrame() {
   // Hiding them only takes them off screen - `overworldCells` is left alone, so
   // anything already marked is still there when they come back.
   const [isMapVisible, setIsMapVisible] = useState(true)
+  // Reflows the five stacked sections into two side-by-side columns for a wide
+  // board. In-memory like every other setting here, and modelled on isMapVisible:
+  // one piece of state plus one settings-menu row.
+  const [isLandscape, setIsLandscape] = useState(false)
   // Which icon sits on each overworld cell, keyed by grid id and coordinates.
   // Only filled cells are stored, so an absent key is an empty square.
   const [overworldCells, setOverworldCells] = useState<Record<string, string>>({})
@@ -1163,7 +1176,15 @@ export function TrackerFrame() {
   // How tall the board currently stands. Everything that has to agree with the
   // board's height reads this rather than `BASE_HEIGHT`, so the canvas, the stage
   // the grips hang off, and the drag arithmetic cannot disagree about it.
-  const canvasHeight = isMapVisible ? BASE_HEIGHT : MAPLESS_HEIGHT
+  // In landscape the board's size is fixed by the two-column split, so map
+  // visibility no longer changes the height - the left column governs it, and a
+  // hidden right-column maps block just leaves that lane shorter than its column.
+  const canvasWidth = isLandscape ? LANDSCAPE_WIDTH : BASE_WIDTH
+  const canvasHeight = isLandscape
+    ? LANDSCAPE_HEIGHT
+    : isMapVisible
+      ? BASE_HEIGHT
+      : MAPLESS_HEIGHT
 
   /**
    * Sets one side of a Custom container tally, keeping the pair coherent: a start
@@ -1957,7 +1978,7 @@ export function TrackerFrame() {
     const { handle } = drag
     // Dragging outward always grows; each active axis contributes evenly.
     const axes = Math.abs(handle.x) + Math.abs(handle.y)
-    const deltaX = (handle.x * (event.clientX - drag.x)) / BASE_WIDTH
+    const deltaX = (handle.x * (event.clientX - drag.x)) / canvasWidth
     // Against the board's current height, so a vertical drag moves the scale at
     // the same rate per pixel travelled whether or not the maps are showing.
     const deltaY = (handle.y * (event.clientY - drag.y)) / canvasHeight
@@ -2146,7 +2167,7 @@ export function TrackerFrame() {
       <div
         className={`tracker-stage${activeHandle ? ' is-resizing' : ''}`}
         style={{
-          width: BASE_WIDTH * scale,
+          width: canvasWidth * scale,
           // The grips sit against the stage's edges, so shrinking it with the
           // board is what carries them up when the maps are put away.
           height: canvasHeight * scale,
@@ -2155,7 +2176,7 @@ export function TrackerFrame() {
         <div
           className="tracker-scaler"
           style={{
-            width: BASE_WIDTH,
+            width: canvasWidth,
             height: canvasHeight,
             // `zoom` scales during layout, so the sprites rasterize at their
             // final on-screen size. `transform: scale()` instead rasterizes at
@@ -2165,12 +2186,12 @@ export function TrackerFrame() {
           }}
         >
           <div
-            aria-label="Zelda II portrait tracker canvas with an eight-bit frame"
-            className="game-canvas"
+            aria-label="Zelda II tracker canvas with an eight-bit frame"
+            className={`game-canvas${isLandscape ? ' is-landscape' : ''}`}
             role="img"
-            // Owned here rather than in the stylesheet: the board has two heights
-            // now, and this is where the choice between them is already made.
-            style={{ height: canvasHeight }}
+            // Owned here rather than in the stylesheet: the board has several
+            // sizes now, and this is where that choice is already made.
+            style={{ width: canvasWidth, height: canvasHeight }}
           >
             <div aria-label="Town locations" className="town-grid">
               {towns.map((town) => {
@@ -2541,6 +2562,23 @@ export function TrackerFrame() {
                             Hide maps
                           </button>
 
+                          {/* Reflows the board into two columns. A checkbox like
+                              Hide maps, and left open on click for the same reason:
+                              it is worth toggling twice to compare the two layouts. */}
+                          <button
+                            aria-checked={isLandscape}
+                            className="tracker-menu-option tracker-menu-option-bordered"
+                            onClick={() => setIsLandscape((current) => !current)}
+                            role="menuitemcheckbox"
+                            type="button"
+                          >
+                            <span
+                              aria-hidden="true"
+                              className={`tracker-menu-check${isLandscape ? ' is-checked' : ''}`}
+                            />
+                            Landscape
+                          </button>
+
                           {/* Opens the controls reference. Sits below the
                               flags entries and above Clear, so the menu runs from
                               harmless to destructive top to bottom. */}
@@ -2786,6 +2824,12 @@ export function TrackerFrame() {
 
             <div className="section-divider section-divider-locations" />
 
+            {/* The collection + maps are the board's lower half in portrait; in
+                landscape they become the right column. Wrapping them in one box
+                lets a single CSS rule re-base the whole group into the second
+                lane. In portrait the wrapper is `display:contents`, so it emits
+                no box and these children position against the canvas as before. */}
+            <div className="landscape-col">
             {/* Session checklist of every one-off pickup, laid out like the item
                 menu so a sprite reads the same in both places. */}
             <section aria-label="Item and spell collection" className="collection">
@@ -2872,6 +2916,7 @@ export function TrackerFrame() {
             </section>
             </>
             ) : null}
+            </div>
 
             {/* Closes the menu on any outside click, since the board takes no
                 keystrokes and so has no Escape to fall back on. */}

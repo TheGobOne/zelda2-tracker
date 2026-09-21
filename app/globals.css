@@ -195,6 +195,33 @@
   top: calc(804px + var(--sep) * 4);
 }
 
+/* Portrait: the wrapper emits no box, so the collection and maps position
+   against the canvas exactly as they did before this group was wrapped. */
+.landscape-col {
+  display: contents;
+}
+
+/* Landscape: the wrapper becomes the offset parent for its absolutely-positioned
+   children and shifts the whole group into the right lane. `left: 600px` places
+   it in the second column; the negative top cancels the collection's own portrait
+   origin (614px + sep*3) and re-seats it at a 22px inset, matching the towns' top
+   inset in the left column. Written in the same --sep and origin the collection
+   uses, so the two cannot drift apart. Height keeps the children's original
+   coordinate space (the maps run well past the visible landscape height, but the
+   canvas clips at LANDSCAPE_HEIGHT). */
+.game-canvas.is-landscape .landscape-col {
+  /* Must override the portrait `display: contents`. A contents box generates no
+     box of its own, so position/left/top would be ignored and the children would
+     hoist back onto the canvas at their portrait offsets. A real block box is
+     what lets this element become their offset parent and shift the group. */
+  display: block;
+  position: absolute;
+  left: 600px;
+  top: calc(22px - (614px + var(--sep) * 3));
+  width: 600px;
+  height: 1138px;
+}
+
 /* Session checklist of every one-off collectible, under the overworld rows. The
    width and column count mirror the item menu, so a box lands at the same 58px
    and a sprite reads the same in both places. */
