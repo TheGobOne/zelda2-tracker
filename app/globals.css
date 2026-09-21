@@ -281,19 +281,19 @@
 }
 
 .game-canvas.is-landscape .location-row {
-  top: calc(88px + var(--sep) * 2 + 14px);
+  top: calc(88px + var(--sep) * 2 + 9px);
 }
 
 .game-canvas.is-landscape .location-row-second {
-  top: calc(88px + 56px + var(--sep) * 3 + 14px);
+  top: calc(88px + 56px + var(--sep) * 3 + 9px);
 }
 
 .game-canvas.is-landscape .location-row-third {
-  top: calc(88px + 112px + var(--sep) * 4 + 14px);
+  top: calc(88px + 112px + var(--sep) * 4 + 9px);
 }
 
 .game-canvas.is-landscape .section-divider-collection {
-  top: calc(261px + var(--sep) * 5);
+  top: calc(261px + var(--sep) * 5); /* right lane: below centered locations */
 }
 
 .game-canvas.is-landscape .collection {
