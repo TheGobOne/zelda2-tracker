@@ -309,6 +309,13 @@
   top: calc(275px + var(--sep) * 6);
 }
 
+/* In portrait, hiding the maps removes the section they capped, so the collection
+   divider would dangle at the bottom with nothing above it. Drop it in that case
+   only; landscape keeps it since the item checks still sit below it. */
+.game-canvas.maps-hidden:not(.is-landscape) .section-divider-collection {
+  display: none;
+}
+
 /* ============================================================================
    LANDSCAPE + MAPS HIDDEN
    Hiding the maps only empties the left lane's bottom slot. Every other section
