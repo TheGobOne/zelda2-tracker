@@ -243,7 +243,8 @@
   left: 628px;
 }
 
-/* Maps drop into the left lane, so they take the left-anchored portrait x. */
+/* Maps drop into the left lane, so they take the left-anchored portrait x
+   (38px + 524px + 38px = 600px, centered in the 600px left lane). */
 .game-canvas.is-landscape .overworld {
   left: 38px;
 }
@@ -260,7 +261,9 @@
 }
 
 .game-canvas.is-landscape .overworld {
-  top: calc(302px + var(--sep));
+  /* Vertically centered in the bottom-left region: the boss divider bounds the
+     top, the frame bottom the bottom, so the whitespace above and below matches. */
+  top: calc(317px + var(--sep));
 }
 
 /* Locations is no longer the last section in the left lane, and the divider that
