@@ -1676,25 +1676,26 @@
   flex-direction: column;
 }
 
-/* Room on the right for the arrow, which is absolutely placed so the label stays
+/* Room on the left for the arrow, which is absolutely placed so the label stays
    optically centred with the entries above it rather than being pushed off centre
    by a glyph on one side. */
 .tracker-submenu-toggle {
   position: relative;
-  padding-right: 26px;
+  padding-left: 26px;
 }
 
 .tracker-submenu-arrow {
   position: absolute;
   top: 50%;
-  right: 10px;
+  left: 10px;
   width: 0;
   height: 0;
-  margin-top: -4px;
-  /* Solid left-pointing triangle, matching the direction the panel opens. */
-  border-top: 4px solid transparent;
-  border-right: 6px solid #f5f5f5;
-  border-bottom: 4px solid transparent;
+  margin-top: -8px;
+  /* Solid left-pointing triangle, matching the direction the panel opens.
+     Sized to point clearly toward the flyout that opens to its left. */
+  border-top: 8px solid transparent;
+  border-right: 12px solid #f5f5f5;
+  border-bottom: 8px solid transparent;
 }
 
 /* Opens to the left of the menu, not below it: the menu is already pinned to the
