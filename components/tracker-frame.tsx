@@ -1,6 +1,6 @@
 'use client'
 
-import { Check } from 'lucide-react'
+import { Check, Settings } from 'lucide-react'
 import Image from 'next/image'
 import {
   Fragment,
@@ -2382,11 +2382,7 @@ export function TrackerFrame() {
                         }
                         type="button"
                       >
-                        {/* Three chunky bars, drawn as blocks to match the pixel
-                            art rather than a thin vector icon. */}
-                        <span aria-hidden="true" className="tracker-menu-bar" />
-                        <span aria-hidden="true" className="tracker-menu-bar" />
-                        <span aria-hidden="true" className="tracker-menu-bar" />
+                        <Settings aria-hidden="true" className="tracker-menu-gear" />
                       </button>
 
                       {isMenuOpen ? (

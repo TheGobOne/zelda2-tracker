@@ -1485,14 +1485,14 @@
   outline-offset: 2px;
 }
 
-/* Blocks rather than borders, so the bars stay crisp at any zoom. Scaled with the
-   button: three 3px bars on 4.5px gaps stack to 18px inside the 32px interior. */
-.tracker-menu-bar {
+  /* Gear glyph sized to fill the 32px interior of the button, matching the
+  footprint the three bars used to occupy. */
+  .tracker-menu-gear {
   display: block;
-  width: 18px;
-  height: 3px;
-  background: #f5f5f5;
-}
+  width: 24px;
+  height: 24px;
+  color: #f5f5f5;
+  }
 
 /* Opens below the button and pinned to its right edge, so it stays inside the
    board: the button sits at the right of the row, and the open space under the
