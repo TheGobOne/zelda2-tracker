@@ -301,6 +301,57 @@
   top: calc(275px + var(--sep) * 6);
 }
 
+/* ============================================================================
+   LANDSCAPE + MAPS HIDDEN (two balanced columns)
+   With the overworld maps off the board the left lane's bottom slot is empty, so
+   the item checks drop out of the right lane into the bottom-left (below the
+   bosses). The canvas shrinks to that filled left lane (bosses + checks), and the
+   shorter right lane (towns + locations) is centred vertically so both columns
+   read as balanced rather than leaving one lane half-empty.
+   ============================================================================ */
+
+/* Item checks leave the right lane for the bottom of the left lane: centred in
+   the 600px lane (left inset 28px) and one gap below the boss divider, closing
+   the lane flush with the shrunken frame bottom (302 + 190 = 492 = 520 - 28). */
+.game-canvas.is-landscape.maps-hidden .collection {
+  left: 28px;
+  top: calc(274px + var(--sep) * 2);
+}
+
+/* The boss divider now separates bosses from the item checks beneath them. */
+.game-canvas.is-landscape.maps-hidden .section-divider-bosses {
+  top: calc(274px + var(--sep));
+}
+
+/* Its old partner - the divider that closed the item checks in the right lane -
+   has nothing left to separate there, so it comes off the board. */
+.game-canvas.is-landscape.maps-hidden .section-divider-collection {
+  display: none;
+}
+
+/* Right lane is just towns + locations now (289px of content), so shift the
+   whole stack down by 84px to centre it in the 520px board and mirror the full
+   left lane instead of stranding it at the top. */
+.game-canvas.is-landscape.maps-hidden .town-grid {
+  top: 116px;
+}
+
+.game-canvas.is-landscape.maps-hidden .section-divider-towns {
+  top: calc(116px + 56px + var(--sep));
+}
+
+.game-canvas.is-landscape.maps-hidden .location-row {
+  top: calc(116px + 56px + var(--sep) * 2 + 9px);
+}
+
+.game-canvas.is-landscape.maps-hidden .location-row-second {
+  top: calc(116px + 112px + var(--sep) * 3 + 9px);
+}
+
+.game-canvas.is-landscape.maps-hidden .location-row-third {
+  top: calc(116px + 168px + var(--sep) * 4 + 9px);
+}
+
 /* Session checklist of every one-off collectible, under the overworld rows. The
    width and column count mirror the item menu, so a box lands at the same 58px
    and a sprite reads the same in both places. */

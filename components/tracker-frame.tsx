@@ -35,13 +35,14 @@ const MAPLESS_HEIGHT = 888
  * plus the same ~28px bottom band the portrait board carries below its last
  * element.
  *
- * Maps now live in the left lane, so hiding them shortens that lane only; the
- * right lane (towns + locations + item checks) still governs the height either
- * way, which is why the mapless value matches the full one.
+ * Maps live in the left lane below the bosses. Hiding them frees that slot, so
+ * the item checks drop out of the right lane into the bottom-left, leaving two
+ * shorter columns (bosses + checks | towns + locations). The board then shrinks
+ * to that filled left lane, which is why the mapless value is smaller.
  */
 const LANDSCAPE_WIDTH = 1200
 const LANDSCAPE_HEIGHT = 577
-const LANDSCAPE_MAPLESS_HEIGHT = 577
+const LANDSCAPE_MAPLESS_HEIGHT = 520
 const MIN_SCALE = 0.35
 const MAX_SCALE = 1.75
 
@@ -2196,7 +2197,7 @@ export function TrackerFrame() {
         >
           <div
             aria-label="Zelda II tracker canvas with an eight-bit frame"
-            className={`game-canvas${isLandscape ? ' is-landscape' : ''}`}
+            className={`game-canvas${isLandscape ? ' is-landscape' : ''}${!isMapVisible ? ' maps-hidden' : ''}`}
             role="img"
             // Owned here rather than in the stylesheet: the board has several
             // sizes now, and this is where that choice is already made.
