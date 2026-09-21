@@ -29,18 +29,19 @@ const MAPLESS_HEIGHT = 888
 /**
  * Landscape board size. The five stacked sections split into two side-by-side
  * 600px lanes, each packed from the top so neither leaves a dead band:
- *   - left lane:  bosses (242px) + the three location rows, bottoming out ~540px
- *   - right lane: towns + collection + maps, bottoming out ~560px with the maps on
- * The board is twice as wide and only as tall as the taller lane plus the same
- * ~28px bottom band the portrait board carries below its last element.
+ *   - left lane:  bosses (242px) + the maps, bottoming out ~518px
+ *   - right lane: towns + the three location rows + item checks, ~549px
+ * The board is twice as wide and only as tall as the taller lane (the right one)
+ * plus the same ~28px bottom band the portrait board carries below its last
+ * element.
  *
- * With the maps hidden the right lane loses its tallest block and stops at the
- * collection (~320px), so the left lane governs the height instead - hence the
- * separate mapless value, mirroring MAPLESS_HEIGHT in portrait.
+ * Maps now live in the left lane, so hiding them shortens that lane only; the
+ * right lane (towns + locations + item checks) still governs the height either
+ * way, which is why the mapless value matches the full one.
  */
 const LANDSCAPE_WIDTH = 1200
-const LANDSCAPE_HEIGHT = 592
-const LANDSCAPE_MAPLESS_HEIGHT = 568
+const LANDSCAPE_HEIGHT = 577
+const LANDSCAPE_MAPLESS_HEIGHT = 577
 const MIN_SCALE = 0.35
 const MAX_SCALE = 1.75
 
@@ -1185,7 +1186,7 @@ export function TrackerFrame() {
   // In landscape the board's size is fixed by the two-column split, so map
   // visibility no longer changes the height - the left column governs it, and a
   // hidden right-column maps block just leaves that lane shorter than its column.
-  const canvasWidth = isLandscape ? LANDSCAPE_WIDTH : BASE_WIDTH
+  const canvasWidth = isLandscape ? LANDSCAPE_WIDTH : BASE_WIDTH // landscape: two 600px lanes
   const canvasHeight = isLandscape
     ? isMapVisible
       ? LANDSCAPE_HEIGHT

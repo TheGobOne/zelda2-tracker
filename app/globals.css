@@ -211,26 +211,26 @@
    its portrait offset, which is what let the old single-shift approach leave the
    right lane stranded at the top with empty canvas beneath it.
 
-   Left lane  (centred on x=300): bosses, then locations
-   Right lane (centred on x=900): towns, then collection, then maps
+   Left lane  (centred on x=300): bosses, then maps
+   Right lane (centred on x=900): towns, then locations, then item checks
 
    Sep-relative offsets are chained off each block's real height (bosses 242px,
-   towns 56px, collection 190px) so a change to --sep or a block keeps the stack
-   tight instead of drifting.
+   towns 56px, location rows 56px pitch, collection 190px) so a change to --sep or
+   a block keeps the stack tight instead of drifting.
    ============================================================================ */
 
 /* Horizontal placement. The centred grids (town/palace/location/notes) resolve
    `left: 50%` against the 1200px canvas, so 50% lands at 600px - the lane seam.
    Pin each to its lane centre instead: 300px on the left, 900px on the right. The
-   left-anchored blocks (dividers, collection, maps) shift a full lane (+600px)
-   into the second column. */
+   left-anchored blocks (dividers, collection, maps) take an explicit x: the
+   dividers and item checks sit in the right lane, the maps in the left lane. */
 .game-canvas.is-landscape .palace-grid,
-.game-canvas.is-landscape .palace-notes,
-.game-canvas.is-landscape .location-row {
+.game-canvas.is-landscape .palace-notes {
   left: 300px;
 }
 
-.game-canvas.is-landscape .town-grid {
+.game-canvas.is-landscape .town-grid,
+.game-canvas.is-landscape .location-row {
   left: 900px;
 }
 
@@ -243,12 +243,13 @@
   left: 628px;
 }
 
+/* Maps drop into the left lane, so they take the left-anchored portrait x. */
 .game-canvas.is-landscape .overworld {
-  left: 638px;
+  left: 38px;
 }
 
-/* --- Left lane vertical stack: bosses packed to the top, then the three location
-   rows. The boss grid is 242px tall (32 -> 274). --- */
+/* --- Left lane vertical stack: bosses packed to the top, then the maps. The boss
+   grid is 242px tall (32 -> 274); the maps take the slot one divider below it. --- */
 .game-canvas.is-landscape .palace-grid,
 .game-canvas.is-landscape .palace-notes {
   top: calc(18px + var(--sep));
@@ -258,41 +259,43 @@
   top: calc(274px + var(--sep));
 }
 
-.game-canvas.is-landscape .location-row {
+.game-canvas.is-landscape .overworld {
   top: calc(302px + var(--sep));
 }
 
-.game-canvas.is-landscape .location-row-second {
-  top: calc(302px + 56px + var(--sep) * 2);
-}
-
-.game-canvas.is-landscape .location-row-third {
-  top: calc(302px + 112px + var(--sep) * 3);
-}
-
-/* Locations is the last section in the left lane in landscape, so its divider
-   would dangle at the bottom with nothing after it — hide it. */
+/* Locations is no longer the last section in the left lane, and the divider that
+   trails it in portrait has nothing after it in either lane here — hide it. */
 .game-canvas.is-landscape .section-divider-locations {
   display: none;
 }
 
 /* --- Right lane vertical stack: towns keep their portrait top (32px, already the
-   lane inset), then the maps, then the item checks. The town row is 56px (32 -> 88),
-   the overworld maps 202px (130 -> 332), and the collection 190px (374 -> 564). --- */
+   lane inset), then the three location rows, then the item checks. The town row is
+   56px (32 -> 88), each location row is 56px pitch (third bottoms at 261px + --sep*4),
+   and the collection is 190px. --- */
 .game-canvas.is-landscape .section-divider-towns {
   top: calc(88px + var(--sep));
 }
 
-.game-canvas.is-landscape .overworld {
+.game-canvas.is-landscape .location-row {
   top: calc(88px + var(--sep) * 2 + 14px);
 }
 
+.game-canvas.is-landscape .location-row-second {
+  top: calc(88px + 56px + var(--sep) * 3 + 14px);
+}
+
+.game-canvas.is-landscape .location-row-third {
+  top: calc(88px + 112px + var(--sep) * 4 + 14px);
+}
+
 .game-canvas.is-landscape .section-divider-collection {
-  top: calc(332px + var(--sep));
+  top: calc(261px + var(--sep) * 5);
 }
 
 .game-canvas.is-landscape .collection {
-  top: calc(332px + var(--sep) * 2 + 14px);
+  /* item checks close the right lane */
+  top: calc(275px + var(--sep) * 6);
 }
 
 /* Session checklist of every one-off collectible, under the overworld rows. The
