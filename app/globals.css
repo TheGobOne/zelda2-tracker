@@ -277,22 +277,22 @@
 }
 
 /* --- Right lane vertical stack: towns keep their portrait top (32px, already the
-   lane inset), then the collection, then the maps. The town row is 56px (32 -> 88)
-   and the collection 190px (130 -> 320). --- */
+   lane inset), then the maps, then the item checks. The town row is 56px (32 -> 88),
+   the overworld maps 202px (130 -> 332), and the collection 190px (374 -> 564). --- */
 .game-canvas.is-landscape .section-divider-towns {
   top: calc(88px + var(--sep));
 }
 
-.game-canvas.is-landscape .collection {
+.game-canvas.is-landscape .overworld {
   top: calc(88px + var(--sep) * 2 + 14px);
 }
 
 .game-canvas.is-landscape .section-divider-collection {
-  top: calc(320px + var(--sep));
+  top: calc(332px + var(--sep));
 }
 
-.game-canvas.is-landscape .overworld {
-  top: calc(348px + var(--sep));
+.game-canvas.is-landscape .collection {
+  top: calc(332px + var(--sep) * 2 + 14px);
 }
 
 /* Session checklist of every one-off collectible, under the overworld rows. The
