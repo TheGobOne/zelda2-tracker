@@ -1299,6 +1299,18 @@
   border-color: #233bea;
 }
 
+/* Town and location icons get the same blue box on hover as the palace item
+   slots. They carry no persistent border, so an outline draws the box at the
+   sprite's edge without nudging the row's flex layout. Scoped to the towns
+   section and location rows so the boss icons - which reuse `.town-icon` - are
+   left alone. */
+
+.town-grid .town-icon:hover,
+.location-icon:hover {
+  outline: 2px solid #233bea;
+  outline-offset: 0;
+}
+
 .item-slot:focus-visible {
   outline: 3px solid #e52a08;
   outline-offset: 2px;
