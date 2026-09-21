@@ -1470,8 +1470,8 @@
   justify-content: center;
   margin: 10px;
   padding: 0;
-  background: #101010;
-  border: 2px solid #f5f5f5;
+  background: transparent;
+  border: none;
   gap: 4.5px;
   cursor: pointer;
 }
@@ -1485,12 +1485,11 @@
   outline-offset: 2px;
 }
 
-  /* Gear glyph sized to fill the 32px interior of the button, matching the
-  footprint the three bars used to occupy. */
+  /* Borderless gear glyph, 50% larger than the original 24px. */
   .tracker-menu-gear {
   display: block;
-  width: 24px;
-  height: 24px;
+  width: 36px;
+  height: 36px;
   color: #f5f5f5;
   }
 
