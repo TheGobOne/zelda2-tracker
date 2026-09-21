@@ -2186,17 +2186,17 @@
   display: block;
   position: absolute;
   top: 14px;
-  left: calc(50% - 7px);
+  left: calc(50% - 14px);
   z-index: 3;
-  width: 14px;
+  width: 28px;
   height: calc(100% - 28px);
   background: #233bea;
   border-color: #f5f5f5;
   border-style: solid;
   border-width: 0 4px;
-}
+  }
 
-.frame-rail-top { top: 0; }
+  .frame-rail-top { top: 0; }
 .frame-rail-right { right: 0; }
 .frame-rail-bottom { bottom: 0; }
 .frame-rail-left { left: 0; }
