@@ -3121,7 +3121,8 @@ export function TrackerFrame() {
               </div>
             ) : null}
 
-            <div className="frame-rail frame-rail-top" />
+            <div className="lane-divider" />
+      <div className="frame-rail frame-rail-top" />
             <div className="frame-rail frame-rail-right" />
             <div className="frame-rail frame-rail-bottom" />
             <div className="frame-rail frame-rail-left" />

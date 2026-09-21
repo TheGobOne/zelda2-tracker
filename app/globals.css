@@ -2173,6 +2173,29 @@
   border-width: 0 4px;
 }
 
+/* Vertical seam between the two landscape lanes. Only shown in landscape, where
+   the board is 1200px wide and the lanes are centered at x300 and x900; this fills
+   the gap along the x600 seam. It matches the section dividers (blue bar, white
+   borders on the two long edges) but runs vertically, and butts against the inner
+   edges of the top and bottom rails (14px tall each) the way the section dividers
+   meet the side rails. */
+.lane-divider {
+  display: none;
+}
+.game-canvas.is-landscape .lane-divider {
+  display: block;
+  position: absolute;
+  top: 14px;
+  left: calc(50% - 7px);
+  z-index: 3;
+  width: 14px;
+  height: calc(100% - 28px);
+  background: #233bea;
+  border-color: #f5f5f5;
+  border-style: solid;
+  border-width: 0 4px;
+}
+
 .frame-rail-top { top: 0; }
 .frame-rail-right { right: 0; }
 .frame-rail-bottom { bottom: 0; }
