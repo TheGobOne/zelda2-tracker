@@ -2095,14 +2095,17 @@
 .frame-rail-top,
 .frame-rail-bottom {
   left: 24px;
-  width: 552px;
+  /* Was a hardcoded 552px (the portrait 600px board less the 24px inset at each
+     end). Derived from the canvas instead so the rails span the full width in
+     landscape too: calc(100% - 48px) is still 552px at the portrait width. */
+  width: calc(100% - 48px);
   height: 14px;
   border-width: 4px 0;
 }
 
 .frame-rail-left,
 .frame-rail-right {
-  top: 24px;
+  top: 24px; /* insets past the corner blocks at each end */
   width: 14px;
   /* Was a hardcoded 1152px, the canvas height less the 24px inset at each end.
      Derived from the canvas instead, so the rails cannot fall out of sync with
