@@ -21,6 +21,19 @@ export const metadata: Metadata = {
   title: 'Zelda II Randomizer Tracker',
   description: 'An 800 by 600 canvas for a Zelda II randomizer tracker.',
   generator: 'v0.app',
+  applicationName: 'Z2 Tracker',
+  icons: {
+    icon: [
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
+  },
+  appleWebApp: {
+    capable: true,
+    title: 'Z2 Tracker',
+    statusBarStyle: 'black',
+  },
 }
 
 export const viewport: Viewport = {
