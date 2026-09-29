@@ -986,7 +986,24 @@ function overworldIconColumns() {
  * and so a control added to a handler has an obvious place to be recorded.
  * These strings must track the handlers in this file - if a button changes
  * there, it changes here.
- */
+  */
+type InstallPromptEvent = Event & {
+  prompt: () => Promise<void>
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
+}
+
+// Shown when the browser has no native install prompt to offer (Safari,
+// Firefox, or a Chromium browser that has not flagged the app as installable).
+const INSTALL_STEPS: { input: string; effect: string }[] = [
+  {
+    input: 'Chrome / Edge',
+    effect: 'Click the install icon in the address bar, or Menu > Install',
+  },
+  { input: 'Safari (Mac)', effect: 'File > Add to Dock' },
+  { input: 'Safari (iOS)', effect: 'Share > Add to Home Screen' },
+  { input: 'Firefox', effect: 'Not supported - use Chrome, Edge, or Safari' },
+]
+
 const CONTROL_GROUPS: {
   title: string
   note?: string
@@ -1110,6 +1127,11 @@ export function TrackerFrame() {
   // Clearing is destructive, so it waits on a confirmation dialog.
   const [isConfirmingClear, setIsConfirmingClear] = useState(false)
   const [isShowingControls, setIsShowingControls] = useState(false)
+  const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(
+    null,
+  )
+  const [isInstalled, setIsInstalled] = useState(false)
+  const [isShowingInstallHelp, setIsShowingInstallHelp] = useState(false)
   // Which ruleset is loaded. Standard is the default, so the board opens matching
   // it rather than needing the flags picked by hand. Still tracked now that the
   // picker is a menu, to mark the active entry.
@@ -1331,6 +1353,74 @@ export function TrackerFrame() {
 
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [isShowingControls])
+
+  // Chromium browsers fire beforeinstallprompt once the app qualifies; holding
+  // on to it lets the menu's Install App open the native prompt on demand.
+  // Running as an installed app hides the option entirely.
+  useEffect(() => {
+    const standalone = window.matchMedia('(display-mode: standalone)')
+    const syncInstalled = () =>
+      setIsInstalled(
+        standalone.matches ||
+          (navigator as Navigator & { standalone?: boolean }).standalone ===
+            true,
+      )
+
+    function handleBeforeInstallPrompt(event: Event) {
+      event.preventDefault()
+      setInstallPrompt(event as InstallPromptEvent)
+    }
+
+    function handleInstalled() {
+      setInstallPrompt(null)
+      setIsInstalled(true)
+    }
+
+    syncInstalled()
+    standalone.addEventListener('change', syncInstalled)
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+    window.addEventListener('appinstalled', handleInstalled)
+
+    return () => {
+      standalone.removeEventListener('change', syncInstalled)
+      window.removeEventListener(
+        'beforeinstallprompt',
+        handleBeforeInstallPrompt,
+      )
+      window.removeEventListener('appinstalled', handleInstalled)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!isShowingInstallHelp) {
+      return
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setIsShowingInstallHelp(false)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isShowingInstallHelp])
+
+  async function handleInstallApp() {
+    if (!installPrompt) {
+      setIsShowingInstallHelp(true)
+      return
+    }
+
+    await installPrompt.prompt()
+    const { outcome } = await installPrompt.userChoice
+    // The event can only be used once, so it is dropped either way.
+    setInstallPrompt(null)
+    if (outcome === 'accepted') {
+      setIsInstalled(true)
+    }
+  }
 
   // Scrolling a boss steps what blocks its palace, and scrolling one of its item
   // slots steps what blocks that slot. One delegated listener on the grid rather
@@ -2615,6 +2705,20 @@ export function TrackerFrame() {
                           >
                             Clear
                           </button>
+
+                          {isInstalled ? null : (
+                            <button
+                              className="tracker-menu-option tracker-menu-option-bordered tracker-menu-option-install"
+                              onClick={() => {
+                                closeMenu()
+                                void handleInstallApp()
+                              }}
+                              role="menuitem"
+                              type="button"
+                            >
+                              Install App
+                            </button>
+                          )}
                         </div>
                       ) : null}
                       </div>
@@ -2977,6 +3081,51 @@ export function TrackerFrame() {
                     >
                       Clear
                     </button>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
+            {isShowingInstallHelp ? (
+              <div className="tracker-dialog-overlay">
+                <button
+                  aria-label="Close install help"
+                  className="item-picker-backdrop"
+                  onClick={() => setIsShowingInstallHelp(false)}
+                  type="button"
+                />
+                <div
+                  aria-labelledby="install-title"
+                  aria-modal="true"
+                  className="tracker-dialog controls-dialog"
+                  role="dialog"
+                >
+                  <div className="item-picker-header">
+                    <p className="item-picker-title" id="install-title">
+                      Install App
+                    </p>
+                    <button
+                      aria-label="Close install help"
+                      className="item-picker-close"
+                      onClick={() => setIsShowingInstallHelp(false)}
+                      type="button"
+                    >
+                      <span aria-hidden="true">X</span>
+                    </button>
+                  </div>
+
+                  <div className="controls-groups install-groups">
+                    <section className="controls-group">
+                      <h3 className="controls-group-title">How to install</h3>
+                      <dl className="controls-list">
+                        {INSTALL_STEPS.map((step) => (
+                          <div className="controls-row" key={step.input}>
+                            <dt className="controls-input">{step.input}</dt>
+                            <dd className="controls-effect">{step.effect}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </section>
                   </div>
                 </div>
               </div>

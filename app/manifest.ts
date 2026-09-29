@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Zelda II Randomizer Tracker',
     short_name: 'Z2 Tracker',
-    description: 'Track items, palaces, towns, and spells in a Zelda II randomizer run.',
+    description: 'A tracker for Zelda II Randomizer by TheGobOne',
     start_url: '/',
     scope: '/',
     display: 'standalone',

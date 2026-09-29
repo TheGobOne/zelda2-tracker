@@ -19,7 +19,7 @@ const pixelFont = localFont({
 
 export const metadata: Metadata = {
   title: 'Zelda II Randomizer Tracker',
-  description: 'An 800 by 600 canvas for a Zelda II randomizer tracker.',
+  description: 'A tracker for Zelda II Randomizer by TheGobOne',
   generator: 'v0.app',
   applicationName: 'Z2 Tracker',
   icons: {
