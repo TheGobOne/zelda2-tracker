@@ -11,7 +11,7 @@ const UPDATES = [
   'Added Tooltips for virtually all tracker icons (can be disabled in gear menu)',
   'Added Palace Image Tooltips (can be disabled in gear menu)',
   'Increased Mapping grid to 11x11 (from 9x9)',
-  'Added the ability to select and move icons on your map (middle-click enters/exits, left click to place)',
+  'Added the ability to select and move icons on your map (middle click enters/exits move mode, left click to place selected icons)',
   'Added Local Browser Save so your settings (Hide Maps, Landscape, etc) will remain as they are when reloading',
 ]
 
