@@ -2782,7 +2782,7 @@ export function TrackerFrame() {
                                     // active ruleset came from - the job the
                                     // entries above do for themselves.
                                     aria-checked={isUpstartsActive}
-                                    className="tracker-menu-option tracker-submenu-toggle"
+                                    className="tracker-menu-option tracker-submenu-toggle tracker-submenu-toggle-right"
                                     onClick={() =>
                                       setIsUpstartsOpen((open) => !open)
                                     }
@@ -2802,7 +2802,7 @@ export function TrackerFrame() {
                                   {isUpstartsOpen ? (
                                     <div
                                       aria-label="Upstarts weeks"
-                                      className="tracker-submenu"
+                                      className="tracker-submenu tracker-submenu-right"
                                       role="menu"
                                     >
                                       {UPSTARTS_PRESETS.map((preset) => (
@@ -2894,7 +2894,7 @@ export function TrackerFrame() {
                               flags entries and above Clear, so the menu runs from
                               harmless to destructive top to bottom. */}
                           <button
-                            className="tracker-menu-option"
+                            className="tracker-menu-option tracker-menu-option-bordered"
                             onClick={() => {
                               closeMenu()
                               setIsShowingControls(true)

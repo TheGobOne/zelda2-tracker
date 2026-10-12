@@ -1887,6 +1887,28 @@
   box-shadow: 0 0 0 3px #233bea;
 }
 
+/* The Upstarts weeks open to the right of the Flags panel. That panel already
+   sits left of the menu, so a second leftward step ran past the board's left
+   edge and was clipped. Top-aligned so the weeks hang down over the main menu.  */
+.tracker-submenu-right {
+  right: auto;
+  bottom: auto;
+  left: calc(100% + 15px);
+  top: -9px;
+}
+
+.tracker-submenu-toggle-right {
+  padding-left: 14px;
+  padding-right: 26px;
+}
+
+.tracker-submenu-toggle-right .tracker-submenu-arrow {
+  left: auto;
+  right: 10px;
+  border-right: 0;
+  border-left: 12px solid #f5f5f5;
+}
+
 /* Ruled off from the flags list above it the same way Clear is, so the menu reads
    as three separate things rather than one long list. */
 .tracker-menu-option-bordered {
