@@ -149,6 +149,17 @@ const BOSS_NAMES: Record<string, string> = {
   'Palace 7': 'Thunderbird',
 }
 
+// Identification screenshots (pillar, window, statue and boss) shown in place of
+// the boss name when palace image tooltips are on. The Great Palace has none.
+const PALACE_TIP_IMAGES: Record<string, string> = {
+  'Palace 1': '/images/palace-tips/palace-1.png',
+  'Palace 2': '/images/palace-tips/palace-2.png',
+  'Palace 3': '/images/palace-tips/palace-3.png',
+  'Palace 4': '/images/palace-tips/palace-4.png',
+  'Palace 5': '/images/palace-tips/palace-5.png',
+  'Palace 6': '/images/palace-tips/palace-6.png',
+}
+
 const COUNT_VALUES = ['', '5', '6', '7']
 
 /**
@@ -1248,6 +1259,7 @@ export function TrackerFrame() {
   const [notes, setNotes] = useState('')
   const [isHoverTextOn, setIsHoverTextOn] = useState(true)
   const [hoverDelay, setHoverDelay] = useState(500)
+  const [isPalaceImageTipsOn, setIsPalaceImageTipsOn] = useState(true)
   // Reflows the five stacked sections into two side-by-side columns for a wide
   // board. In-memory like every other setting here, and modelled on isMapVisible:
   // one piece of state plus one settings-menu row.
@@ -1264,6 +1276,9 @@ export function TrackerFrame() {
         if (typeof saved.isNotesVisible === 'boolean') setIsNotesVisible(saved.isNotesVisible)
         if (typeof saved.isHoverTextOn === 'boolean') setIsHoverTextOn(saved.isHoverTextOn)
         if (typeof saved.isLandscape === 'boolean') setIsLandscape(saved.isLandscape)
+        if (typeof saved.isPalaceImageTipsOn === 'boolean') {
+          setIsPalaceImageTipsOn(saved.isPalaceImageTipsOn)
+        }
         if (typeof saved.hoverDelay === 'number' && saved.hoverDelay >= 0 && saved.hoverDelay <= 3000) {
           setHoverDelay(saved.hoverDelay)
         }
@@ -1278,12 +1293,27 @@ export function TrackerFrame() {
     try {
       window.localStorage.setItem(
         SETTINGS_STORAGE_KEY,
-        JSON.stringify({ isMapVisible, isNotesVisible, isHoverTextOn, hoverDelay, isLandscape }),
+        JSON.stringify({
+          isMapVisible,
+          isNotesVisible,
+          isHoverTextOn,
+          hoverDelay,
+          isLandscape,
+          isPalaceImageTipsOn,
+        }),
       )
     } catch {
       // Storage can be full or disabled (private browsing); settings stay in memory.
     }
-  }, [hasRestoredSettings, isMapVisible, isNotesVisible, isHoverTextOn, hoverDelay, isLandscape])
+  }, [
+    hasRestoredSettings,
+    isMapVisible,
+    isNotesVisible,
+    isHoverTextOn,
+    hoverDelay,
+    isLandscape,
+    isPalaceImageTipsOn,
+  ])
   // Which icon sits on each overworld cell, keyed by grid id and coordinates.
   // Only filled cells are stored, so an absent key is an empty square.
   const [overworldCells, setOverworldCells] = useState<Record<string, string>>(OVERWORLD_START_CELLS)
@@ -2651,6 +2681,11 @@ export function TrackerFrame() {
                       <div className="palace-row" key={palace.name}>
                         <button
                           data-tip={BOSS_NAMES[palace.name]}
+                          data-tip-image={
+                            isPalaceImageTipsOn
+                              ? PALACE_TIP_IMAGES[palace.name]
+                              : undefined
+                          }
                           aria-label={`${palace.name} palace boss${isBeaten ? ', defeated' : ''}${mark ? `, marked ${mark}` : ''}${block ? `, blocked by ${block.name}` : ''}${slotLabel}. Left click to mark defeated, right click to cycle the location,${slotHint} scroll to cycle what blocks it.`}
                           aria-pressed={isBeaten}
                           className={
@@ -3001,6 +3036,22 @@ export function TrackerFrame() {
                                 value={hoverDelay}
                               />
                             </label>
+                          ) : null}
+
+                          {isHoverTextOn ? (
+                            <button
+                              aria-checked={isPalaceImageTipsOn}
+                              className="tracker-menu-option"
+                              onClick={() => setIsPalaceImageTipsOn((current) => !current)}
+                              role="menuitemcheckbox"
+                              type="button"
+                            >
+                              <span
+                                aria-hidden="true"
+                                className={`tracker-menu-check${isPalaceImageTipsOn ? ' is-checked' : ''}`}
+                              />
+                              Palace Image Tooltips
+                            </button>
                           ) : null}
 
                           {/* Reflows the board into two columns. A checkbox like

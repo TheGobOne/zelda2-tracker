@@ -3,7 +3,17 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
-type Tip = { text: string; centerX: number; iconTop: number; iconBottom: number }
+type Tip = {
+  text: string
+  image?: string
+  centerX: number
+  iconTop: number
+  iconBottom: number
+}
+
+// Natural size of the palace identification screenshots, shown at half scale.
+const TIP_IMAGE_WIDTH = 258
+const TIP_IMAGE_HEIGHT = 210
 
 const TIP_GAP = 8
 const EDGE_MARGIN = 6
@@ -95,6 +105,7 @@ export function IconTooltip({
 
       setTip({
         text,
+        image: icon.dataset.tipImage,
         centerX: rect.left + rect.width / 2,
         iconTop: rect.top,
         iconBottom: rect.bottom,
@@ -193,11 +204,22 @@ export function IconTooltip({
   return createPortal(
     <div
       aria-hidden="true"
-      className="icon-tooltip"
+      className={tip.image ? 'icon-tooltip icon-tooltip-image' : 'icon-tooltip'}
       ref={tipRef}
       style={{ left: 0, top: 0, visibility: 'hidden' }}
     >
-      {tip.text}
+      {tip.image ? (
+        // The screenshot already names the boss, so it replaces the text.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          alt=""
+          height={TIP_IMAGE_HEIGHT}
+          src={tip.image}
+          width={TIP_IMAGE_WIDTH}
+        />
+      ) : (
+        tip.text
+      )}
     </div>,
     document.body,
   )

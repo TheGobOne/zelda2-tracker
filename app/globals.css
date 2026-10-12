@@ -1995,6 +1995,18 @@
   pointer-events: none;
   }
 
+  .icon-tooltip-image {
+    max-width: none;
+    padding: 0;
+    line-height: 0;
+  }
+
+  .icon-tooltip-image img {
+    display: block;
+    max-width: none;
+    image-rendering: pixelated;
+  }
+
 
 /* Separated from the flags entries above it, since it throws the board away, and
    set in the frame's red so it reads as destructive at rest rather than only on
