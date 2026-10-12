@@ -1925,7 +1925,34 @@
   font-size: 14px;
   line-height: 1.45;
   list-style: square;
-}
+  min-height: 0;
+  overflow-y: auto;
+  }
+
+  .updates-title,
+  .updates-footer {
+  flex-shrink: 0;
+  }
+
+  /* Landscape halves the board's height, so the dialog goes wider and the
+  backdrop gives up some padding to keep every entry visible. */
+.tracker-scaler:has(> .game-canvas.is-landscape) .updates-backdrop {
+  padding: 20px;
+  }
+
+.tracker-scaler:has(> .game-canvas.is-landscape) .updates-dialog {
+  width: 820px;
+  max-width: 100%;
+  gap: 14px;
+  padding: 22px 32px 20px;
+  }
+  
+.tracker-scaler:has(> .game-canvas.is-landscape) .updates-list {
+  gap: 6px;
+  overflow-y: visible;
+  }
+
+
 
 .updates-list li::marker {
   color: #233bea;

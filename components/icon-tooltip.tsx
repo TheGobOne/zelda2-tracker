@@ -101,9 +101,11 @@ function findIcon(target: EventTarget | null) {
 export function IconTooltip({
   delay,
   enabled,
+  showCaveArt = true,
 }: {
   delay: number
   enabled: boolean
+  showCaveArt?: boolean
 }) {
   const [tip, setTip] = useState<Tip | null>(null)
   const tipRef = useRef<HTMLDivElement | null>(null)
@@ -148,7 +150,7 @@ export function IconTooltip({
       setTip({
         text,
         image: icon.dataset.tipImage,
-        art: readCaveArt(icon, text),
+        art: showCaveArt ? readCaveArt(icon, text) : undefined,
         centerX: rect.left + rect.width / 2,
         iconTop: rect.top,
         iconBottom: rect.bottom,
@@ -214,7 +216,7 @@ export function IconTooltip({
       window.removeEventListener('scroll', hide, true)
       window.removeEventListener('blur', hide)
     }
-  }, [delay, enabled])
+  }, [delay, enabled, showCaveArt])
 
   // Places the tip once its real size is known: above the icon when it fits
   // inside the tracker, below otherwise, and slid sideways so it never pokes

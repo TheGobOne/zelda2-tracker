@@ -1269,6 +1269,7 @@ export function TrackerFrame() {
   const [isHoverTextOn, setIsHoverTextOn] = useState(true)
   const [hoverDelay, setHoverDelay] = useState(500)
   const [isPalaceImageTipsOn, setIsPalaceImageTipsOn] = useState(true)
+  const [isCaveImageTipsOn, setIsCaveImageTipsOn] = useState(true)
   // Reflows the five stacked sections into two side-by-side columns for a wide
   // board. In-memory like every other setting here, and modelled on isMapVisible:
   // one piece of state plus one settings-menu row.
@@ -1287,6 +1288,9 @@ export function TrackerFrame() {
         if (typeof saved.isLandscape === 'boolean') setIsLandscape(saved.isLandscape)
         if (typeof saved.isPalaceImageTipsOn === 'boolean') {
           setIsPalaceImageTipsOn(saved.isPalaceImageTipsOn)
+        }
+        if (typeof saved.isCaveImageTipsOn === 'boolean') {
+          setIsCaveImageTipsOn(saved.isCaveImageTipsOn)
         }
         if (typeof saved.hoverDelay === 'number' && saved.hoverDelay >= 0 && saved.hoverDelay <= 3000) {
           setHoverDelay(saved.hoverDelay)
@@ -1309,6 +1313,7 @@ export function TrackerFrame() {
           hoverDelay,
           isLandscape,
           isPalaceImageTipsOn,
+          isCaveImageTipsOn,
         }),
       )
     } catch {
@@ -1322,6 +1327,7 @@ export function TrackerFrame() {
     hoverDelay,
     isLandscape,
     isPalaceImageTipsOn,
+    isCaveImageTipsOn,
   ])
   // Which icon sits on each overworld cell, keyed by grid id and coordinates.
   // Only filled cells are stored, so an absent key is an empty square.
@@ -2587,7 +2593,11 @@ export function TrackerFrame() {
       >
         {/* Off while moving map icons, where the tip would sit over the squares
             being aimed at. */}
-        <IconTooltip delay={hoverDelay} enabled={isHoverTextOn && !mapMove} />
+        <IconTooltip
+        delay={hoverDelay}
+        enabled={isHoverTextOn && !mapMove}
+        showCaveArt={isCaveImageTipsOn}
+      />
         <div
           className="tracker-scaler"
           style={{
@@ -3060,6 +3070,22 @@ export function TrackerFrame() {
                                 className={`tracker-menu-check${isPalaceImageTipsOn ? ' is-checked' : ''}`}
                               />
                               Palace Image Tooltips
+                            </button>
+                          ) : null}
+
+                          {isHoverTextOn ? (
+                            <button
+                              aria-checked={isCaveImageTipsOn}
+                              className="tracker-menu-option"
+                              onClick={() => setIsCaveImageTipsOn((current) => !current)}
+                              role="menuitemcheckbox"
+                              type="button"
+                            >
+                              <span
+                                aria-hidden="true"
+                                className={`tracker-menu-check${isCaveImageTipsOn ? ' is-checked' : ''}`}
+                              />
+                              Cave Image Tooltips
                             </button>
                           ) : null}
 
