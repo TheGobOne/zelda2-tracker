@@ -49,9 +49,9 @@ const MAX_SCALE = 1.75
 // `name` is also the saved-state key, so display-only wording goes in `tip`.
 const towns: { name: string; src: string; tip?: string }[] = [
   { name: 'Rauru', src: '/images/towns/rauru.png' },
-  { name: 'Ruto', src: '/images/towns/ruto.png' },
+  { name: 'Ruto', src: '/images/towns/ruto.png', tip: 'Ruto (Trophy Required)' },
   { name: 'Saria', src: '/images/towns/saria.png', tip: 'Saria (Mirror Required)' },
-  { name: 'Mido', src: '/images/towns/mido.png' },
+  { name: 'Mido', src: '/images/towns/mido.png', tip: 'Mido (Medicine Required)' },
   { name: 'Nabooru', src: '/images/towns/nabooru.png', tip: 'Nabooru (Water Required)' },
   { name: 'Darunia', src: '/images/towns/darunia.png', tip: 'Darunia (Child Required)' },
   { name: 'New Kasuto', src: '/images/towns/new-kasuto.png' },
