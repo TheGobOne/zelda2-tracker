@@ -903,6 +903,35 @@ const OVERWORLDS = [
 /** Both grids are square, so one number drives rows and columns alike. */
 const OVERWORLD_SIZE = 11
 
+type MapCell = { row: number; column: number }
+
+/**
+ * Middle-click move mode for the overworld maps. `select` is the box being drawn
+ * (no `from` until a drag starts); `move` carries the lifted icons, the cell they
+ * were grabbed from, and the cell the cursor is over, so the drop lands at the same
+ * offset the selection was picked up at.
+ */
+type MapMove =
+  | {
+      phase: 'select'
+      worldId: string | null
+      from: MapCell | null
+      to: MapCell | null
+    }
+  | {
+      phase: 'move'
+      worldId: string
+      picked: (MapCell & { icon: string })[]
+      anchor: MapCell
+      hover: MapCell
+    }
+
+function isOnOverworld({ row, column }: MapCell) {
+  return (
+    row >= 0 && row < OVERWORLD_SIZE && column >= 0 && column < OVERWORLD_SIZE
+  )
+}
+
 /**
  * Icons that can be dropped onto a grid, as the four vertical columns they are
  * laid out in between the two maps. Columns are written out rather than filled by
@@ -1204,6 +1233,7 @@ export function TrackerFrame() {
   // repeated icon can be placed across the map without reselecting it, and
   // clicking it again puts it down.
   const [armedIcon, setArmedIcon] = useState<string | null>(null)
+  const [mapMove, setMapMove] = useState<MapMove | null>(null)
   const palaceGridRef = useRef<HTMLDivElement | null>(null)
   // How tall the board currently stands. Everything that has to agree with the
   // board's height reads this rather than `BASE_HEIGHT`, so the canvas, the stage
@@ -1217,6 +1247,74 @@ export function TrackerFrame() {
     : isMapVisible
       ? BASE_HEIGHT
       : MAPLESS_HEIGHT
+
+  // Finishes a selection box on release - listened for on the document, so letting
+  // go outside the grid still ends the drag. A box with icons in it lifts them;
+  // an empty one is discarded and move mode stays on.
+  useEffect(() => {
+    if (
+      mapMove?.phase !== 'select' ||
+      !mapMove.worldId ||
+      !mapMove.from ||
+      !mapMove.to
+    ) {
+      return
+    }
+
+    const { worldId, from, to } = mapMove
+
+    function finishSelection(event: MouseEvent) {
+      if (event.button !== 0) {
+        return
+      }
+
+      const picked: (MapCell & { icon: string })[] = []
+
+      for (
+        let row = Math.min(from.row, to.row);
+        row <= Math.max(from.row, to.row);
+        row++
+      ) {
+        for (
+          let column = Math.min(from.column, to.column);
+          column <= Math.max(from.column, to.column);
+          column++
+        ) {
+          const icon = overworldCells[`${worldId}-${row}-${column}`]
+
+          if (icon) {
+            picked.push({ row, column, icon })
+          }
+        }
+      }
+
+      setMapMove(
+        picked.length > 0
+          ? { phase: 'move', worldId, picked, anchor: to, hover: to }
+          : { phase: 'select', worldId: null, from: null, to: null },
+      )
+    }
+
+    document.addEventListener('mouseup', finishSelection)
+    return () => document.removeEventListener('mouseup', finishSelection)
+  }, [mapMove, overworldCells])
+
+  // Escape backs out of move mode, leaving any lifted icons where they were.
+  const isMapMoveActive = mapMove !== null
+  useEffect(() => {
+    if (!isMapMoveActive) {
+      return
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setMapMove(null)
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [isMapMoveActive])
 
   /**
    * Sets one side of a Custom container tally, keeping the pair coherent: a start
@@ -1964,6 +2062,95 @@ export function TrackerFrame() {
     )
   }
 
+  function toggleMapMoveMode() {
+    setMapMove((current) =>
+      current ? null : { phase: 'select', worldId: null, from: null, to: null },
+    )
+  }
+
+  function hoverMapCell(worldId: string, cell: MapCell) {
+    setMapMove((current) => {
+      if (!current || current.worldId !== worldId) {
+        return current
+      }
+
+      if (current.phase === 'select') {
+        return current.from ? { ...current, to: cell } : current
+      }
+
+      return { ...current, hover: cell }
+    })
+  }
+
+  /**
+   * Where the lifted icons would land with the cursor on `hover`, keyed by
+   * `row-column`, plus whether every one of them stays on the grid.
+   */
+  function getMovePreview(worldId: string) {
+    if (mapMove?.phase !== 'move' || mapMove.worldId !== worldId) {
+      return null
+    }
+
+    const rowShift = mapMove.hover.row - mapMove.anchor.row
+    const columnShift = mapMove.hover.column - mapMove.anchor.column
+    const ghosts = new Map<string, string>()
+    const lifted = new Set<string>()
+    let isValid = true
+
+    for (const picked of mapMove.picked) {
+      lifted.add(`${picked.row}-${picked.column}`)
+      const target = {
+        row: picked.row + rowShift,
+        column: picked.column + columnShift,
+      }
+
+      if (isOnOverworld(target)) {
+        ghosts.set(`${target.row}-${target.column}`, picked.icon)
+      } else {
+        isValid = false
+      }
+    }
+
+    return { ghosts, lifted, isValid }
+  }
+
+  /** Puts the lifted icons down around `cell`, then leaves move mode. */
+  function dropMovedIcons(worldId: string, cell: MapCell) {
+    if (mapMove?.phase !== 'move' || mapMove.worldId !== worldId) {
+      return
+    }
+
+    const rowShift = cell.row - mapMove.anchor.row
+    const columnShift = cell.column - mapMove.anchor.column
+    const targets = mapMove.picked.map((picked) => ({
+      row: picked.row + rowShift,
+      column: picked.column + columnShift,
+      icon: picked.icon,
+    }))
+
+    // A drop that would push any icon off the edge is refused rather than
+    // silently losing that icon.
+    if (!targets.every(isOnOverworld)) {
+      return
+    }
+
+    const { picked } = mapMove
+    setOverworldCells((current) => {
+      const next = { ...current }
+
+      for (const source of picked) {
+        delete next[`${worldId}-${source.row}-${source.column}`]
+      }
+
+      for (const target of targets) {
+        next[`${worldId}-${target.row}-${target.column}`] = target.icon
+      }
+
+      return next
+    })
+    setMapMove(null)
+  }
+
   /** Empties a single cell, on right click, whatever is armed. */
   function clearOverworldCell(cellKey: string) {
     setOverworldCells((current) => {
@@ -2664,7 +2851,10 @@ export function TrackerFrame() {
                           <button
                             aria-checked={!isMapVisible}
                             className="tracker-menu-option tracker-menu-option-bordered"
-                            onClick={() => setIsMapVisible((current) => !current)}
+                            onClick={() => {
+                    setMapMove(null)
+                    setIsMapVisible((current) => !current)
+                  }}
                             role="menuitemcheckbox"
                             type="button"
                           >
@@ -3031,8 +3221,46 @@ export function TrackerFrame() {
                 tallest block on the board. */}
             {isMapVisible ? (
             <>
-            <section aria-label="Overworld maps" className="overworld">
-              {OVERWORLDS.map((world, worldIndex) => (
+            <section
+              aria-label="Overworld maps"
+              className={`overworld${mapMove ? ` overworld-move-${mapMove.phase}` : ''}`}
+              // Middle click toggles move mode for the maps.
+              onAuxClick={(event) => {
+                if (event.button === 1) {
+                  event.preventDefault()
+                  toggleMapMoveMode()
+                }
+              }}
+              // Middle click otherwise triggers autoscroll.
+              onMouseDown={(event) => {
+                if (event.button === 1) {
+                  event.preventDefault()
+                }
+              }}
+            >
+              <p aria-live="polite" className="sr-only">
+                {mapMove?.phase === 'move'
+                  ? `Moving ${mapMove.picked.length} icon${mapMove.picked.length === 1 ? '' : 's'}. Left click a square to place them, or press Escape to cancel.`
+                  : mapMove
+                    ? 'Move mode. Drag across map squares to select icons. Middle click or Escape to exit.'
+                    : ''}
+              </p>
+              {OVERWORLDS.map((world, worldIndex) => {
+                const preview = getMovePreview(world.id)
+                const selection =
+                  mapMove?.phase === 'select' &&
+                  mapMove.worldId === world.id &&
+                  mapMove.from &&
+                  mapMove.to
+                    ? {
+                        top: Math.min(mapMove.from.row, mapMove.to.row),
+                        bottom: Math.max(mapMove.from.row, mapMove.to.row),
+                        left: Math.min(mapMove.from.column, mapMove.to.column),
+                        right: Math.max(mapMove.from.column, mapMove.to.column),
+                      }
+                    : null
+
+                return (
                 <Fragment key={world.id}>
                 {worldIndex === 1 ? renderOverworldPalette() : null}
                   {/* Unlabelled on screen - the two grids are self-evidently the
@@ -3048,9 +3276,33 @@ export function TrackerFrame() {
                       <div className="overworld-row" key={row} role="row">
                         {Array.from({ length: OVERWORLD_SIZE }, (_, column) => {
                           const cellKey = `${world.id}-${row}-${column}`
+                          const gridKey = `${row}-${column}`
+                          const ghostIcon = preview?.ghosts.get(gridKey)
+                          const shownIcon =
+                            ghostIcon ??
+                            (preview?.lifted.has(gridKey)
+                              ? undefined
+                              : overworldCells[cellKey])
                           const icon = OVERWORLD_ICONS.find(
-                            (entry) => entry.id === overworldCells[cellKey],
+                            (entry) => entry.id === shownIcon,
                           )
+                          const isSelected =
+                            selection !== null &&
+                            row >= selection.top &&
+                            row <= selection.bottom &&
+                            column >= selection.left &&
+                            column <= selection.right
+                          const cellClassName = [
+                            'overworld-cell',
+                            isSelected ? 'overworld-cell-selected' : '',
+                            ghostIcon
+                              ? preview?.isValid
+                                ? 'overworld-cell-ghost'
+                                : 'overworld-cell-ghost overworld-cell-ghost-invalid'
+                              : '',
+                          ]
+                            .filter(Boolean)
+                            .join(' ')
                           // Grids are read out in the 1-based coordinates a
                           // player would say out loud, not the 0-based indexes.
                           const position = `row ${row + 1}, column ${column + 1}`
@@ -3062,12 +3314,46 @@ export function TrackerFrame() {
                                   ? `${world.name} ${position}: ${icon.name}. Right click to clear.`
                                   : `${world.name} ${position}: empty.`
                               }
-                              className="overworld-cell"
+                              className={cellClassName}
                               key={column}
-                              onClick={() => placeOverworldIcon(cellKey)}
+                              onClick={() => {
+                                if (!mapMove) {
+                                  placeOverworldIcon(cellKey)
+                                }
+                              }}
                               onContextMenu={(event) => {
                                 event.preventDefault()
-                                clearOverworldCell(cellKey)
+
+                                if (!mapMove) {
+                                  clearOverworldCell(cellKey)
+                                }
+                              }}
+                              // In move mode a left press starts the selection
+                              // box, or drops the lifted icons. Pressed rather
+                              // than clicked, so the release that ends a box
+                              // cannot also count as the drop.
+                              onMouseDown={(event) => {
+                                if (event.button !== 0 || !mapMove) {
+                                  return
+                                }
+
+                                event.preventDefault()
+
+                                if (mapMove.phase === 'select') {
+                                  setMapMove({
+                                    phase: 'select',
+                                    worldId: world.id,
+                                    from: { row, column },
+                                    to: { row, column },
+                                  })
+                                } else {
+                                  dropMovedIcons(world.id, { row, column })
+                                }
+                              }}
+                              onMouseEnter={() => {
+                                if (mapMove) {
+                                  hoverMapCell(world.id, { row, column })
+                                }
                               }}
                               role="gridcell"
                               type="button"
@@ -3088,7 +3374,8 @@ export function TrackerFrame() {
                     ))}
                   </div>
                 </Fragment>
-              ))}
+                )
+              })}
             </section>
             </>
             ) : null}

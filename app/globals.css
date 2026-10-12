@@ -1297,6 +1297,42 @@
   image-rendering: pixelated;
 }
 
+/* Middle-click move mode. The gold hover is switched off, so the selection box and
+   the lifted icons are the only things marking cells. */
+.overworld-move-select .overworld-cell {
+  cursor: crosshair;
+}
+
+.overworld-move-move .overworld-cell {
+  cursor: move;
+}
+
+.overworld-move-select .overworld-cell:hover,
+.overworld-move-move .overworld-cell:hover {
+  background: #101010;
+}
+
+.overworld-move-select .overworld-cell.overworld-cell-selected {
+  background: #1b2a9e;
+  box-shadow: inset 0 0 0 1px #f5f5f5;
+}
+
+.overworld-cell-ghost {
+  box-shadow: inset 0 0 0 1px #f2b21c;
+}
+
+.overworld-cell-ghost .overworld-cell-icon {
+  opacity: 0.8;
+}
+
+.overworld-cell-ghost-invalid {
+  box-shadow: inset 0 0 0 1px #e52a08;
+}
+
+.overworld-cell-ghost-invalid .overworld-cell-icon {
+  opacity: 0.4;
+}
+
 /* Four columns of placeable icons, sitting between the two maps in the DOM so
    keyboard order matches the screen. 100px: four 22px columns that hug their icons,
    plus the 4px `space-between` leaves between each pair. That is 1px narrower than
