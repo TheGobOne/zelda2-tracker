@@ -517,7 +517,11 @@
   border-color: #233bea;
 }
 
-.notes-toggle:focus-visible {
+.notes-toggle.has-notes svg {
+  fill: #f2b21c;
+}
+  
+  .notes-toggle:focus-visible {
   outline: 2px solid #e52a08;
   outline-offset: -2px;
 }

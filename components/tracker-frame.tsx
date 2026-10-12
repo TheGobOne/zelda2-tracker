@@ -1369,7 +1369,7 @@ export function TrackerFrame() {
   }, [isShowingControls])
 
   // Chromium browsers fire beforeinstallprompt once the app qualifies; holding
-  // on to it lets the menu's Install App open the native prompt on demand.
+  // on to it lets the menu's Install as App open the native prompt on demand.
   // Running as an installed app hides the option entirely.
   useEffect(() => {
     const standalone = window.matchMedia('(display-mode: standalone)')
@@ -2680,7 +2680,7 @@ export function TrackerFrame() {
                               it is worth toggling twice to compare the two layouts. */}
                           <button
                             aria-checked={isLandscape}
-                            className="tracker-menu-option tracker-menu-option-bordered"
+                            className="tracker-menu-option"
                             onClick={() => setIsLandscape((current) => !current)}
                             role="menuitemcheckbox"
                             type="button"
@@ -2732,7 +2732,7 @@ export function TrackerFrame() {
                               role="menuitem"
                               type="button"
                             >
-                              Install App
+                              Install as App
                             </button>
                           )}
                         </div>
@@ -2950,8 +2950,8 @@ export function TrackerFrame() {
                   <button
                     aria-controls="run-notes"
                     aria-expanded={isNotesOpen}
-                    aria-label="Open notes"
-                    className="notes-toggle"
+                    aria-label={notes.trim() ? 'Open notes (has notes)' : 'Open notes'}
+                    className={notes.trim() ? 'notes-toggle has-notes' : 'notes-toggle'}
                     onClick={() => setIsNotesOpen(true)}
                     type="button"
                   >
@@ -3169,7 +3169,7 @@ export function TrackerFrame() {
                 >
                   <div className="item-picker-header">
                     <p className="item-picker-title" id="install-title">
-                      Install App
+                      Install as App
                     </p>
                     <button
                       aria-label="Close install help"
