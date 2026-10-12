@@ -6,6 +6,7 @@ import { createPortal } from 'react-dom'
 type Tip = {
   text: string
   image?: string
+  art?: { src: string; width: number; height: number }
   centerX: number
   iconTop: number
   iconBottom: number
@@ -57,6 +58,30 @@ function readTipText(element: HTMLElement) {
     .split('. ')[0]
     .replace(/\.$/, '')
     .replace(/, (not )?collected/, '')
+}
+
+/**
+ * Cave locations get their own art shown above the name, so a collected cave
+ * (greyed, or covered by the item placed there) can still be recognised.
+ */
+function readCaveArt(element: HTMLElement, text: string) {
+  if (!element.classList.contains('location-icon') || !/cave/i.test(text)) {
+    return undefined
+  }
+
+  const art = element.querySelector<HTMLImageElement>(':scope > img')
+
+  if (!art) {
+    return undefined
+  }
+
+  const rect = art.getBoundingClientRect()
+
+  return {
+    src: art.currentSrc || art.src,
+    width: Math.round(rect.width),
+    height: Math.round(rect.height),
+  }
 }
 
 function findIcon(target: EventTarget | null) {
@@ -123,6 +148,7 @@ export function IconTooltip({
       setTip({
         text,
         image: icon.dataset.tipImage,
+        art: readCaveArt(icon, text),
         centerX: rect.left + rect.width / 2,
         iconTop: rect.top,
         iconBottom: rect.bottom,
@@ -260,6 +286,17 @@ export function IconTooltip({
           src={tip.image}
           width={TIP_IMAGE_WIDTH}
         />
+      ) : tip.art ? (
+        <span className="icon-tooltip-art">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            alt=""
+            height={tip.art.height}
+            src={tip.art.src}
+            width={tip.art.width}
+          />
+          {tip.text}
+        </span>
       ) : (
         tip.text
       )}

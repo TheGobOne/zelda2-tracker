@@ -711,18 +711,6 @@
   opacity: 0.45;
   }
 
-  /* Hovering a location peeks at its untouched art: the placed item, check and
-  count are hidden, and the collected greyscale lifts until the pointer leaves. */
-  .location-icon:hover > img {
-  filter: none;
-  opacity: 1;
-  }
-
-  .location-icon:hover > .location-item,
-  .location-icon:hover > .item-slot-check,
-  .location-icon:hover > .icon-mark {
-  visibility: hidden;
-  }
 
 /* A counter slot another location has already completed takes no clicks, so it
    stops advertising one - `.location-icon` sets `pointer` for every icon in the row,
@@ -2139,11 +2127,26 @@
     line-height: 0;
   }
 
-  .icon-tooltip-image img {
-    display: block;
-    max-width: none;
-    image-rendering: pixelated;
+.icon-tooltip-image img {
+  display: block;
+  max-width: none;
+  image-rendering: pixelated;
   }
+
+.icon-tooltip-art {
+  display: flex;
+  
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  }
+
+.icon-tooltip-art img {
+  display: block;
+  max-width: none;
+  image-rendering: pixelated;
+  }
+
 
 
 /* Separated from the flags entries above it, since it throws the board away, and
