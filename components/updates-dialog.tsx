@@ -15,20 +15,31 @@ const UPDATES = [
   'Added Local Browser Save so your settings (Hide Maps, Landscape, etc) will remain as they are when reloading',
 ]
 
-export function UpdatesDialog() {
+function isDismissed() {
+  try {
+    return window.localStorage.getItem(UPDATES_STORAGE_KEY) === UPDATES_VERSION
+  } catch {
+    // Blocked storage: show the notes, they just can't be silenced.
+    return false
+  }
+}
+
+/** `openRequest` increments each time the menu asks to show the popup again. */
+export function UpdatesDialog({ openRequest = 0 }: { openRequest?: number }) {
   const [isOpen, setIsOpen] = useState(false)
   const [doNotShowAgain, setDoNotShowAgain] = useState(false)
   const closeRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
-    let dismissed = false
-    try {
-      dismissed = window.localStorage.getItem(UPDATES_STORAGE_KEY) === UPDATES_VERSION
-    } catch {
-      // Blocked storage: show the notes, they just can't be silenced.
-    }
-    if (!dismissed) setIsOpen(true)
+    if (!isDismissed()) setIsOpen(true)
   }, [])
+
+  useEffect(() => {
+    if (openRequest === 0) return
+    // Mirror the saved choice so closing a manual reopen doesn't undo it.
+    setDoNotShowAgain(isDismissed())
+    setIsOpen(true)
+  }, [openRequest])
 
   useEffect(() => {
     if (isOpen) closeRef.current?.focus({ preventScroll: true })

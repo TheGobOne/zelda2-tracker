@@ -1198,6 +1198,7 @@ export function TrackerFrame() {
   // Clearing is destructive, so it waits on a confirmation dialog.
   const [isConfirmingClear, setIsConfirmingClear] = useState(false)
   const [isShowingControls, setIsShowingControls] = useState(false)
+  const [updatesOpenRequest, setUpdatesOpenRequest] = useState(0)
   const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(
     null,
   )
@@ -3094,6 +3095,18 @@ export function TrackerFrame() {
                             Controls
                           </button>
 
+                          <button
+                            className="tracker-menu-option"
+                            onClick={() => {
+                              closeMenu()
+                              setUpdatesOpenRequest((count) => count + 1)
+                            }}
+                            role="menuitem"
+                            type="button"
+                          >
+                            Updates
+                          </button>
+
                           {/* Clearing wipes the board, so it is set apart from
                               the flags entries above it and tinted with the frame's
                               red. Still routed through the confirm dialog. */}
@@ -3842,7 +3855,7 @@ export function TrackerFrame() {
           </div>
           {/* A sibling of the board rather than a child: the board is role="img",
               which would hide the dialog's controls from assistive tech. */}
-          <UpdatesDialog />
+          <UpdatesDialog openRequest={updatesOpenRequest} />
         </div>
 
         {handles.map((handle) => (
