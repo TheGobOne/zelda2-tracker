@@ -146,7 +146,6 @@ const BOSS_NAMES: Record<string, string> = {
   'Palace 4': 'Carock',
   'Palace 5': 'Gooma',
   'Palace 6': 'Barba',
-  'Palace 7': 'Thunderbird',
 }
 
 // Identification screenshots (pillar, window, statue and boss) shown in place of

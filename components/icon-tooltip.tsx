@@ -9,7 +9,11 @@ type Tip = {
   centerX: number
   iconTop: number
   iconBottom: number
+  cursorX: number
+  cursorY: number
 }
+
+const CURSOR_GAP = 16
 
 // Natural size of the palace identification screenshots, shown at half scale.
 const TIP_IMAGE_WIDTH = 258
@@ -87,6 +91,19 @@ export function IconTooltip({
 
     let timer: ReturnType<typeof setTimeout> | undefined
     let current: HTMLElement | null = null
+    const pointer = { x: 0, y: 0 }
+
+    function handleMove(event: PointerEvent) {
+      pointer.x = event.clientX
+      pointer.y = event.clientY
+
+      // Image tips sit beside the cursor, so they follow it across the icon.
+      setTip((previous) =>
+        previous?.image
+          ? { ...previous, cursorX: pointer.x, cursorY: pointer.y }
+          : previous,
+      )
+    }
 
     function hide() {
       clearTimeout(timer)
@@ -109,6 +126,8 @@ export function IconTooltip({
         centerX: rect.left + rect.width / 2,
         iconTop: rect.top,
         iconBottom: rect.bottom,
+        cursorX: pointer.x,
+        cursorY: pointer.y,
       })
     }
 
@@ -116,6 +135,9 @@ export function IconTooltip({
       if (event.pointerType === 'touch') {
         return
       }
+
+      pointer.x = event.clientX
+      pointer.y = event.clientY
 
       const icon = findIcon(event.target)
 
@@ -147,6 +169,7 @@ export function IconTooltip({
     // Any click, scroll or keypress changes what the icon says (or moves it),
     // so the tip is dropped rather than left showing stale text.
     document.addEventListener('pointerover', handleOver)
+    document.addEventListener('pointermove', handleMove)
     document.addEventListener('pointerout', handleOut)
     document.addEventListener('pointerdown', hide, true)
     document.addEventListener('wheel', hide, { capture: true, passive: true })
@@ -157,6 +180,7 @@ export function IconTooltip({
     return () => {
       clearTimeout(timer)
       document.removeEventListener('pointerover', handleOver)
+      document.removeEventListener('pointermove', handleMove)
       document.removeEventListener('pointerout', handleOut)
       document.removeEventListener('pointerdown', hide, true)
       document.removeEventListener('wheel', hide, { capture: true })
@@ -184,6 +208,25 @@ export function IconTooltip({
       bottom: window.innerHeight,
     }
     const { width, height } = element.getBoundingClientRect()
+
+    // Image tips go right of the cursor, vertically centred on it, flipping to
+    // the left only when the tracker has no room on the right.
+    if (tip.image) {
+      const rightLeft = tip.cursorX + CURSOR_GAP
+      const fitsRight = rightLeft + width <= bounds.right - EDGE_MARGIN
+      const imageLeft = fitsRight
+        ? rightLeft
+        : Math.max(bounds.left + EDGE_MARGIN, tip.cursorX - CURSOR_GAP - width)
+      const imageTop = Math.max(
+        bounds.top + EDGE_MARGIN,
+        Math.min(tip.cursorY - height / 2, bounds.bottom - EDGE_MARGIN - height),
+      )
+
+      element.style.left = `${imageLeft}px`
+      element.style.top = `${imageTop}px`
+      element.style.visibility = 'visible'
+      return
+    }
 
     const fitsAbove = tip.iconTop - TIP_GAP - height >= bounds.top + EDGE_MARGIN
     const top = fitsAbove ? tip.iconTop - TIP_GAP - height : tip.iconBottom + TIP_GAP
