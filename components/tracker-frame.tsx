@@ -1159,6 +1159,13 @@ function clampScale(value: number) {
   return Math.min(MAX_SCALE, Math.max(MIN_SCALE, value))
 }
 
+function focusAtEnd(node: HTMLTextAreaElement | null) {
+  if (!node) return
+  node.focus()
+  node.setSelectionRange(node.value.length, node.value.length)
+  node.scrollTop = node.scrollHeight
+}
+
 export function TrackerFrame() {
   const [scale, setScale] = useState(0.85)
   const [activeHandle, setActiveHandle] = useState<string | null>(null)
@@ -3332,6 +3339,7 @@ export function TrackerFrame() {
                     aria-expanded={isNotesOpen}
                     aria-label={notes.trim() ? 'Open notes (has notes)' : 'Open notes'}
                     className={notes.trim() ? 'notes-toggle has-notes' : 'notes-toggle'}
+                  data-tip="Notes"
                     onClick={() => setIsNotesOpen(true)}
                     type="button"
                   >
@@ -3371,8 +3379,8 @@ export function TrackerFrame() {
                   Run notes
                 </label>
                 <textarea
-                  autoFocus
                   className="notes-panel-text"
+                  ref={focusAtEnd}
                   id="run-notes-text"
                   onChange={(event) => setNotes(event.target.value)}
                   placeholder="Type notes for this run..."
