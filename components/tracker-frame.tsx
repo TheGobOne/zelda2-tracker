@@ -964,24 +964,24 @@ const OVERWORLD_ICON_COLUMNS: { id: string; name: string; src: string }[][] = [
   // 1 rather than at any position within the count. Eight entries, one short of the
   // nine-row cap.
   [
-    { id: 'palace', name: 'Palace', src: '/images/overworld/palace.png' },
+    { id: 'palace', name: 'North Palace', src: '/images/overworld/palace.png' },
     { id: 'palace-1', name: 'Palace 1', src: '/images/overworld/palace1.png' },
     { id: 'palace-2', name: 'Palace 2', src: '/images/overworld/palace2.png' },
     { id: 'palace-3', name: 'Palace 3', src: '/images/overworld/palace3.png' },
     { id: 'palace-4', name: 'Palace 4', src: '/images/overworld/palace4.png' },
     { id: 'palace-5', name: 'Palace 5', src: '/images/overworld/palace5.png' },
     { id: 'palace-6', name: 'Palace 6', src: '/images/overworld/palace6.png' },
-    { id: 'palace-7', name: 'Palace 7', src: '/images/overworld/palace7.png' },
+    { id: 'palace-7', name: 'GP', src: '/images/overworld/palace7.png' },
   ],
   [
-    { id: 'town-1', name: 'Town 1', src: '/images/overworld/town1.png' },
-    { id: 'town-2', name: 'Town 2', src: '/images/overworld/town2.png' },
-    { id: 'town-3', name: 'Town 3', src: '/images/overworld/town3.png' },
-    { id: 'town-4', name: 'Town 4', src: '/images/overworld/town4.png' },
-    { id: 'town-5', name: 'Town 5', src: '/images/overworld/town5.png' },
-    { id: 'town-6', name: 'Town 6', src: '/images/overworld/town6.png' },
-    { id: 'town-7', name: 'Town 7', src: '/images/overworld/town7.png' },
-    { id: 'town-8', name: 'Town 8', src: '/images/overworld/town8.png' },
+  { id: 'town-1', name: 'Rauru', src: '/images/overworld/town1.png' },
+  { id: 'town-2', name: 'Ruto', src: '/images/overworld/town2.png' },
+  { id: 'town-3', name: 'Saria', src: '/images/overworld/town3.png' },
+  { id: 'town-4', name: 'Mido', src: '/images/overworld/town4.png' },
+  { id: 'town-5', name: 'Nabooru', src: '/images/overworld/town5.png' },
+  { id: 'town-6', name: 'Darunia', src: '/images/overworld/town6.png' },
+  { id: 'town-7', name: 'New Kasuto', src: '/images/overworld/town7.png' },
+  { id: 'town-8', name: 'Old Kasuto', src: '/images/overworld/town8.png' },
   ],
   // Lettered markers - the ones that stand for something found rather than for a
   // piece of ground: the four item/entrance markers, then the four cave connectors
@@ -992,7 +992,7 @@ const OVERWORLD_ICON_COLUMNS: { id: string; name: string; src: string }[][] = [
     { id: 'w-marker', name: 'W', src: '/images/overworld/w.png' },
     { id: 'e-marker', name: 'E', src: '/images/overworld/e.png' },
     { id: 'mi-marker', name: 'MI', src: '/images/overworld/mi.png' },
-    { id: 'dm-entrance', name: 'DM Entrance', src: '/images/overworld/dmentrance.png' },
+    { id: 'dm-entrance', name: 'DM', src: '/images/overworld/dmentrance.png' },
     { id: 'connector-a', name: 'Connector A', src: '/images/overworld/connectora.png' },
     { id: 'connector-b', name: 'Connector B', src: '/images/overworld/connectorb.png' },
     { id: 'connector-c', name: 'Connector C', src: '/images/overworld/connectorc.png' },
@@ -1003,7 +1003,7 @@ const OVERWORLD_ICON_COLUMNS: { id: string; name: string; src: string }[][] = [
   // sits next to Boulder, the other impassable rock, and the three ground-surface
   // fills - Water, Desert, Lava - close the column as a run.
   [
-    { id: 'bridge', name: 'Bridge', src: '/images/overworld/bridge.png' },
+    { id: 'bridge', name: 'Bridge/Raft', src: '/images/overworld/bridge.png' },
     { id: 'river-devil', name: 'River Devil', src: '/images/overworld/riverdevil.png' },
     { id: 'boulder', name: 'Boulder', src: '/images/overworld/boulder.png' },
     { id: 'mountain', name: 'Mountain', src: '/images/overworld/mountain.png' },
