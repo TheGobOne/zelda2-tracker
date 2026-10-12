@@ -2490,7 +2490,11 @@ export function TrackerFrame() {
       // stray Enter or Space re-fire the last icon clicked. Cancelling the
       // default on mousedown keeps focus off without touching the click itself,
       // and it suppresses text selection while dragging a resize grip.
-      onMouseDown={(event) => event.preventDefault()}
+      // Form fields are exempt: a range input can't be dragged without its default.
+      onMouseDown={(event) => {
+        if ((event.target as HTMLElement).closest('input, textarea, select')) return
+        event.preventDefault()
+      }}
       ref={rootRef}
     >
       <div
