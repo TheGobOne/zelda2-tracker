@@ -12,6 +12,7 @@ import {
 } from 'react'
 import { GlyphText } from '@/components/glyph-text'
 import { IconTooltip } from '@/components/icon-tooltip'
+import { UpdatesDialog } from '@/components/updates-dialog'
 
 const BASE_WIDTH = 600
 // The board's full height, with the overworld maps on it. Applied to the canvas
@@ -3839,6 +3840,9 @@ export function TrackerFrame() {
             <div className="frame-corner frame-corner-bottom-right" />
             <div className="frame-corner frame-corner-bottom-left" />
           </div>
+          {/* A sibling of the board rather than a child: the board is role="img",
+              which would hide the dialog's controls from assistive tech. */}
+          <UpdatesDialog />
         </div>
 
         {handles.map((handle) => (

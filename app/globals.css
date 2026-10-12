@@ -1845,6 +1845,121 @@
   background: #233bea;
 }
 
+/* Shown on arrival as a window inside the board. It lives in the zoomed scaler,
+   so it scales with the tracker and stays within its bounds. */
+.tracker-scaler {
+  position: relative;
+}
+
+.updates-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background: rgba(0, 0, 0, 0.72);
+}
+
+/* The border copies the frame's rail: white 4px / blue 6px / white 4px, the
+   inner white line drawn by the outline so the content box stays black. Red
+   corner blocks sit over each corner, as on the board. */
+.updates-dialog {
+  position: relative;
+  display: flex;
+  width: 100%;
+  max-width: 500px;
+  max-height: 100%;
+  flex-direction: column;
+  gap: 18px;
+  padding: 26px 28px 24px;
+  background: var(--canvas, #000);
+  border: 6px solid #233bea;
+  outline: 4px solid #f5f5f5;
+  box-shadow: inset 0 0 0 4px #f5f5f5;
+  color: #f5f5f5;
+}
+
+.updates-corner {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  background: #e52a08;
+  border: 4px solid #f5f5f5;
+}
+
+/* -10px reaches past the 6px border and 4px outline to the frame's outer edge. */
+.updates-corner-top-left { top: -10px; left: -10px; }
+.updates-corner-top-right { top: -10px; right: -10px; }
+.updates-corner-bottom-right { right: -10px; bottom: -10px; }
+.updates-corner-bottom-left { bottom: -10px; left: -10px; }
+
+.updates-title {
+  margin: 0;
+  color: #f2b21c;
+  font-size: 18px;
+  letter-spacing: 2px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.updates-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding-left: 20px;
+  font-size: 14px;
+  line-height: 1.45;
+  list-style: square;
+}
+
+.updates-list li::marker {
+  color: #233bea;
+}
+
+.updates-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #333;
+}
+
+.updates-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.updates-checkbox input {
+  width: 16px;
+  height: 16px;
+  accent-color: #233bea;
+  cursor: pointer;
+}
+
+.updates-close {
+  padding: 8px 22px;
+  background: transparent;
+  border: 2px solid #f5f5f5;
+  color: #f5f5f5;
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.updates-close:hover,
+.updates-close:focus-visible {
+  background: #233bea;
+  outline: none;
+}
+
 /* The loaded ruleset, marked in the frame's gold so the menu still answers which
    ruleset is active - the job the closed dropdown used to do by showing its name. */
 .tracker-menu-option[aria-checked='true'] {
