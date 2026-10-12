@@ -493,8 +493,11 @@
      exceeds the line box outright - so the ink ran to 11.5px clear above and
      6.75px below. Padding the bottom shrinks the box the lines centre inside,
      lifting them half of it and evening the ink to about 9px either side. Tied
-     to these two font sizes: change either and this wants re-measuring. */
-  padding: 0 10px 5px;
+     to these two font sizes: change either and this wants re-measuring.
+     The extra 11px on the left is optical too: the 4th icon's art runs to its
+     edge while the notes glyph sits inset in its button, so the empty gap the
+     eye reads is centred ~5.5px right of the box. */
+  padding: 0 10px 5px 21px;
 }
 
 /* Sits at the end of row three, to the right of the flags readout, which gives up
@@ -511,10 +514,6 @@
   background: none;
   border: 2px solid transparent;
   cursor: pointer;
-}
-
-.notes-toggle:hover {
-  border-color: #233bea;
 }
 
 .notes-toggle.has-notes svg {
@@ -612,6 +611,8 @@
   color: #8a8a8a;
   font-size: 9px;
   letter-spacing: 2px;
+  /* Letter-spacing trails the last glyph; matching it on the left keeps the ink centred. */
+  padding-left: 2px;
   text-transform: uppercase;
 }
 
@@ -654,6 +655,15 @@
   width: 56px;
   height: 56px;
   image-rendering: pixelated;
+}
+
+/* The two maze sprites' art stops 2 source px short of the right edge (x 2-31 of
+   36, against 2-33 for the rest of the row). Stretch from the art's left edge so
+   both sides line up with the icons above. */
+.location-icon img[src$='/magiccontainermaze.png'],
+.location-icon img[src$='/kidmaze.png'] {
+  transform: scaleX(1.0667);
+  transform-origin: 3.11px 50%;
 }
 
 .location-icon:focus-visible {
