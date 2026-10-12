@@ -1316,6 +1316,17 @@ export function TrackerFrame() {
         return
       }
 
+      // Text fields (the notes panel) need Space and Enter to type; they can't
+      // activate a button, so letting them through keeps the guarantee intact.
+      const target = event.target
+      if (
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLInputElement ||
+        (target instanceof HTMLElement && target.isContentEditable)
+      ) {
+        return
+      }
+
       // ' ' is the modern value; 'Spacebar' is the legacy one older engines send.
       if (event.key !== 'Enter' && event.key !== ' ' && event.key !== 'Spacebar') {
         return
