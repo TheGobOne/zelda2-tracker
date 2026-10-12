@@ -12,6 +12,9 @@ const EDGE_MARGIN = 6
 // player is reading or choosing from.
 const EXCLUDED_AREAS = '.tracker-menu, [role="dialog"], .notes-panel'
 
+// Icons that never get a tooltip.
+const EXCLUDED_ICONS = '.palace-grid .item-slot'
+
 /**
  * Finds the hover text for an icon. `data-tip` wins when set; otherwise the
  * first sentence of the icon's aria-label is used, which every tracker icon
@@ -30,7 +33,16 @@ function readTipText(element: HTMLElement) {
     return null
   }
 
-  return label.split('. ')[0].replace(/\.$/, '')
+  // Location status ("empty", "checked", the chosen item) is already visible on the icon.
+  if (element.classList.contains('location-icon')) {
+    return label.split(':')[0]
+  }
+
+  // The collected state is already visible on the icon, so the tip only names it.
+  return label
+    .split('. ')[0]
+    .replace(/\.$/, '')
+    .replace(/, (not )?collected/, '')
 }
 
 function findIcon(target: EventTarget | null) {
@@ -40,7 +52,7 @@ function findIcon(target: EventTarget | null) {
 
   const icon = target.closest<HTMLElement>('.game-canvas button, .game-canvas [data-tip]')
 
-  if (!icon || icon.closest(EXCLUDED_AREAS)) {
+  if (!icon || icon.closest(EXCLUDED_AREAS) || icon.matches(EXCLUDED_ICONS)) {
     return null
   }
 
