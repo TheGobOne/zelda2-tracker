@@ -247,15 +247,15 @@ const items = [
   { id: 'upstab', name: 'Upstab', src: '/images/items/upstab.png' },
   { id: 'downstab', name: 'Downstab', src: '/images/items/downstab.png' },
   { id: 'trophy', name: 'Trophy', src: '/images/items/trophy.png' },
-  { id: 'kid', name: 'Kid', src: '/images/items/kid.png' },
+  { id: 'kid', name: 'Child', src: '/images/items/kid.png' },
   { id: 'mirror', name: 'Mirror', src: '/images/items/mirror.png' },
   { id: 'water', name: 'Water', src: '/images/items/water.png' },
   {
     id: 'noteforriverman',
-    name: 'Note for Riverman',
+    name: "Bagu's Letter",
     src: '/images/items/noteforriverman.png',
   },
-  { id: 'wateroflife', name: 'Water of Life', src: '/images/items/wateroflife.png' },
+  { id: 'wateroflife', name: 'Medicine', src: '/images/items/wateroflife.png' },
   {
     id: 'heartcontainer',
     name: 'Heart Container',
