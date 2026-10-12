@@ -11,6 +11,7 @@ import {
   useState,
 } from 'react'
 import { GlyphText } from '@/components/glyph-text'
+import { IconTooltip } from '@/components/icon-tooltip'
 
 const BASE_WIDTH = 600
 // The board's full height, with the overworld maps on it. Applied to the canvas
@@ -1228,6 +1229,8 @@ export function TrackerFrame() {
   const [isNotesOpen, setIsNotesOpen] = useState(false)
   const [isNotesVisible, setIsNotesVisible] = useState(true)
   const [notes, setNotes] = useState('')
+  const [isHoverTextOn, setIsHoverTextOn] = useState(true)
+  const [hoverDelay, setHoverDelay] = useState(500)
   // Reflows the five stacked sections into two side-by-side columns for a wide
   // board. In-memory like every other setting here, and modelled on isMapVisible:
   // one piece of state plus one settings-menu row.
@@ -1584,7 +1587,13 @@ export function TrackerFrame() {
   function renderItemSlot(
     slotKey: string,
     label: string,
-    options?: { canBlock?: boolean; canCheckEmpty?: boolean; onCycleMark?: () => void },
+    options?: {
+    canBlock?: boolean
+    canCheckEmpty?: boolean
+    onCycleMark?: () => void
+    // Hover text while the slot is empty, for slots laid over another icon.
+    emptyTip?: string
+  },
   ) {
     const item = allPickables.find((entry) => entry.id === slotItems[slotKey])
     // Item-check slots can be ticked off with nothing in them, so an empty slot
@@ -1620,6 +1629,7 @@ export function TrackerFrame() {
           className={`${isCollected ? 'item-slot item-slot-collected' : 'item-slot'}${block ? ' item-slot-blocked' : ''}${isMinorItem ? ' item-slot-minor' : ''}`}
           // Read by the palace grid's wheel listener, the same way the bosses are.
           data-block-key={options?.canBlock ? slotKey : undefined}
+          data-tip={item ? undefined : options?.emptyTip}
           // Middle click clears the item.
           onAuxClick={(event) => {
             if (event.button === 1) {
@@ -2482,6 +2492,9 @@ export function TrackerFrame() {
           height: canvasHeight * scale,
         }}
       >
+        {/* Off while moving map icons, where the tip would sit over the squares
+            being aimed at. */}
+        <IconTooltip delay={hoverDelay} enabled={isHoverTextOn && !mapMove} />
         <div
           className="tracker-scaler"
           style={{
@@ -2532,8 +2545,9 @@ export function TrackerFrame() {
                       ) : null}
                     </button>
                     {renderItemSlot(townKey, `${town.name} item`, {
-                      canCheckEmpty: true,
-                      onCycleMark: () => cycleMark(townKey, TOWN_MARKS),
+  canCheckEmpty: true,
+  emptyTip: `${town.name} town`,
+  onCycleMark: () => cycleMark(townKey, TOWN_MARKS),
                     })}
                   </div>
                 )
@@ -2890,6 +2904,48 @@ export function TrackerFrame() {
                             />
                             Hide notes
                           </button>
+
+                          <button
+                            aria-checked={isHoverTextOn}
+                            className="tracker-menu-option"
+                            onClick={() => setIsHoverTextOn((current) => !current)}
+                            role="menuitemcheckbox"
+                            type="button"
+                          >
+                            <span
+                              aria-hidden="true"
+                              className={`tracker-menu-check${isHoverTextOn ? ' is-checked' : ''}`}
+                            />
+                            Hover text
+                          </button>
+
+                          {isHoverTextOn ? (
+                            <label className="tracker-menu-slider">
+                              <span className="tracker-menu-slider-label">
+                                Delay
+                                <span className="tracker-menu-slider-value">
+                                  {hoverDelay === 0
+                                    ? 'Instant'
+                                    : `${(hoverDelay / 1000).toFixed(hoverDelay % 1000 === 0 ? 0 : 2).replace(/0$/, '')}s`}
+                                </span>
+                              </span>
+                              <input
+                                aria-valuetext={
+                                  hoverDelay === 0
+                                    ? 'Instant'
+                                    : `${hoverDelay / 1000} seconds`
+                                }
+                                max={3000}
+                                min={0}
+                                onChange={(event) =>
+                                  setHoverDelay(Number(event.target.value))
+                                }
+                                step={250}
+                                type="range"
+                                value={hoverDelay}
+                              />
+                            </label>
+                          ) : null}
 
                           {/* Reflows the board into two columns. A checkbox like
                               Hide maps, and left open on click for the same reason:
@@ -3341,6 +3397,7 @@ export function TrackerFrame() {
                                   : `${world.name} ${position}: empty.`
                               }
                               className={cellClassName}
+                              data-tip={icon?.name}
                               key={column}
                               onClick={() => {
                                 if (swallowNextCellClickRef.current) {

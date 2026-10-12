@@ -1936,11 +1936,64 @@
    box, so the gap between the two shows whatever is behind the option rather than
    a colour of its own - which keeps it right over both the menu's black and the
    blue it turns on hover. */
-.tracker-menu-check.is-checked {
+  .tracker-menu-check.is-checked {
   padding: 2px;
   background: currentColor;
   background-clip: content-box;
-}
+  }
+
+  /* Hover text delay, shown under the Hover text checkbox while it's on. */
+  .tracker-menu-slider {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px 14px 10px;
+  color: #f5f5f5;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  }
+
+  .tracker-menu-slider-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  }
+
+  .tracker-menu-slider-value {
+  color: #f2b21c;
+  }
+
+  .tracker-menu-slider input[type='range'] {
+  width: 100%;
+  accent-color: #233bea;
+  cursor: pointer;
+  }
+
+  /* Hover text for the tracker's icons. Fixed to the window and drawn in the
+  menu's black, white and blue so it reads as part of the same frame. */
+  .icon-tooltip {
+  position: fixed;
+  z-index: 60;
+  max-width: 260px;
+  padding: 5px 9px;
+  background: #101010;
+  border: 2px solid #f5f5f5;
+  box-shadow: 0 0 0 2px #233bea;
+  color: #f5f5f5;
+  font-size: 11px;
+  letter-spacing: 1px;
+  line-height: 1.4;
+  text-align: center;
+  text-transform: uppercase;
+  pointer-events: none;
+  transform: translate(-50%, -100%);
+  }
+
+  .icon-tooltip.is-below {
+  transform: translate(-50%, 0);
+  }
+
 
 /* Separated from the flags entries above it, since it throws the board away, and
    set in the frame's red so it reads as destructive at rest rather than only on
