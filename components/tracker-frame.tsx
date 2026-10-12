@@ -138,6 +138,16 @@ const locationRowOne = [
 
 // Values a counter slot steps through on left click. The empty entry starts the
 // cycle, so clicking past the last number clears the slot again.
+const BOSS_NAMES: Record<string, string> = {
+  'Palace 1': 'Horsehead',
+  'Palace 2': 'Helmethead',
+  'Palace 3': 'Rebonack',
+  'Palace 4': 'Carock',
+  'Palace 5': 'Gooma',
+  'Palace 6': 'Barba',
+  'Palace 7': 'Thunderbird',
+}
+
 const COUNT_VALUES = ['', '5', '6', '7']
 
 /**
@@ -2524,8 +2534,9 @@ export function TrackerFrame() {
                   <div className="town-column" key={town.name}>
                     <button
                       aria-label={`${town.name} town${mark ? `, marked ${mark}` : ''}. Right click to cycle the location.`}
-                      className="town-icon icon-toggle"
-                      // Right click steps through the requirement letters.
+  className="town-icon icon-toggle"
+  data-tip={town.name}
+  // Right click steps through the requirement letters.
                       onContextMenu={(event) => {
                         event.preventDefault()
                         cycleMark(townKey, TOWN_MARKS)
@@ -2546,7 +2557,7 @@ export function TrackerFrame() {
                     </button>
                     {renderItemSlot(townKey, `${town.name} item`, {
   canCheckEmpty: true,
-  emptyTip: `${town.name} town`,
+  emptyTip: town.name,
   onCycleMark: () => cycleMark(townKey, TOWN_MARKS),
                     })}
                   </div>
@@ -2595,6 +2606,7 @@ export function TrackerFrame() {
                     return (
                       <div className="palace-row" key={palace.name}>
                         <button
+                          data-tip={BOSS_NAMES[palace.name]}
                           aria-label={`${palace.name} palace boss${isBeaten ? ', defeated' : ''}${mark ? `, marked ${mark}` : ''}${block ? `, blocked by ${block.name}` : ''}${slotLabel}. Left click to mark defeated, right click to cycle the location,${slotHint} scroll to cycle what blocks it.`}
                           aria-pressed={isBeaten}
                           className={
@@ -2916,7 +2928,7 @@ export function TrackerFrame() {
                               aria-hidden="true"
                               className={`tracker-menu-check${isHoverTextOn ? ' is-checked' : ''}`}
                             />
-                            Hover text
+                            Tooltips
                           </button>
 
                           {isHoverTextOn ? (

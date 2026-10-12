@@ -1970,7 +1970,7 @@
   cursor: pointer;
   }
 
-  /* Hover text for the tracker's icons. Fixed to the window and drawn in the
+  /* Hover text for the tracker's icons. Fixed to the window (kept inside the board) and drawn in the
   menu's black, white and blue so it reads as part of the same frame. */
   .icon-tooltip {
   position: fixed;
@@ -1987,11 +1987,6 @@
   text-align: center;
   text-transform: uppercase;
   pointer-events: none;
-  transform: translate(-50%, -100%);
-  }
-
-  .icon-tooltip.is-below {
-  transform: translate(-50%, 0);
   }
 
 

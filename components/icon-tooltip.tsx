@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
-type Tip = { text: string; left: number; top: number; below: boolean }
+type Tip = { text: string; centerX: number; iconTop: number; iconBottom: number }
 
 const TIP_GAP = 8
 const EDGE_MARGIN = 6
@@ -80,13 +80,12 @@ export function IconTooltip({
       }
 
       const rect = icon.getBoundingClientRect()
-      const below = rect.top < 40
 
       setTip({
         text,
-        left: rect.left + rect.width / 2,
-        top: below ? rect.bottom + TIP_GAP : rect.top - TIP_GAP,
-        below,
+        centerX: rect.left + rect.width / 2,
+        iconTop: rect.top,
+        iconBottom: rect.bottom,
       })
     }
 
@@ -144,24 +143,35 @@ export function IconTooltip({
     }
   }, [delay, enabled])
 
-  // Nudges the tip back inside the window once its real width is known.
-  useEffect(() => {
+  // Places the tip once its real size is known: above the icon when it fits
+  // inside the tracker, below otherwise, and slid sideways so it never pokes
+  // past the tracker's frame.
+  useLayoutEffect(() => {
     const element = tipRef.current
 
     if (!tip || !element) {
       return
     }
 
-    const rect = element.getBoundingClientRect()
-    let shift = 0
-
-    if (rect.left < EDGE_MARGIN) {
-      shift = EDGE_MARGIN - rect.left
-    } else if (rect.right > window.innerWidth - EDGE_MARGIN) {
-      shift = window.innerWidth - EDGE_MARGIN - rect.right
+    const board = document.querySelector('.game-canvas')?.getBoundingClientRect()
+    const bounds = board ?? {
+      left: 0,
+      top: 0,
+      right: window.innerWidth,
+      bottom: window.innerHeight,
     }
+    const { width, height } = element.getBoundingClientRect()
 
-    element.style.marginLeft = `${shift}px`
+    const fitsAbove = tip.iconTop - TIP_GAP - height >= bounds.top + EDGE_MARGIN
+    const top = fitsAbove ? tip.iconTop - TIP_GAP - height : tip.iconBottom + TIP_GAP
+
+    const minLeft = bounds.left + EDGE_MARGIN
+    const maxLeft = bounds.right - EDGE_MARGIN - width
+    const left = Math.max(minLeft, Math.min(tip.centerX - width / 2, maxLeft))
+
+    element.style.left = `${left}px`
+    element.style.top = `${top}px`
+    element.style.visibility = 'visible'
   }, [tip])
 
   if (!tip) {
@@ -171,9 +181,9 @@ export function IconTooltip({
   return createPortal(
     <div
       aria-hidden="true"
-      className={`icon-tooltip${tip.below ? ' is-below' : ''}`}
+      className="icon-tooltip"
       ref={tipRef}
-      style={{ left: tip.left, top: tip.top }}
+      style={{ left: 0, top: 0, visibility: 'hidden' }}
     >
       {tip.text}
     </div>,
