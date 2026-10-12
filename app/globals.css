@@ -497,6 +497,109 @@
   padding: 0 10px 5px;
 }
 
+/* Sits at the end of row three, to the right of the flags readout, which gives up
+   the width through its `flex: 1`. */
+.notes-toggle {
+  display: flex;
+  width: 56px;
+  height: 56px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: #f5f5f5;
+  background: none;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+
+.notes-toggle:hover {
+  border-color: #233bea;
+}
+
+.notes-toggle:focus-visible {
+  outline: 2px solid #e52a08;
+  outline-offset: -2px;
+}
+
+/* Covers the location block exactly, from the bottom of the divider above it to
+   the top of the divider below it. */
+.notes-panel {
+  position: absolute;
+  top: calc(390px + var(--sep));
+  left: 14px;
+  z-index: 6;
+  display: flex;
+  width: 572px;
+  height: 224px;
+  flex-direction: column;
+  padding: 10px 14px 14px;
+  row-gap: 8px;
+  background: #101010;
+}
+
+.game-canvas.is-landscape .notes-panel {
+  top: calc(102px + var(--sep));
+  left: 607px;
+  width: 579px;
+  height: calc(145px + var(--sep) * 5);
+}
+
+.notes-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.notes-panel-title {
+  margin: 0;
+  color: #f2b21c;
+  font-size: 14px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.notes-panel-close {
+  display: flex;
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: #f5f5f5;
+  background: none;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+
+.notes-panel-close:hover {
+  border-color: #233bea;
+}
+
+.notes-panel-close:focus-visible,
+.notes-panel-text:focus-visible {
+  outline: 2px solid #e52a08;
+  outline-offset: -2px;
+}
+
+.notes-panel-text {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  padding: 8px 10px;
+  color: #f5f5f5;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.6;
+  background: #000;
+  border: 3px solid #233bea;
+  resize: none;
+}
+
+.notes-panel-text::placeholder {
+  color: #6a6a6a;
+}
+
 /* Says what the panel is, since it sits among the location sprites with nothing
    else to identify it. Held to a whisper against the name below, which is the
    part actually worth reading. */
@@ -1158,17 +1261,16 @@
   column-gap: 1px;
 }
 
-/* 21px squares: nine of them plus eight gaps and the frame come to 203px, so both
-   maps and the palette between them still fit the 520px column - 21 is the largest
-   square that does, since 22 would need 424px for the maps alone and squeeze the
-   palette to nothing. Removing the map headings freed the matching height. Filled
+/* 17px squares: eleven of them plus ten gaps and the frame come to 203px - the same
+   footprint the old 9x9 grid of 21px squares had - so both maps and the palette
+   between them still fit the 520px column without moving anything. Filled
    with the board's own dark so each cell is a hole in the grid's blue rather than a
    tile of it - and filled opaquely, not left transparent, so the blue shows only in
    the 1px gaps. */
 .overworld-cell {
   display: flex;
-  width: 21px;
-  height: 21px;
+  width: 17px;
+  height: 17px;
   align-items: center;
   justify-content: center;
   padding: 0;

@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, Settings } from 'lucide-react'
+import { Check, NotebookPen, Settings, X } from 'lucide-react'
 import Image from 'next/image'
 import {
   Fragment,
@@ -894,14 +894,14 @@ const handles: Handle[] = [
   { id: 'bottom-left', label: 'bottom left corner', x: -1, y: 1 },
 ]
 
-/** The two overworlds, each tracked on its own 9x9 grid. */
+/** The two overworlds, each tracked on its own 11x11 grid. */
 const OVERWORLDS = [
   { id: 'west', name: 'West' },
   { id: 'east', name: 'East' },
 ] as const
 
 /** Both grids are square, so one number drives rows and columns alike. */
-const OVERWORLD_SIZE = 9
+const OVERWORLD_SIZE = 11
 
 /**
  * Icons that can be dropped onto a grid, as the four vertical columns they are
@@ -1190,6 +1190,9 @@ export function TrackerFrame() {
   // Hiding them only takes them off screen - `overworldCells` is left alone, so
   // anything already marked is still there when they come back.
   const [isMapVisible, setIsMapVisible] = useState(true)
+  // Free-text notes for the run, typed into a panel laid over the location rows.
+  const [isNotesOpen, setIsNotesOpen] = useState(false)
+  const [notes, setNotes] = useState('')
   // Reflows the five stacked sections into two side-by-side columns for a wide
   // board. In-memory like every other setting here, and modelled on isMapVisible:
   // one piece of state plus one settings-menu row.
@@ -1977,6 +1980,8 @@ export function TrackerFrame() {
     setOpenSlot(null)
     setIsConfirmingClear(false)
     setOpenLimitPicker(null)
+    setNotes('')
+    setIsNotesOpen(false)
     // `customLimits` deliberately survives: Clear empties the board but keeps the
     // loaded ruleset, and these figures describe that ruleset rather than the run.
     // Resetting them would make a blank board mean re-entering the flags too.
@@ -2930,10 +2935,61 @@ export function TrackerFrame() {
                     <p className="flags-panel-value">{activePreset.name}</p>
                   </div>
                 ) : null}
+                {rowIndex === 2 ? (
+                  <button
+                    aria-controls="run-notes"
+                    aria-expanded={isNotesOpen}
+                    aria-label="Open notes"
+                    className="notes-toggle"
+                    onClick={() => setIsNotesOpen(true)}
+                    type="button"
+                  >
+                    <NotebookPen aria-hidden="true" size={28} strokeWidth={2.25} />
+                  </button>
+                ) : null}
               </div>
             ))}
 
             <div className="section-divider section-divider-locations" />
+
+            {/* Laid over the whole location block rather than floating as a modal,
+                so the rest of the board stays readable while notes are typed. */}
+            {isNotesOpen ? (
+              <section
+                aria-labelledby="run-notes-title"
+                className="notes-panel"
+                id="run-notes"
+                onKeyDown={(event) => {
+                  if (event.key === 'Escape') setIsNotesOpen(false)
+                }}
+              >
+                <div className="notes-panel-header">
+                  <h2 className="notes-panel-title" id="run-notes-title">
+                    Notes
+                  </h2>
+                  <button
+                    aria-label="Close notes"
+                    className="notes-panel-close"
+                    onClick={() => setIsNotesOpen(false)}
+                    type="button"
+                  >
+                    <X aria-hidden="true" size={20} strokeWidth={3} />
+                  </button>
+                </div>
+                <label className="sr-only" htmlFor="run-notes-text">
+                  Run notes
+                </label>
+                <textarea
+                  autoFocus
+                  className="notes-panel-text"
+                  id="run-notes-text"
+                  onChange={(event) => setNotes(event.target.value)}
+                  placeholder="Type notes for this run..."
+                  spellCheck={false}
+                  value={notes}
+                />
+              </section>
+            ) : null}
 
             {/* The collection + maps are the board's lower half in portrait; in
                 landscape they become the right column. Wrapping them in one box
