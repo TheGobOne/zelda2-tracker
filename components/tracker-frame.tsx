@@ -46,13 +46,14 @@ const LANDSCAPE_HEIGHT = 577
 const MIN_SCALE = 0.35
 const MAX_SCALE = 1.75
 
-const towns = [
+// `name` is also the saved-state key, so display-only wording goes in `tip`.
+const towns: { name: string; src: string; tip?: string }[] = [
   { name: 'Rauru', src: '/images/towns/rauru.png' },
   { name: 'Ruto', src: '/images/towns/ruto.png' },
-  { name: 'Saria', src: '/images/towns/saria.png' },
+  { name: 'Saria', src: '/images/towns/saria.png', tip: 'Saria (Mirror Required)' },
   { name: 'Mido', src: '/images/towns/mido.png' },
-  { name: 'Nabooru', src: '/images/towns/nabooru.png' },
-  { name: 'Darunia', src: '/images/towns/darunia.png' },
+  { name: 'Nabooru', src: '/images/towns/nabooru.png', tip: 'Nabooru (Water Required)' },
+  { name: 'Darunia', src: '/images/towns/darunia.png', tip: 'Darunia (Child Required)' },
   { name: 'New Kasuto', src: '/images/towns/new-kasuto.png' },
   { name: 'Old Kasuto', src: '/images/towns/old-kasuto.png' },
 ]
@@ -2543,7 +2544,7 @@ export function TrackerFrame() {
                     <button
                       aria-label={`${town.name} town${mark ? `, marked ${mark}` : ''}. Right click to cycle the location.`}
   className="town-icon icon-toggle"
-  data-tip={town.name}
+  data-tip={town.tip ?? town.name}
   // Right click steps through the requirement letters.
                       onContextMenu={(event) => {
                         event.preventDefault()
@@ -2565,7 +2566,7 @@ export function TrackerFrame() {
                     </button>
                     {renderItemSlot(townKey, `${town.name} item`, {
   canCheckEmpty: true,
-  emptyTip: town.name,
+  emptyTip: town.tip ?? town.name,
   onCycleMark: () => cycleMark(townKey, TOWN_MARKS),
                     })}
                   </div>
