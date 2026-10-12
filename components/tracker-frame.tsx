@@ -261,12 +261,12 @@ const items = [
   { id: 'downstab', name: 'Downstab', src: '/images/items/downstab.png' },
   { id: 'trophy', name: 'Trophy', src: '/images/items/trophy.png' },
   { id: 'kid', name: 'Child', src: '/images/items/kid.png' },
-  { id: 'mirror', name: 'Mirror', src: '/images/items/mirror-v2.png' },
-  { id: 'water', name: 'Water', src: '/images/items/water-v2.png' },
+  { id: 'mirror', name: 'Mirror', src: '/images/items/mirror-v3.png' },
+  { id: 'water', name: 'Water', src: '/images/items/water-v3.png' },
   {
     id: 'noteforriverman',
     name: "Bagu's Letter",
-    src: '/images/items/noteforriverman-v2.png',
+    src: '/images/items/noteforriverman-v3.png',
   },
   { id: 'wateroflife', name: 'Medicine', src: '/images/items/wateroflife.png' },
   {
