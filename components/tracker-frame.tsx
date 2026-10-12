@@ -1226,6 +1226,7 @@ export function TrackerFrame() {
   const [isMapVisible, setIsMapVisible] = useState(true)
   // Free-text notes for the run, typed into a panel laid over the location rows.
   const [isNotesOpen, setIsNotesOpen] = useState(false)
+  const [isNotesVisible, setIsNotesVisible] = useState(true)
   const [notes, setNotes] = useState('')
   // Reflows the five stacked sections into two side-by-side columns for a wide
   // board. In-memory like every other setting here, and modelled on isMapVisible:
@@ -2873,6 +2874,23 @@ export function TrackerFrame() {
                             Hide map section
                           </button>
 
+                          <button
+                            aria-checked={!isNotesVisible}
+                            className="tracker-menu-option"
+                            onClick={() => {
+                              setIsNotesOpen(false)
+                              setIsNotesVisible((current) => !current)
+                            }}
+                            role="menuitemcheckbox"
+                            type="button"
+                          >
+                            <span
+                              aria-hidden="true"
+                              className={`tracker-menu-check${isNotesVisible ? '' : ' is-checked'}`}
+                            />
+                            Hide notes
+                          </button>
+
                           {/* Reflows the board into two columns. A checkbox like
                               Hide maps, and left open on click for the same reason:
                               it is worth toggling twice to compare the two layouts. */}
@@ -3144,7 +3162,7 @@ export function TrackerFrame() {
                     <p className="flags-panel-value">{activePreset.name}</p>
                   </div>
                 ) : null}
-                {rowIndex === 2 ? (
+                {rowIndex === 2 && isNotesVisible ? (
                   <button
                     aria-controls="run-notes"
                     aria-expanded={isNotesOpen}
@@ -3163,7 +3181,7 @@ export function TrackerFrame() {
 
             {/* Laid over the whole location block rather than floating as a modal,
                 so the rest of the board stays readable while notes are typed. */}
-            {isNotesOpen ? (
+            {isNotesVisible && isNotesOpen ? (
               <section
                 aria-labelledby="run-notes-title"
                 className="notes-panel"
