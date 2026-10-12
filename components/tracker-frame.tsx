@@ -345,6 +345,9 @@ const UNTRACKED_IDS = new Set([
 // The 16 tracked items, which fill two rows of eight above the spell row.
 const collectionItems = items.filter((entry) => !UNTRACKED_IDS.has(entry.id))
 
+/** Tooltip names for the palace-section connector rows, top to bottom. */
+const CONNECTOR_TIPS = ['Connector Cave 1', 'Connector Cave 2', 'Raft', 'Bridge']
+
 /** Placeholder sprite marking a connector end whose destination is unknown. */
 const UNKNOWN_NOTE = '/images/notes/unknown.png'
 
@@ -2003,6 +2006,7 @@ export function TrackerFrame() {
       <button
         aria-label={`${noteAlt} ${side} side: ${endMark?.alt ?? 'unknown'}. Click to change, right click to go back.`}
         className="palace-note-end"
+        data-tip="Left/Right click to select continent"
         // onClick is the left-click path only. The tracker is mouse-only, so the
         // Enter and Space that would otherwise reach this are cancelled at the
         // root; see the focusability effect.
@@ -3047,6 +3051,7 @@ export function TrackerFrame() {
                     <img
                       alt={note.alt}
                       className="palace-note"
+                      data-tip={CONNECTOR_TIPS[index]}
                       src={note.src}
                     />
                     {renderConnectorEnd(index, 'second', note.alt)}

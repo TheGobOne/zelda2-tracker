@@ -763,7 +763,13 @@
   width: 56px;
   height: 56px;
   image-rendering: pixelated;
-}
+  }
+
+  /* The middle connector sprite sits in the gap between the boss columns, so it
+  can take the pointer for its tooltip without blocking any boss.  */
+  .palace-note-row > .palace-note {
+  pointer-events: auto;
+  }
 
 .town-column,
 .town-icon {
