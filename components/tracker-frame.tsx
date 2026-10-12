@@ -1234,6 +1234,9 @@ export function TrackerFrame() {
   // clicking it again puts it down.
   const [armedIcon, setArmedIcon] = useState<string | null>(null)
   const [mapMove, setMapMove] = useState<MapMove | null>(null)
+  // Dropping happens on press and ends move mode, so the click that follows
+  // would otherwise see normal mode and paint the selected palette icon.
+  const swallowNextCellClickRef = useRef(false)
   const palaceGridRef = useRef<HTMLDivElement | null>(null)
   // How tall the board currently stands. Everything that has to agree with the
   // board's height reads this rather than `BASE_HEIGHT`, so the canvas, the stage
@@ -3317,6 +3320,11 @@ export function TrackerFrame() {
                               className={cellClassName}
                               key={column}
                               onClick={() => {
+                                if (swallowNextCellClickRef.current) {
+                                  swallowNextCellClickRef.current = false
+                                  return
+                                }
+
                                 if (!mapMove) {
                                   placeOverworldIcon(cellKey)
                                 }
@@ -3333,7 +3341,13 @@ export function TrackerFrame() {
                               // than clicked, so the release that ends a box
                               // cannot also count as the drop.
                               onMouseDown={(event) => {
-                                if (event.button !== 0 || !mapMove) {
+                                if (event.button !== 0) {
+                                  return
+                                }
+
+                                swallowNextCellClickRef.current = mapMove !== null
+
+                                if (!mapMove) {
                                   return
                                 }
 
