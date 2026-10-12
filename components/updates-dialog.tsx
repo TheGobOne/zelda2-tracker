@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 // Bump this when the list changes so players who opted out see the new notes once.
-const UPDATES_VERSION = '2026-10-notes-tooltips'
+const UPDATES_VERSION = '2026-10-sprites'
 const UPDATES_STORAGE_KEY = 'z2-tracker-updates-dismissed'
 
 const UPDATES = [
@@ -13,6 +13,7 @@ const UPDATES = [
   'Increased Mapping grid to 11x11 (from 9x9)',
   'Added the ability to select and move icons on your map (middle click enters/exits move mode, left click to place selected icons)',
   'Added Local Browser Save so your settings (Hide Maps, Landscape, etc) will remain as they are when reloading',
+  "Matched Mirror/Water/Bagu's Letter sprites to in-game sprites",
 ]
 
 function isDismissed() {
