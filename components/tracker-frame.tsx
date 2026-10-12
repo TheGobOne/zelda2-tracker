@@ -117,7 +117,7 @@ function startSlotsFor(name: string) {
 // palaces these have no separate slot box: the chosen item draws over the art.
 const locationRowOne = [
   { name: 'Trophy Cave', src: '/images/locations/trophycave.png' },
-  { name: 'Water of Life Cave', src: '/images/locations/wateroflifecave.png' },
+  { name: "Medicine Cave", src: '/images/locations/wateroflifecave.png' },
   {
     name: 'Heart Container Cave',
     src: '/images/locations/heartcontainercave.png',
@@ -126,14 +126,14 @@ const locationRowOne = [
     name: 'Magic Container Cave',
     src: '/images/locations/magiccontainercave.png',
   },
-  { name: 'West P-Bag Cave', src: '/images/locations/westpbagcave.png' },
+  { name: "Pillar Pbag Cave", src: '/images/locations/westpbagcave.png' },
   { name: 'Saria Table', src: '/images/locations/sariatable.png' },
   { name: 'Bagu', src: '/images/locations/bagu.png' },
   {
-    name: 'Heart Container Grass',
+    name: "Grass Tile",
     src: '/images/locations/heartcontainergrass.png',
   },
-  { name: 'Downstab Man', src: '/images/locations/downstabman.png' },
+  { name: "Downstab", src: '/images/locations/downstabman.png' },
 ]
 
 // Values a counter slot steps through on left click. The empty entry starts the
@@ -173,8 +173,8 @@ const MAGIC_ITEM_ID = 'magiccontainer'
  * are named here and matched by name rather than by their position in the rows,
  * so reordering a row cannot quietly break the link.
  */
-const GRANNY_SLOT_NAME = 'Spell Item Count'
-const NEW_KASUTO_MAGIC_SLOT_NAME = 'New Kasuto Magic Container'
+const GRANNY_SLOT_NAME = "Granny's Basement Magic Container Requirement (Left Click)"
+const NEW_KASUTO_MAGIC_SLOT_NAME = "Granny's Basement"
 
 // A location row holds sprite slots plus the occasional numeric counter slot,
 // which takes up one icon of space and shows a chosen number over its art. The
@@ -186,46 +186,46 @@ type LocationEntry =
 
 // Second location row, filled in as the remaining sprites are added.
 const locationRowTwo: LocationEntry[] = [
-  { name: 'East P-Bag Cave', src: '/images/locations/eastpbagcave.png' },
-  { name: 'East P-Bag Cave 2', src: '/images/locations/eastpbagcave2.png' },
+  { name: "Sunken Pbag Cave", src: '/images/locations/eastpbagcave.png' },
+  { name: "Risen Pbag Cave", src: '/images/locations/eastpbagcave2.png' },
   {
-    name: 'Desert Heart Container',
+    name: "Desert Tile",
     src: '/images/locations/heartcontainerdesert.png',
   },
   {
-    name: 'Sea Heart Container',
+    name: "Water Tile",
     src: '/images/locations/heartcontainersea.png',
   },
-  { name: 'Nabooru Fountain', src: '/images/locations/naboorufountain.png' },
+  { name: 'Fountain', src: '/images/locations/naboorufountain.png' },
   {
     kind: 'count',
-    name: 'Spell Item Count',
+    name: "Granny's Basement Magic Container Requirement (Left Click)",
     src: '/images/locations/granny.png',
   },
   {
-    name: 'New Kasuto Magic Container',
+    name: "Granny's Basement",
     src: '/images/locations/magiccontainernewkasuto.png',
   },
   {
-    name: 'New Kasuto Magical Key',
+    name: "Spell Tower",
     src: '/images/locations/magickeynewkasuto.png',
   },
-  { name: 'Up Stab Man', src: '/images/locations/upstabman.png' },
+  { name: "Upstab", src: '/images/locations/upstabman.png' },
 ]
 
 // Third location row. Only four entries, so it is centred rather than spread
 // across the full icon width like the two full rows above it.
 const locationRowThree: LocationEntry[] = [
   {
-    name: 'Boulder Magic Container',
+    name: "Spec Rock",
     src: '/images/locations/magiccontainerboulder.png',
   },
   { name: 'Hammer Cave', src: '/images/locations/hammercave.png' },
   {
-    name: 'Maze Magic Container',
+    name: "Maze (Short)",
     src: '/images/locations/magiccontainermaze.png',
   },
-  { name: 'Maze Kid', src: '/images/locations/kidmaze.png' },
+  { name: "Maze (Long)", src: '/images/locations/kidmaze.png' },
 ]
 
 const locationRows: LocationEntry[][] = [
@@ -434,15 +434,15 @@ const UPSTARTS_KNOWN_BOARD = {
   // Known checks. Both stab teachers hold their own stab under these flagsets,
   // unlike SGL where the two are swapped.
   placements: {
-    'location-Downstab Man': 'downstab',
-    'location-Up Stab Man': 'upstab',
+    "location-Downstab": 'downstab',
+    "location-Upstab": 'upstab',
     'location-Saria Table': 'mirror',
     'location-Bagu': 'noteforriverman',
-    'location-Nabooru Fountain': 'water',
+    'location-Fountain': 'water',
   },
   // Downstab is the one of those already in hand; the rest are known but still
   // out there, so they stay unticked.
-  checkedSlots: ['location-Downstab Man'],
+  checkedSlots: ["location-Downstab"],
 }
 
 /**
@@ -549,7 +549,7 @@ const UPSTARTS_WEEK_FLAGS: Record<
     placements: withoutPlacements(UPSTARTS_UNLABELLED_PALACES_BOARD.placements, [
       'location-Saria Table', // mirror
       'location-Bagu', // letter (note for the river man)
-      'location-Nabooru Fountain', // water
+      'location-Fountain', // water
     ]),
   },
   5: {
@@ -562,7 +562,7 @@ const UPSTARTS_WEEK_FLAGS: Record<
     placements: withoutPlacements(UPSTARTS_CHECKS_ONLY_BOARD.placements, [
       'location-Saria Table', // mirror
       'location-Bagu', // letter (note for the river man)
-      'location-Nabooru Fountain', // water
+      'location-Fountain', // water
     ]),
   },
   6: {
@@ -574,7 +574,7 @@ const UPSTARTS_WEEK_FLAGS: Record<
     placements: withoutPlacements(UPSTARTS_CHECKS_ONLY_BOARD.placements, [
       'location-Saria Table', // mirror
       'location-Bagu', // letter (note for the river man)
-      'location-Nabooru Fountain', // water
+      'location-Fountain', // water
     ]),
   },
 }
@@ -651,21 +651,21 @@ const PRESETS: {
     magicMax: 8,
     placements: {
       // All three P-Bag caves keep their vanilla point bags.
-      'location-West P-Bag Cave': 'pbag',
-      'location-East P-Bag Cave': 'pbag',
-      'location-East P-Bag Cave 2': 'pbag',
+      "location-Pillar Pbag Cave": 'pbag',
+      "location-Sunken Pbag Cave": 'pbag',
+      "location-Risen Pbag Cave": 'pbag',
       // These two checks are always filler, tracked as the junk check.
       'location-Saria Table': 'junk',
-      'location-Nabooru Fountain': 'junk',
+      'location-Fountain': 'junk',
       // The stab teachers are swapped relative to their names.
-      'location-Downstab Man': 'upstab',
-      'location-Up Stab Man': 'downstab',
+      "location-Downstab": 'upstab',
+      "location-Upstab": 'downstab',
       // Bagu always hands over his letter for the river man.
       'location-Bagu': 'noteforriverman',
     },
     counts: {
       // The counter beside the fountain starts on 6 under this ruleset.
-      'location-Spell Item Count': '6',
+      "location-Granny's Basement Magic Container Requirement (Left Click)": '6',
     },
   },
   {
@@ -3100,7 +3100,7 @@ export function TrackerFrame() {
                       <button
                         aria-label={
                           isComplete
-                            ? `${location.name}: complete, collected with the New Kasuto magic container.`
+                            ? `${location.name}: complete, collected with the Granny's Basement magic container.`
                             : value
                               ? `${location.name}: ${value}. Left click for the next number.`
                               : `${location.name}: unset. Left click to choose 5, 6 or 7.`
