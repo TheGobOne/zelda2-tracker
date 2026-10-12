@@ -1252,12 +1252,13 @@
   /* +10px nudge centers the maps in the 14px-flush bottom band (was +6px before
   the frame went flush and moved the bottom rail's inner edge from 22px to 14px). */
   top: calc(818px + var(--sep) * 5 + 10px);
-  /* 524px, centred at left:38px, so its 24px side margins match this section's
-     24px gap above and below. */
-  left: 38px;
+  /* Rails sit at x14 and x586 (572px apart). Two 201.5px maps plus the 100px
+  palette leave 69px, split into four equal 17.25px gaps: rail to map, map to
+  palette icons, palette icons to map, and map to rail (same rule as landscape). */
+  left: 31.25px;
   z-index: 3;
   display: flex;
-  width: 524px;
+  width: 537.5px;
   /* Stretch, so the palette between the maps is handed the maps' full height and
      can spread its icons over all of it. */
   align-items: stretch;
