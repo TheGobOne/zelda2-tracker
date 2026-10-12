@@ -1821,10 +1821,14 @@
 /* The landscape board is too short for the panel to hang below the gear (or
    above it), so it opens to the gear's left, centred on it vertically, with a
    height cap and scrolling as a fallback for longer lists. */
+/* The menu is anchored to the gear's wrapper, so these offsets carry it from the
+gear's center to the center of the left lane (palace and map sections). */
 .game-canvas.is-landscape .tracker-menu {
-  top: 50%;
-  right: calc(100% + 8px);
-  transform: translateY(-50%);
+  top: calc(50% + 43px);
+  left: calc(50% - 244px);
+  right: auto;
+  bottom: auto;
+  transform: translate(-50%, -50%);
   }
 
 /* Names the flags list, since the entries are bare ruleset names and the
