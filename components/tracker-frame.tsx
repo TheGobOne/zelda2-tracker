@@ -903,6 +903,11 @@ const OVERWORLDS = [
 /** Both grids are square, so one number drives rows and columns alike. */
 const OVERWORLD_SIZE = 11
 
+/** Every run starts at the home palace, so it is pre-placed in the middle of the west map. */
+const OVERWORLD_START_CELLS: Record<string, string> = {
+  [`west-${Math.floor(OVERWORLD_SIZE / 2)}-${Math.floor(OVERWORLD_SIZE / 2)}`]: 'palace',
+}
+
 type MapCell = { row: number; column: number }
 
 /**
@@ -1228,7 +1233,7 @@ export function TrackerFrame() {
   const [isLandscape, setIsLandscape] = useState(false)
   // Which icon sits on each overworld cell, keyed by grid id and coordinates.
   // Only filled cells are stored, so an absent key is an empty square.
-  const [overworldCells, setOverworldCells] = useState<Record<string, string>>({})
+  const [overworldCells, setOverworldCells] = useState<Record<string, string>>(OVERWORLD_START_CELLS)
   // The palette icon held ready to place. It stays armed after each drop, so a
   // repeated icon can be placed across the map without reselecting it, and
   // clicking it again puts it down.
@@ -2169,7 +2174,7 @@ export function TrackerFrame() {
   }
 
   function clearTracker() {
-    setOverworldCells({})
+    setOverworldCells({ ...OVERWORLD_START_CELLS })
     setArmedIcon(null)
     setSlotItems({})
     setCollected({})
@@ -2206,8 +2211,8 @@ export function TrackerFrame() {
 
   function applyPreset(preset: (typeof PRESETS)[number]) {
     // The maps describe the seed being played, so a new ruleset empties them
-    // along with everything else.
-    setOverworldCells({})
+    // along with everything else, back to just the home palace.
+    setOverworldCells({ ...OVERWORLD_START_CELLS })
     setArmedIcon(null)
     setSlotItems({ ...preset.placements })
     setCollected(collectedFromPreset(preset))
@@ -2865,7 +2870,7 @@ export function TrackerFrame() {
                               aria-hidden="true"
                               className={`tracker-menu-check${isMapVisible ? '' : ' is-checked'}`}
                             />
-                            Hide maps
+                            Hide map section
                           </button>
 
                           {/* Reflows the board into two columns. A checkbox like
