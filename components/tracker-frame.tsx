@@ -918,6 +918,9 @@ const OVERWORLDS = [
 /** Both grids are square, so one number drives rows and columns alike. */
 const OVERWORLD_SIZE = 11
 
+/** Where display preferences (hidden sections, tooltips, layout) are remembered in the browser. */
+const SETTINGS_STORAGE_KEY = 'z2-tracker-settings'
+
 /** Every run starts at the home palace, so it is pre-placed in the middle of the west map. */
 const OVERWORLD_START_CELLS: Record<string, string> = {
   [`west-${Math.floor(OVERWORLD_SIZE / 2)}-${Math.floor(OVERWORLD_SIZE / 2)}`]: 'palace',
@@ -1249,6 +1252,38 @@ export function TrackerFrame() {
   // board. In-memory like every other setting here, and modelled on isMapVisible:
   // one piece of state plus one settings-menu row.
   const [isLandscape, setIsLandscape] = useState(false)
+  // Display preferences are remembered per device. They are restored after mount
+  // so the server render and first client render agree, and saving waits until
+  // that restore has happened so the defaults never overwrite stored values.
+  const [hasRestoredSettings, setHasRestoredSettings] = useState(false)
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem(SETTINGS_STORAGE_KEY) ?? 'null')
+      if (saved && typeof saved === 'object') {
+        if (typeof saved.isMapVisible === 'boolean') setIsMapVisible(saved.isMapVisible)
+        if (typeof saved.isNotesVisible === 'boolean') setIsNotesVisible(saved.isNotesVisible)
+        if (typeof saved.isHoverTextOn === 'boolean') setIsHoverTextOn(saved.isHoverTextOn)
+        if (typeof saved.isLandscape === 'boolean') setIsLandscape(saved.isLandscape)
+        if (typeof saved.hoverDelay === 'number' && saved.hoverDelay >= 0 && saved.hoverDelay <= 3000) {
+          setHoverDelay(saved.hoverDelay)
+        }
+      }
+    } catch {
+      // Unreadable or blocked storage just means starting from the defaults.
+    }
+    setHasRestoredSettings(true)
+  }, [])
+  useEffect(() => {
+    if (!hasRestoredSettings) return
+    try {
+      window.localStorage.setItem(
+        SETTINGS_STORAGE_KEY,
+        JSON.stringify({ isMapVisible, isNotesVisible, isHoverTextOn, hoverDelay, isLandscape }),
+      )
+    } catch {
+      // Storage can be full or disabled (private browsing); settings stay in memory.
+    }
+  }, [hasRestoredSettings, isMapVisible, isNotesVisible, isHoverTextOn, hoverDelay, isLandscape])
   // Which icon sits on each overworld cell, keyed by grid id and coordinates.
   // Only filled cells are stored, so an absent key is an empty square.
   const [overworldCells, setOverworldCells] = useState<Record<string, string>>(OVERWORLD_START_CELLS)
