@@ -14,6 +14,19 @@ type UpdateRelease = {
 // Newest first. Add a new release at the top to publish new notes.
 const UPDATE_RELEASES: UpdateRelease[] = [
   {
+    id: '2026-10-13-flags',
+    date: '10/13/26',
+    lines: [
+      'Moved Flags selection to the Flags section of the tracker. Picking new flags clears your tracker',
+      'Added Custom flags: type your own flagset name (up to 20 characters)',
+      'Added Beginner flags preset and renamed Standard to Normal to match the Z2R app',
+      'Added Spell Quest highlighting: hover a spell quest item (Trophy, Child, Mirror, Water, Medicine) to highlight its town, or hover a town to highlight its item',
+      'Added the option to open Notes in a new window',
+      'Added an AI Disclosure',
+      'Various visual adjustments',
+    ],
+  },
+  {
     id: '2026-10-sprites',
     date: '10/11/26',
     lines: [
