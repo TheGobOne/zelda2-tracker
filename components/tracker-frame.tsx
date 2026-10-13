@@ -1103,13 +1103,6 @@ const CONTROL_GROUPS: {
     ],
   },
   {
-    title: 'Continent connectors',
-    rows: [
-      { input: 'Left click', effect: 'Cycle forward through destinations' },
-      { input: 'Right click', effect: 'Cycle back' },
-    ],
-  },
-  {
     // Distinguished from the palace items above, which are also locations in the
     // loose sense - these are the overworld checks.
     title: 'Item locations',
@@ -1117,14 +1110,6 @@ const CONTROL_GROUPS: {
       { input: 'Left click', effect: 'Mark the item collected' },
       { input: 'Right click', effect: 'Choose or change the item' },
       { input: 'Middle click', effect: 'Clear the slot' },
-    ],
-  },
-  {
-    title: "Granny's Basement",
-    note: "Completes on its own when Granny's item is collected.",
-    rows: [
-      { input: 'Left click', effect: 'Next count' },
-      { input: 'Right click', effect: 'Previous count' },
     ],
   },
   {
@@ -1139,11 +1124,19 @@ const CONTROL_GROUPS: {
   },
   {
     title: 'Overworld maps',
-    note: 'Click a palette icon to hold it, click it again to put it down.',
+    note: 'Click a palette icon to hold it, click it again to put it down. In move mode, a box with no icons in it is discarded.',
     rows: [
       { input: 'Left click', effect: 'Drop the held icon on a square' },
       { input: 'Right click', effect: 'Clear the square' },
+      { input: 'Middle click', effect: 'Enter or exit move mode' },
+      { input: 'Drag (move mode)', effect: 'Box-select the icons to lift' },
+      { input: 'Click (move mode)', effect: 'Place the lifted icons' },
+      { input: 'Escape', effect: 'Leave move mode, lifted icons stay put' },
     ],
+  },
+  {
+    title: 'Heart/Magic containers',
+    note: 'The heart/magic containers will increment on their own when collected. Setting the flags to Custom allows selection.',
   },
   {
     // Takes the slot the heart/magic controls held: the footnote below the grid
@@ -3139,13 +3132,13 @@ export function TrackerFrame() {
                           >
                             {hasSeenControls ? null : (
                               <span aria-hidden="true" className="controls-hint-arrow">
-                                {'▶'}
+                                {'▶▶▶'}
                               </span>
                             )}
                             Controls
                             {hasSeenControls ? null : (
                               <span aria-hidden="true" className="controls-hint-arrow">
-                                {'◀'}
+                                {'◀◀◀'}
                               </span>
                             )}
                           </button>
@@ -3822,14 +3815,6 @@ export function TrackerFrame() {
                       </section>
                     ))}
                   </div>
-
-                  {/* Closes the dialog on the one behaviour that surprises people:
-                      the counts move by themselves, so the click is for the figures
-                      rather than the count. */}
-                  <p className="controls-footnote">
-                    The heart/magic containers will increment on their own when
-                    collected. Setting the flags to Custom allows selection.
-                  </p>
                 </div>
               </div>
             ) : null}

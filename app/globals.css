@@ -2120,6 +2120,7 @@ gear's center to the center of the left lane (palace and map sections). */
   margin: 0 8px;
   color: #f5f5f5;
   font-size: 0.8em;
+  letter-spacing: -0.15em;
   animation: controls-hint-blink 0.8s steps(1, end) infinite;
   }
 
