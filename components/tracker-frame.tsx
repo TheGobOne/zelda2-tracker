@@ -1364,7 +1364,7 @@ export function TrackerFrame() {
     doc.head.querySelectorAll('style, link[rel="stylesheet"]').forEach((node) => node.remove())
     document.querySelectorAll<HTMLStyleElement | HTMLLinkElement>('style, link[rel="stylesheet"]').forEach((node) => {
       const clone = doc.importNode(node, true) as HTMLStyleElement | HTMLLinkElement
-      if (clone instanceof popup.HTMLLinkElement && node instanceof HTMLLinkElement) clone.href = node.href
+      if (node instanceof HTMLLinkElement) (clone as HTMLLinkElement).href = node.href
       doc.head.appendChild(clone)
     })
     doc.documentElement.className = document.documentElement.className
@@ -2471,7 +2471,7 @@ export function TrackerFrame() {
     setActiveFlags(preset.id)
     setHasPickedFlags(true)
     setCustomFlagsName('')
-    setIsNamingCustom(preset.id === CUSTOM_PRESET.id)
+    setIsNamingCustom(preset.id === CUSTOM_FLAGS_ID)
     // Back to the Custom entry's opening figures. Loading a ruleset is the start
     // of a new run, so figures typed for the last one would be stale - and for the
     // fixed presets they are unreachable anyway, which would leave them waiting to
