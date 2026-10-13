@@ -2,19 +2,33 @@
 
 import { useEffect, useRef, useState } from 'react'
 
-// Bump this when the list changes so players who opted out see the new notes once.
-const UPDATES_VERSION = '2026-10-sprites'
 const UPDATES_STORAGE_KEY = 'z2-tracker-updates-dismissed'
 
-const UPDATES = [
-  'Added Notes section (highlights when text is entered)',
-  'Added Tooltips for virtually all tracker icons (can be disabled in gear menu)',
-  'Added Palace Image Tooltips (can be disabled in gear menu)',
-  'Increased Mapping grid to 11x11 (from 9x9)',
-  'Added the ability to select and move icons on your map (middle click enters/exits move mode, left click to place selected icons)',
-  'Added Local Browser Save so your settings (Hide Maps, Landscape, etc) will remain as they are when reloading',
-  "Matched Mirror/Water/Bagu's Letter sprites to in-game sprites",
+type UpdateRelease = {
+  /** Unique per release; the newest one decides whether opted-out players see the popup again. */
+  id: string
+  date: string
+  lines: string[]
+}
+
+// Newest first. Add a new release at the top to publish new notes.
+const UPDATE_RELEASES: UpdateRelease[] = [
+  {
+    id: '2026-10-sprites',
+    date: '10/11/26',
+    lines: [
+      'Added Notes section (highlights when text is entered)',
+      'Added Tooltips for virtually all tracker icons (can be disabled in gear menu)',
+      'Added Palace Image Tooltips (can be disabled in gear menu)',
+      'Increased Mapping grid to 11x11 (from 9x9)',
+      'Added the ability to select and move icons on your map (middle click enters/exits move mode, left click to place selected icons)',
+      'Added Local Browser Save so your settings (Hide Maps, Landscape, etc) will remain as they are when reloading',
+      "Matched Mirror/Water/Bagu's Letter sprites to in-game sprites",
+    ],
+  },
 ]
+
+const UPDATES_VERSION = UPDATE_RELEASES[0].id
 
 function isDismissed() {
   try {
@@ -29,6 +43,7 @@ function isDismissed() {
 export function UpdatesDialog({ openRequest = 0 }: { openRequest?: number }) {
   const [isOpen, setIsOpen] = useState(false)
   const [doNotShowAgain, setDoNotShowAgain] = useState(false)
+  const [releaseIndex, setReleaseIndex] = useState(0)
   const closeRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
@@ -39,6 +54,7 @@ export function UpdatesDialog({ openRequest = 0 }: { openRequest?: number }) {
     if (openRequest === 0) return
     // Mirror the saved choice so closing a manual reopen doesn't undo it.
     setDoNotShowAgain(isDismissed())
+    setReleaseIndex(0)
     setIsOpen(true)
   }, [openRequest])
 
@@ -60,6 +76,10 @@ export function UpdatesDialog({ openRequest = 0 }: { openRequest?: number }) {
     }
     setIsOpen(false)
   }
+
+  const release = UPDATE_RELEASES[releaseIndex]
+  const hasOlder = releaseIndex < UPDATE_RELEASES.length - 1
+  const hasNewer = releaseIndex > 0
 
   return (
     <div
@@ -84,11 +104,31 @@ export function UpdatesDialog({ openRequest = 0 }: { openRequest?: number }) {
         <span aria-hidden="true" className="updates-corner updates-corner-top-right" />
         <span aria-hidden="true" className="updates-corner updates-corner-bottom-right" />
         <span aria-hidden="true" className="updates-corner updates-corner-bottom-left" />
-        <h2 className="updates-title" id="updates-title">
-          Updates
-        </h2>
+        <div className="updates-header">
+          <button
+            aria-label="Older updates"
+            className="updates-nav"
+            disabled={!hasOlder}
+            onClick={() => setReleaseIndex((index) => index + 1)}
+            type="button"
+          >
+            <span aria-hidden="true">{'<'}</span>
+          </button>
+          <h2 aria-live="polite" className="updates-title" id="updates-title">
+            Updates ({release.date})
+          </h2>
+          <button
+            aria-label="Newer updates"
+            className="updates-nav"
+            disabled={!hasNewer}
+            onClick={() => setReleaseIndex((index) => index - 1)}
+            type="button"
+          >
+            <span aria-hidden="true">{'>'}</span>
+          </button>
+        </div>
         <ul className="updates-list">
-          {UPDATES.map((line) => (
+          {release.lines.map((line) => (
             <li key={line}>{line}</li>
           ))}
         </ul>

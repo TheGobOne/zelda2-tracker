@@ -603,7 +603,32 @@
 
 .notes-panel-text::placeholder {
   color: #6a6a6a;
-}
+  }
+
+  .notes-panel-hint {
+  margin-left: 6px;
+  color: #8a8a8a;
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: none;
+  }
+
+  .notes-popout-body {
+  margin: 0;
+  background: #101010;
+  }
+
+  .notes-panel.is-popout {
+  position: static;
+  width: 100%;
+  height: 100vh;
+  box-sizing: border-box;
+  }
+
+  .tracker-menu-option:disabled {
+  opacity: 0.4;
+  cursor: default;
+  }
 
 /* Says what the panel is, since it sits among the location sprites with nothing
    else to identify it. Held to a whisper against the name below, which is the
@@ -1949,7 +1974,45 @@ gear's center to the center of the left lane (palace and map sections). */
   text-transform: uppercase;
 }
 
-.updates-list {
+  .updates-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  }
+
+  .updates-header .updates-title {
+  flex: 1;
+  }
+
+  .updates-nav {
+  display: flex;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: transparent;
+  border: 2px solid #f5f5f5;
+  color: #f5f5f5;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  }
+
+  .updates-nav:hover:not(:disabled),
+  .updates-nav:focus-visible {
+  background: #233bea;
+  outline: none;
+  }
+
+  .updates-nav:disabled {
+  opacity: 0.35;
+  cursor: default;
+  }
+
+  .updates-list {
   display: flex;
   flex-direction: column;
   gap: 10px;

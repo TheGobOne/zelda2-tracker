@@ -10,6 +10,7 @@ import {
   useRef,
   useState,
 } from 'react'
+import { createPortal } from 'react-dom'
 import { GlyphText } from '@/components/glyph-text'
 import { IconTooltip } from '@/components/icon-tooltip'
 import { UpdatesDialog } from '@/components/updates-dialog'
@@ -1280,6 +1281,54 @@ export function TrackerFrame() {
   const [isNotesOpen, setIsNotesOpen] = useState(false)
   const [isNotesVisible, setIsNotesVisible] = useState(true)
   const [notes, setNotes] = useState('')
+  // When on, the notes button opens a separate browser window instead of the
+  // in-board panel. The popup's body is a React portal target, so it shares the
+  // same `notes` state and stays in sync with the board.
+  const [isNotesPopout, setIsNotesPopout] = useState(false)
+  const [notesWindow, setNotesWindow] = useState<Window | null>(null)
+  const closeNotesWindow = () => {
+    setNotesWindow((current) => {
+      if (current && !current.closed) current.close()
+      return null
+    })
+  }
+  const openNotes = () => {
+    if (!isNotesPopout) {
+      setIsNotesOpen(true)
+      return
+    }
+    if (notesWindow && !notesWindow.closed) {
+      notesWindow.focus()
+      return
+    }
+    const popup = window.open('', 'z2-tracker-notes', 'popup,width=480,height=560')
+    // Popup blocked: fall back to the in-board panel so notes are still reachable.
+    if (!popup) {
+      setIsNotesOpen(true)
+      return
+    }
+    const doc = popup.document
+    doc.title = 'Notes - Z2 Tracker'
+    doc.head.querySelectorAll('style, link[rel="stylesheet"]').forEach((node) => node.remove())
+    document.querySelectorAll<HTMLStyleElement | HTMLLinkElement>('style, link[rel="stylesheet"]').forEach((node) => {
+      const clone = doc.importNode(node, true) as HTMLStyleElement | HTMLLinkElement
+      if (clone instanceof popup.HTMLLinkElement && node instanceof HTMLLinkElement) clone.href = node.href
+      doc.head.appendChild(clone)
+    })
+    doc.documentElement.className = document.documentElement.className
+    doc.body.replaceChildren()
+    doc.body.className = `${document.body.className} notes-popout-body`
+    const canvas = document.querySelector('.game-canvas')
+    if (canvas) doc.body.style.fontFamily = getComputedStyle(canvas).fontFamily
+    popup.addEventListener('pagehide', () => setNotesWindow(null))
+    setIsNotesOpen(false)
+    setNotesWindow(popup)
+    popup.focus()
+  }
+  useEffect(() => {
+    if (!isNotesPopout || !isNotesVisible) closeNotesWindow()
+  }, [isNotesPopout, isNotesVisible])
+  useEffect(() => () => closeNotesWindow(), [])
   const [isHoverTextOn, setIsHoverTextOn] = useState(true)
   const [hoverDelay, setHoverDelay] = useState(500)
   const [isPalaceImageTipsOn, setIsPalaceImageTipsOn] = useState(true)
@@ -1328,6 +1377,7 @@ export function TrackerFrame() {
       if (saved && typeof saved === 'object') {
         if (typeof saved.isMapVisible === 'boolean') setIsMapVisible(saved.isMapVisible)
         if (typeof saved.isNotesVisible === 'boolean') setIsNotesVisible(saved.isNotesVisible)
+        if (typeof saved.isNotesPopout === 'boolean') setIsNotesPopout(saved.isNotesPopout)
         if (typeof saved.isHoverTextOn === 'boolean') setIsHoverTextOn(saved.isHoverTextOn)
         if (typeof saved.isLandscape === 'boolean') setIsLandscape(saved.isLandscape)
         if (typeof saved.isPalaceImageTipsOn === 'boolean') {
@@ -1353,6 +1403,7 @@ export function TrackerFrame() {
         JSON.stringify({
           isMapVisible,
           isNotesVisible,
+          isNotesPopout,
           isHoverTextOn,
           hoverDelay,
           isLandscape,
@@ -1367,6 +1418,7 @@ export function TrackerFrame() {
     hasRestoredSettings,
     isMapVisible,
     isNotesVisible,
+    isNotesPopout,
     isHoverTextOn,
     hoverDelay,
     isLandscape,
@@ -3063,6 +3115,24 @@ export function TrackerFrame() {
                           </button>
 
                           <button
+                            aria-checked={isNotesPopout}
+                            className="tracker-menu-option"
+                            disabled={!isNotesVisible}
+                            onClick={() => {
+                              setIsNotesOpen(false)
+                              setIsNotesPopout((current) => !current)
+                            }}
+                            role="menuitemcheckbox"
+                            type="button"
+                          >
+                            <span
+                              aria-hidden="true"
+                              className={`tracker-menu-check${isNotesPopout ? ' is-checked' : ''}`}
+                            />
+                            Open in Separate Window
+                          </button>
+
+                          <button
                             aria-checked={isHoverTextOn}
                             className="tracker-menu-option tracker-menu-option-bordered"
                             onClick={() => setIsHoverTextOn((current) => !current)}
@@ -3434,11 +3504,11 @@ export function TrackerFrame() {
                 {rowIndex === 2 && isNotesVisible ? (
                   <button
                     aria-controls="run-notes"
-                    aria-expanded={isNotesOpen}
+                    aria-expanded={isNotesOpen || notesWindow !== null}
                     aria-label={notes.trim() ? 'Open notes (has notes)' : 'Open notes'}
                     className={notes.trim() ? 'notes-toggle has-notes' : 'notes-toggle'}
                   data-tip="Notes"
-                    onClick={() => setIsNotesOpen(true)}
+                    onClick={openNotes}
                     type="button"
                   >
                     <NotebookPen aria-hidden="true" size={28} strokeWidth={2.25} />
@@ -3462,7 +3532,7 @@ export function TrackerFrame() {
               >
                 <div className="notes-panel-header">
                   <h2 className="notes-panel-title" id="run-notes-title">
-                    Notes
+                    Notes <span className="notes-panel-hint">(menu to open in separate window)</span>
                   </h2>
                   <button
                     aria-label="Close notes"
@@ -3487,6 +3557,45 @@ export function TrackerFrame() {
                 />
               </section>
             ) : null}
+
+            {notesWindow
+              ? createPortal(
+                  <section
+                    aria-labelledby="popout-notes-title"
+                    className="notes-panel is-popout"
+                    onKeyDown={(event) => {
+                      if (event.key === 'Escape') closeNotesWindow()
+                    }}
+                  >
+                    <div className="notes-panel-header">
+                      <h1 className="notes-panel-title" id="popout-notes-title">
+                        Notes
+                      </h1>
+                      <button
+                        aria-label="Close notes window"
+                        className="notes-panel-close"
+                        onClick={closeNotesWindow}
+                        type="button"
+                      >
+                        <X aria-hidden="true" size={20} strokeWidth={3} />
+                      </button>
+                    </div>
+                    <label className="sr-only" htmlFor="popout-notes-text">
+                      Run notes
+                    </label>
+                    <textarea
+                      className="notes-panel-text"
+                      ref={focusAtEnd}
+                      id="popout-notes-text"
+                      onChange={(event) => setNotes(event.target.value)}
+                      placeholder="Type notes for this run..."
+                      spellCheck={false}
+                      value={notes}
+                    />
+                  </section>,
+                  notesWindow.document.body,
+                )
+              : null}
 
             {/* The collection + maps are the board's lower half in portrait; in
                 landscape they become the right column. Wrapping them in one box
