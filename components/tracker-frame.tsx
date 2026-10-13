@@ -1225,6 +1225,7 @@ export function TrackerFrame() {
   const [isShowingAiDisclosure, setIsShowingAiDisclosure] = useState(false)
   // A ruleset picked while one is already loaded, held here until the player
   // confirms, since loading flags wipes the board.
+  const [isConfirmingClear, setIsConfirmingClear] = useState(false)
   const [pendingPreset, setPendingPreset] = useState<
     (typeof PRESETS)[number] | null
   >(null)
@@ -3551,6 +3552,19 @@ export function TrackerFrame() {
                           {CUSTOM_PRESET.name}
                         </button>
                       ) : null}
+                      {/* Wipes the run but keeps the loaded flags, so it lives
+                          at the foot of the flags menu behind a confirm. */}
+                      <button
+                        className="tracker-menu-option tracker-menu-option-bordered tracker-menu-option-danger"
+                        onClick={() => {
+                          closeMenu()
+                          setIsConfirmingClear(true)
+                        }}
+                        role="menuitem"
+                        type="button"
+                      >
+                        Clear
+                      </button>
                       </div>
                     ) : null}
                   </div>
@@ -3953,6 +3967,44 @@ export function TrackerFrame() {
                   <p>
                     Loading {pendingPreset.name} will clear your tracker. Are you
                     sure?
+                  </p>
+                </div>
+              </FramedDialog>
+            ) : null}
+
+            {isConfirmingClear ? (
+              <FramedDialog
+                actions={
+                  <>
+                    <button
+                      className="updates-close"
+                      onClick={() => setIsConfirmingClear(false)}
+                      type="button"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      autoFocus
+                      className="updates-close"
+                      onClick={() => {
+                        clearTracker()
+                        setIsConfirmingClear(false)
+                      }}
+                      type="button"
+                    >
+                      Yes
+                    </button>
+                  </>
+                }
+                className="framed-disclosure framed-confirm"
+                onClose={() => setIsConfirmingClear(false)}
+                title="Clear Tracker?"
+                titleId="clear-confirm-title"
+              >
+                <div className="framed-disclosure-body">
+                  <p>
+                    This will clear your tracker but keep your current flags. Are
+                    you sure?
                   </p>
                 </div>
               </FramedDialog>
