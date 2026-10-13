@@ -1785,8 +1785,10 @@
   cursor: pointer;
 }
 
-.tracker-menu-toggle:hover {
+.tracker-menu-toggle:hover,
+  .tracker-menu-toggle:active {
   background: transparent;
+  box-shadow: none;
   }
 
 .tracker-menu-toggle:focus-visible {
