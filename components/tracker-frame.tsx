@@ -2999,7 +2999,7 @@ export function TrackerFrame() {
                           </button>
 
                           <button
-                            aria-checked={!isNotesVisible}
+                            aria-checked={isNotesVisible}
                             className="tracker-menu-option tracker-menu-option-bordered"
                             onClick={() => {
                               setIsNotesOpen(false)
@@ -3010,14 +3010,14 @@ export function TrackerFrame() {
                           >
                             <span
                               aria-hidden="true"
-                              className={`tracker-menu-check${isNotesVisible ? '' : ' is-checked'}`}
+                              className={`tracker-menu-check${isNotesVisible ? ' is-checked' : ''}`}
                             />
-                            Hide notes
+                            Notes
                           </button>
 
                           <button
                             aria-checked={isHoverTextOn}
-                            className="tracker-menu-option"
+                            className="tracker-menu-option tracker-menu-option-bordered"
                             onClick={() => setIsHoverTextOn((current) => !current)}
                             role="menuitemcheckbox"
                             type="button"
