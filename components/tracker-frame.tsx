@@ -1221,8 +1221,6 @@ export function TrackerFrame() {
   // absent key means the end is still unknown and shows the "?" marker.
   const [connectorEnds, setConnectorEnds] = useState<Record<string, string>>({})
   const [openSlot, setOpenSlot] = useState<string | null>(null)
-  // Clearing is destructive, so it waits on a confirmation dialog.
-  const [isConfirmingClear, setIsConfirmingClear] = useState(false)
   const [isShowingControls, setIsShowingControls] = useState(false)
   const [isShowingAiDisclosure, setIsShowingAiDisclosure] = useState(false)
   // A ruleset picked while one is already loaded, held here until the player
@@ -2396,7 +2394,6 @@ export function TrackerFrame() {
     setCountValues({})
     setConnectorEnds({})
     setOpenSlot(null)
-    setIsConfirmingClear(false)
     setOpenLimitPicker(null)
     setNotes('')
     setIsNotesOpen(false)
@@ -3123,9 +3120,7 @@ export function TrackerFrame() {
                             Landscape
                           </button>
 
-                          {/* Opens the controls reference. Sits below the
-                              flags entries and above Clear, so the menu runs from
-                              harmless to destructive top to bottom. */}
+                          {/* Opens the controls reference. */}
                           <button
                             className="tracker-menu-option tracker-menu-option-bordered"
                             onClick={() => {
@@ -3159,21 +3154,6 @@ export function TrackerFrame() {
                             type="button"
                           >
                             Updates
-                          </button>
-
-                          {/* Clearing wipes the board, so it is set apart from
-                              the flags entries above it and tinted with the frame's
-                              red. Still routed through the confirm dialog. */}
-                          <button
-                            className="tracker-menu-option tracker-menu-option-danger"
-                            onClick={() => {
-                              closeMenu()
-                              setIsConfirmingClear(true)
-                            }}
-                            role="menuitem"
-                            type="button"
-                          >
-                            Clear
                           </button>
 
                           {isInstalled ? null : (
@@ -3893,42 +3873,6 @@ export function TrackerFrame() {
                 onClick={() => setOpenLimitPicker(null)}
                 type="button"
               />
-            ) : null}
-
-            {isConfirmingClear ? (
-              <div className="tracker-dialog-overlay">
-                <button
-                  aria-label="Cancel clearing the tracker"
-                  className="item-picker-backdrop"
-                  onClick={() => setIsConfirmingClear(false)}
-                  type="button"
-                />
-                {/* No copy here, so the dialog carries its own label for
-                    screen readers rather than pointing at a heading. */}
-                <div
-                  aria-label="Clear tracker?"
-                  aria-modal="true"
-                  className="tracker-dialog"
-                  role="dialog"
-                >
-                  <div className="tracker-dialog-actions">
-                    <button
-                      className="tracker-button"
-                      onClick={() => setIsConfirmingClear(false)}
-                      type="button"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      className="tracker-button tracker-button-danger"
-                      onClick={clearTracker}
-                      type="button"
-                    >
-                      Clear
-                    </button>
-                  </div>
-                </div>
-              </div>
             ) : null}
 
             {isShowingInstallHelp ? (
