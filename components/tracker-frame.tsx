@@ -744,6 +744,16 @@ const PRESETS: {
 /** The one ruleset whose container figures are the user's to set. */
 const CUSTOM_FLAGS_ID = 'custom'
 
+const CUSTOM_NAME_MAX_LENGTH = 20
+// Ten characters is what the readout holds at its full 20px; past that the
+// letters shrink in step so the whole name still sits on one line.
+const CUSTOM_NAME_FULL_SIZE_LENGTH = 10
+const CUSTOM_NAME_FULL_FONT_SIZE = 20
+function customNameFontSize(length: number) {
+  if (length <= CUSTOM_NAME_FULL_SIZE_LENGTH) return CUSTOM_NAME_FULL_FONT_SIZE
+  return Math.floor((CUSTOM_NAME_FULL_FONT_SIZE * CUSTOM_NAME_FULL_SIZE_LENGTH) / length)
+}
+
 /**
  * The three runs the flags list is built from, split once here so the menu does
  * not filter on every render.
@@ -1263,7 +1273,8 @@ export function TrackerFrame() {
     loadedPreset.id === CUSTOM_FLAGS_ID && customFlagsName.trim()
       ? customFlagsName.trim()
       : activePreset.name
-
+  const isCustomLoaded = hasPickedFlags && loadedPreset.id === CUSTOM_FLAGS_ID
+  
   // Whether the loaded ruleset is one of the Upstarts weeks, which is what marks
   // the collapsed submenu as holding the active entry.
   const isUpstartsActive = UPSTARTS_PRESETS.some(
@@ -3405,8 +3416,13 @@ export function TrackerFrame() {
                           autoFocus
                           className="flags-panel-value flags-panel-input"
                           id="custom-flags-name"
-                          maxLength={10}
+                          maxLength={CUSTOM_NAME_MAX_LENGTH}
                           onBlur={() => setIsNamingCustom(false)}
+                          onFocus={(event) => {
+                            const end = event.currentTarget.value.length
+                            event.currentTarget.setSelectionRange(end, end)
+                          }}
+                          style={{ fontSize: customNameFontSize(customFlagsName.length) }}
                           onChange={(event) => setCustomFlagsName(event.target.value)}
                           onKeyDown={(event) => {
                             if (event.nativeEvent.isComposing || event.keyCode === 229) return
@@ -3427,8 +3443,17 @@ export function TrackerFrame() {
                       aria-haspopup="menu"
                       aria-label={`Flags: ${hasPickedFlags ? flagsDisplayName : 'none selected'}. Right click to select flags. Selecting new flags acts as a clear button.`}
                       className="flags-panel"
-                      data-tip="Selecting new flags acts as a clear button"
-                      onClick={(event) => event.preventDefault()}
+                      data-tip={
+                        isCustomLoaded
+                          ? 'Left click to rename. Selecting new flags acts as a clear button'
+                          : 'Selecting new flags acts as a clear button'
+                      }
+                      onClick={(event) => {
+                        event.preventDefault()
+                        if (!isCustomLoaded) return
+                        setIsFlagsOpen(false)
+                        setIsNamingCustom(true)
+                      }}
                       onContextMenu={(event) => {
                         event.preventDefault()
                         setIsMenuOpen(false)
@@ -3444,6 +3469,14 @@ export function TrackerFrame() {
                       </span>
                       <span
                         className={`flags-panel-value${hasPickedFlags ? '' : ' is-prompt'}`}
+                        style={
+                          isCustomLoaded
+                            ? {
+                                fontSize: customNameFontSize(flagsDisplayName.length),
+                                whiteSpace: 'nowrap',
+                              }
+                            : undefined
+                        }
                       >
                         {hasPickedFlags ? flagsDisplayName : 'Right click to select'}
                       </span>
