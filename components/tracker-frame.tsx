@@ -1441,6 +1441,9 @@ export function TrackerFrame() {
         if (typeof saved.hoverDelay === 'number' && saved.hoverDelay >= 0 && saved.hoverDelay <= 3000) {
           setHoverDelay(saved.hoverDelay)
         }
+        if (typeof saved.scale === 'number' && Number.isFinite(saved.scale)) {
+          setScale(clampScale(saved.scale))
+        }
       }
     } catch {
       // Unreadable or blocked storage just means starting from the defaults.
@@ -1461,6 +1464,7 @@ export function TrackerFrame() {
           isLandscape,
           isPalaceImageTipsOn,
           isCaveImageTipsOn,
+          scale,
         }),
       )
     } catch {
@@ -1476,6 +1480,7 @@ export function TrackerFrame() {
     isLandscape,
     isPalaceImageTipsOn,
     isCaveImageTipsOn,
+    scale,
   ])
   // Which icon sits on each overworld cell, keyed by grid id and coordinates.
   // Only filled cells are stored, so an absent key is an empty square.
