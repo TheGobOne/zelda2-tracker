@@ -957,7 +957,7 @@
 .game-canvas:has(.town-column[data-town="Saria"]:hover) [data-quest-town="Saria"],
 .game-canvas:has(.town-column[data-town="Nabooru"]:hover) [data-quest-town="Nabooru"],
 .game-canvas:has(.town-column[data-town="Mido"]:hover) [data-quest-town="Mido"] {
-  filter: brightness(1.15) drop-shadow(0 0 4px rgb(255 255 255 / 0.85));
+  filter: brightness(1.15) drop-shadow(0 0 3px rgb(255 214 0 / 0.95)) drop-shadow(0 0 6px rgb(255 190 0 / 0.75));
 }
 
 /* Mirror the boss sprites only, so item slots and their contents stay upright.
