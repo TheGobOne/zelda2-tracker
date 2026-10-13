@@ -500,6 +500,78 @@
      edge while the notes glyph sits inset in its button, so the empty gap the
      eye reads is centred ~5.5px right of the box. */
   padding: 0 10px 5px 21px;
+  /* A button now, since right-clicking it opens the flags picker. */
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: context-menu;
+}
+
+.flags-panel > span {
+  display: block;
+}
+
+/* Takes over the readout's share of row three and anchors the picker below it. */
+.flags-panel-wrap {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+.flags-panel:focus-visible {
+  outline: 2px solid #f5f5f5;
+  outline-offset: -2px;
+}
+
+/* "Right click to select" is far longer than any ruleset name, so it drops to a
+   size that fits the readout on one line. */
+.flags-panel-value.is-prompt {
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* Lifts row three over the menu backdrop (6) so the picker stays clickable.  */
+.location-row-raised {
+  z-index: 7;
+}
+
+/* Hangs below the readout, right-aligned to it. Both orientations share this,
+   undoing the landscape gear menu's lane-centring offsets. */
+.game-canvas .flags-menu,
+.game-canvas.is-landscape .flags-menu {
+  top: calc(100% + 8px);
+  right: 0;
+  left: auto;
+  bottom: auto;
+  min-width: 220px;
+  transform: none;
+}
+
+/* The readout sits on the board's right, so Upstarts' weeks always open left
+   into the open board, growing up from the entry. */
+.game-canvas .flags-menu .tracker-submenu,
+.game-canvas.is-landscape .flags-menu .tracker-submenu {
+  right: calc(100% + 15px);
+  left: auto;
+  top: auto;
+  bottom: 0;
+}
+
+.game-canvas .flags-menu .tracker-submenu-toggle,
+.game-canvas.is-landscape .flags-menu .tracker-submenu-toggle {
+  padding-left: 26px;
+  padding-right: 14px;
+}
+
+.game-canvas .flags-menu .tracker-submenu-arrow,
+.game-canvas.is-landscape .flags-menu .tracker-submenu-arrow {
+  left: 10px;
+  right: auto;
+  border-left: 0;
+  border-right: 12px solid #f5f5f5;
 }
 
 /* Sits at the end of row three, to the right of the flags readout, which gives up
@@ -2370,6 +2442,44 @@ gear's center to the center of the left lane (palace and map sections). */
 .tracker-menu-option-install:hover {
   color: #f5f5f5;
   }
+
+  .tracker-menu-option-ai {
+  color: #3ec43e;
+  }
+
+  .tracker-menu-option-ai:hover {
+  color: #f5f5f5;
+  }
+
+  .framed-dialog-footer {
+  justify-content: flex-end;
+  }
+
+  .updates-dialog.framed-controls {
+  max-width: 600px;
+  }
+
+  .framed-controls .controls-groups {
+  min-height: 0;
+  overflow-y: auto;
+  }
+
+  .tracker-scaler:has(> .game-canvas.is-landscape) .updates-dialog.framed-disclosure {
+  width: 600px;
+  }
+
+  .framed-disclosure-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  }
+
+  .framed-disclosure-body p {
+  margin: 0;
+  }
+ 
 
 /* Invisible catcher so clicking anywhere else dismisses the menu. Above the board's
    content and rails (3 to 6), so the first click outside closes the menu instead of
