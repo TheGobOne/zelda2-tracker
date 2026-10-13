@@ -648,8 +648,8 @@ const PRESETS: {
   connectorEnds?: Record<string, string>
 }[] = [
   {
-    // Vanilla flags: Link only ever starts with the candle. The only checks known
-    // in advance are the two stab teachers, which each hold their own stab.
+    // Vanilla flags: Link only ever starts with the candle. The checks known in
+    // advance are the stab teachers and the spell-quest spots, all left unticked.
     id: 'standard',
     name: 'Normal',
     collectedIds: ['candle'],
@@ -661,6 +661,9 @@ const PRESETS: {
     placements: {
       "location-Downstab": 'downstab',
       "location-Upstab": 'upstab',
+      'location-Saria Table': 'mirror',
+      'location-Bagu': 'noteforriverman',
+      'location-Fountain': 'water',
     },
     counts: {},
   },
