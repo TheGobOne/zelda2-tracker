@@ -2132,9 +2132,27 @@ gear's center to the center of the left lane (palace and map sections). */
   }
   }
 
-  @media (prefers-reduced-motion: reduce) {
+  .tracker-menu-toggle.is-hinting .tracker-menu-gear {
+  animation: gear-rainbow 1.6s linear infinite;
+  }
+
+@keyframes gear-rainbow {
+  0% { color: #ff3b30; filter: drop-shadow(0 0 4px #ff3b30); }
+  16% { color: #ff9500; filter: drop-shadow(0 0 4px #ff9500); }
+  33% { color: #ffd60a; filter: drop-shadow(0 0 4px #ffd60a); }
+  50% { color: #34c759; filter: drop-shadow(0 0 4px #34c759); }
+  66% { color: #0a84ff; filter: drop-shadow(0 0 4px #0a84ff); }
+  83% { color: #bf5af2; filter: drop-shadow(0 0 4px #bf5af2); }
+  100% { color: #ff3b30; filter: drop-shadow(0 0 4px #ff3b30); }
+}
+
+@media (prefers-reduced-motion: reduce) {
   .controls-hint-arrow {
   animation: none;
+  }
+  .tracker-menu-toggle.is-hinting .tracker-menu-gear {
+  animation: none;
+  color: #ffd60a;
   }
   }
 

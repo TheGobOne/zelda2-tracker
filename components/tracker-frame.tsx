@@ -933,6 +933,7 @@ const OVERWORLD_SIZE = 11
 /** Where display preferences (hidden sections, tooltips, layout) are remembered in the browser. */
 const SETTINGS_STORAGE_KEY = 'z2-tracker-settings'
 const CONTROLS_SEEN_STORAGE_KEY = 'z2-tracker-controls-hint-seen'
+const GEAR_SEEN_STORAGE_KEY = 'z2-tracker-gear-hint-seen'
 
 /** Every run starts at the home palace, so it is pre-placed in the middle of the west map. */
 const OVERWORLD_START_CELLS: Record<string, string> = {
@@ -1290,6 +1291,19 @@ export function TrackerFrame() {
       // Blocked storage: leave the hint hidden rather than nag on every visit.
     }
   }, [])
+  // Same pattern as the Controls hint: the gear shimmers until it is first clicked.
+  const [hasOpenedMenu, setHasOpenedMenu] = useState(true)
+  useEffect(() => {
+    try {
+      setHasOpenedMenu(window.localStorage.getItem(GEAR_SEEN_STORAGE_KEY) === '1')
+    } catch {}
+  }, [])
+  const markMenuOpened = () => {
+    setHasOpenedMenu(true)
+    try {
+      window.localStorage.setItem(GEAR_SEEN_STORAGE_KEY, '1')
+    } catch {}
+  }
   const markControlsSeen = () => {
     setHasSeenControls(true)
     try {
@@ -2852,13 +2866,15 @@ export function TrackerFrame() {
                         aria-expanded={isMenuOpen}
                         aria-haspopup="menu"
                         aria-label="Tracker options"
-                        className="tracker-menu-toggle"
+                        className={`tracker-menu-toggle${hasOpenedMenu ? '' : ' is-hinting'}`}
                         // Closing from the hamburger goes through the same helper
                         // as the backdrop, so the flyout cannot be left open
                         // behind a shut menu.
-                        onClick={() =>
-                          isMenuOpen ? closeMenu() : setIsMenuOpen(true)
-                        }
+                        onClick={() => {
+                          if (!hasOpenedMenu) markMenuOpened()
+                          if (isMenuOpen) closeMenu()
+                          else setIsMenuOpen(true)
+                        }}
                         type="button"
                       >
                         <Settings aria-hidden="true" className="tracker-menu-gear" />
