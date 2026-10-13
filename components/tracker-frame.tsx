@@ -3022,7 +3022,7 @@ export function TrackerFrame() {
                                 aria-hidden="true"
                                 className={`tracker-menu-check${isPalaceImageTipsOn ? ' is-checked' : ''}`}
                               />
-                              Palace Image Tooltips
+                              Palace Images
                             </button>
                           ) : null}
 
@@ -3038,7 +3038,7 @@ export function TrackerFrame() {
                                 aria-hidden="true"
                                 className={`tracker-menu-check${isCaveImageTipsOn ? ' is-checked' : ''}`}
                               />
-                              Cave Image Tooltips
+                              Cave Images
                             </button>
                           ) : null}
 
