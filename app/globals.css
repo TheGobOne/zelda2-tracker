@@ -2139,8 +2139,8 @@ gear's center to the center of the left lane (palace and map sections). */
   /* The pixel font draws < and > low in their line box, so lift the glyph to the button's center. */
   .updates-nav > span {
   display: block;
-  transform: translateY(-3px);
-  }
+  transform: translateY(-0.375em);
+}
   
   .updates-nav:disabled {
   opacity: 0.35;

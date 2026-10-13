@@ -1199,7 +1199,7 @@ const CONTROL_GROUPS: {
     // credit in the dimmer aside styling - the right weight for a footnote that
     // should sit under the name without competing with it.
     note: 'If you have any issues or bugs to report please find me on the Z2R Discord.',
-    link: { href: 'https://z2r.gg/discord', label: 'z2r.gg/discord' },
+    link: { href: 'https://discord.com/channels/429952107593072652/645362483074433025/1543315804391604324', label: 'z2r.gg/discord' },
   },
 ]
 
