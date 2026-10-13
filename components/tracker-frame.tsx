@@ -648,8 +648,8 @@ const PRESETS: {
   connectorEnds?: Record<string, string>
 }[] = [
   {
-    // Vanilla flags: Link only ever starts with the candle, and nothing on the
-    // board is known in advance, so both placement maps stay empty.
+    // Vanilla flags: Link only ever starts with the candle. The only checks known
+    // in advance are the two stab teachers, which each hold their own stab.
     id: 'standard',
     name: 'Normal',
     collectedIds: ['candle'],
@@ -658,7 +658,10 @@ const PRESETS: {
     heartMax: 8,
     magicStart: 4,
     magicMax: 8,
-    placements: {},
+    placements: {
+      "location-Downstab": 'downstab',
+      "location-Upstab": 'upstab',
+    },
     counts: {},
   },
   {
