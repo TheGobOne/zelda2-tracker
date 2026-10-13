@@ -1233,6 +1233,10 @@ export function TrackerFrame() {
   // The board still opens on Standard's layout, but the flags panel asks to be
   // set rather than claiming a ruleset nobody chose, until one is picked.
   const [hasPickedFlags, setHasPickedFlags] = useState(false)
+  // Custom is whatever the runner says it is, so picking it asks for a name in
+  // place on the panel; left blank it just reads "Custom".
+  const [customFlagsName, setCustomFlagsName] = useState('')
+  const [isNamingCustom, setIsNamingCustom] = useState(false)
   // The container figures the loaded ruleset plays by: Standard runs 4 of 8 hearts
   // and magic, SGL 3 of 6 hearts and 3 of 8 magic. Switching flags moves both
   // tallies' floors and totals with it. Read off the preset rather than switched on
@@ -1255,6 +1259,10 @@ export function TrackerFrame() {
     loadedPreset.id === CUSTOM_FLAGS_ID
       ? { ...loadedPreset, ...customLimits }
       : loadedPreset
+  const flagsDisplayName =
+    loadedPreset.id === CUSTOM_FLAGS_ID && customFlagsName.trim()
+      ? customFlagsName.trim()
+      : activePreset.name
 
   // Whether the loaded ruleset is one of the Upstarts weeks, which is what marks
   // the collapsed submenu as holding the active entry.
@@ -2429,6 +2437,8 @@ export function TrackerFrame() {
     setConnectorEnds({ ...preset.connectorEnds })
     setActiveFlags(preset.id)
     setHasPickedFlags(true)
+    setCustomFlagsName('')
+    setIsNamingCustom(preset.id === CUSTOM_PRESET.id)
     // Back to the Custom entry's opening figures. Loading a ruleset is the start
     // of a new run, so figures typed for the last one would be stale - and for the
     // fixed presets they are unreachable anyway, which would leave them waiting to
@@ -3385,10 +3395,37 @@ export function TrackerFrame() {
                     need no change here. */}
                 {rowIndex === 2 ? (
                   <div className="flags-panel-wrap">
+                    {isNamingCustom ? (
+                      <div className="flags-panel">
+                        <label className="flags-panel-label" htmlFor="custom-flags-name">
+                          Flags
+                        </label>
+                        <input
+                          autoComplete="off"
+                          autoFocus
+                          className="flags-panel-value flags-panel-input"
+                          id="custom-flags-name"
+                          maxLength={10}
+                          onBlur={() => setIsNamingCustom(false)}
+                          onChange={(event) => setCustomFlagsName(event.target.value)}
+                          onKeyDown={(event) => {
+                            if (event.nativeEvent.isComposing || event.keyCode === 229) return
+                            if (event.key === 'Enter' || event.key === 'Escape') {
+                              event.preventDefault()
+                              setIsNamingCustom(false)
+                            }
+                          }}
+                          placeholder=" "
+                          spellCheck={false}
+                          type="text"
+                          value={customFlagsName}
+                        />
+                      </div>
+                    ) : (
                     <button
                       aria-expanded={isFlagsOpen}
                       aria-haspopup="menu"
-                      aria-label={`Flags: ${hasPickedFlags ? activePreset.name : 'none selected'}. Right click to select flags. Selecting new flags acts as a clear button.`}
+                      aria-label={`Flags: ${hasPickedFlags ? flagsDisplayName : 'none selected'}. Right click to select flags. Selecting new flags acts as a clear button.`}
                       className="flags-panel"
                       data-tip="Selecting new flags acts as a clear button"
                       onClick={(event) => event.preventDefault()}
@@ -3408,9 +3445,10 @@ export function TrackerFrame() {
                       <span
                         className={`flags-panel-value${hasPickedFlags ? '' : ' is-prompt'}`}
                       >
-                        {hasPickedFlags ? activePreset.name : 'Right click to select'}
+                        {hasPickedFlags ? flagsDisplayName : 'Right click to select'}
                       </span>
                     </button>
+                    )}
 
                     {isFlagsOpen ? (
                       <div

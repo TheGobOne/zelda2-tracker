@@ -528,6 +528,36 @@
 
 /* "Right click to select" is far longer than any ruleset name, so it drops to a
    size that fits the readout on one line. */
+.flags-panel-input {
+  width: 100%;
+  padding: 0;
+  font-family: inherit;
+  text-align: center;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  background: transparent;
+  border: 0;
+  outline: none;
+  caret-color: transparent;
+  /* While empty, a chunky NES-style blinking block stands in for the thin
+     native caret; once there is text the native caret (gold) takes over. The
+     placeholder is a single space so :placeholder-shown tracks emptiness. */
+  background-image: linear-gradient(#f2b21c, #f2b21c);
+  background-repeat: no-repeat;
+  background-size: 0.6em 1em;
+  background-position: center;
+  animation: flags-cursor-blink 1s steps(1) infinite;
+}
+.flags-panel-input:not(:placeholder-shown) {
+  caret-color: #f2b21c;
+  background-image: none;
+  animation: none;
+}
+@keyframes flags-cursor-blink {
+  50% {
+    background-size: 0 0;
+  }
+}
 .flags-panel-value.is-prompt {
   font-size: 11px;
   white-space: nowrap;
@@ -907,6 +937,26 @@
 .game-canvas:has([data-quest-town="Saria"]:hover) .town-column[data-town="Saria"],
 .game-canvas:has([data-quest-town="Nabooru"]:hover) .town-column[data-town="Nabooru"],
 .game-canvas:has([data-quest-town="Mido"]:hover) .town-column[data-town="Mido"] {
+  filter: brightness(1.15) drop-shadow(0 0 4px rgb(255 255 255 / 0.85));
+}
+
+/* The reverse: hovering a quest town spotlights the spell quest item handed
+   over there and dims the other quest items in the collection. */
+[data-quest-town] {
+  transition: filter 150ms ease;
+}
+.game-canvas:has(.town-column[data-town="Ruto"]:hover) [data-quest-town],
+.game-canvas:has(.town-column[data-town="Darunia"]:hover) [data-quest-town],
+.game-canvas:has(.town-column[data-town="Saria"]:hover) [data-quest-town],
+.game-canvas:has(.town-column[data-town="Nabooru"]:hover) [data-quest-town],
+.game-canvas:has(.town-column[data-town="Mido"]:hover) [data-quest-town] {
+  filter: grayscale(1) brightness(0.55);
+}
+.game-canvas:has(.town-column[data-town="Ruto"]:hover) [data-quest-town="Ruto"],
+.game-canvas:has(.town-column[data-town="Darunia"]:hover) [data-quest-town="Darunia"],
+.game-canvas:has(.town-column[data-town="Saria"]:hover) [data-quest-town="Saria"],
+.game-canvas:has(.town-column[data-town="Nabooru"]:hover) [data-quest-town="Nabooru"],
+.game-canvas:has(.town-column[data-town="Mido"]:hover) [data-quest-town="Mido"] {
   filter: brightness(1.15) drop-shadow(0 0 4px rgb(255 255 255 / 0.85));
 }
 
