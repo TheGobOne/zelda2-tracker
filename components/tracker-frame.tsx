@@ -932,6 +932,7 @@ const OVERWORLD_SIZE = 11
 
 /** Where display preferences (hidden sections, tooltips, layout) are remembered in the browser. */
 const SETTINGS_STORAGE_KEY = 'z2-tracker-settings'
+const CONTROLS_SEEN_STORAGE_KEY = 'z2-tracker-controls-seen'
 
 /** Every run starts at the home palace, so it is pre-placed in the middle of the west map. */
 const OVERWORLD_START_CELLS: Record<string, string> = {
@@ -1278,6 +1279,23 @@ export function TrackerFrame() {
   // so the server render and first client render agree, and saving waits until
   // that restore has happened so the defaults never overwrite stored values.
   const [hasRestoredSettings, setHasRestoredSettings] = useState(false)
+  // Starts true so the hint arrows never flash in before storage is read.
+  const [hasSeenControls, setHasSeenControls] = useState(true)
+  useEffect(() => {
+    try {
+      setHasSeenControls(window.localStorage.getItem(CONTROLS_SEEN_STORAGE_KEY) === '1')
+    } catch {
+      // Blocked storage: leave the hint hidden rather than nag on every visit.
+    }
+  }, [])
+  const markControlsSeen = () => {
+    setHasSeenControls(true)
+    try {
+      window.localStorage.setItem(CONTROLS_SEEN_STORAGE_KEY, '1')
+    } catch {
+      // Storage unavailable; the hint stays dismissed for this session only.
+    }
+  }
   useEffect(() => {
     try {
       const saved = JSON.parse(window.localStorage.getItem(SETTINGS_STORAGE_KEY) ?? 'null')
@@ -3030,34 +3048,6 @@ export function TrackerFrame() {
                           </button>
 
                           {isHoverTextOn ? (
-                            <label className="tracker-menu-slider">
-                              <span className="tracker-menu-slider-label">
-                                Delay
-                                <span className="tracker-menu-slider-value">
-                                  {hoverDelay === 0
-                                    ? 'Instant'
-                                    : `${(hoverDelay / 1000).toFixed(hoverDelay % 1000 === 0 ? 0 : 2).replace(/0$/, '')}s`}
-                                </span>
-                              </span>
-                              <input
-                                aria-valuetext={
-                                  hoverDelay === 0
-                                    ? 'Instant'
-                                    : `${hoverDelay / 1000} seconds`
-                                }
-                                max={3000}
-                                min={0}
-                                onChange={(event) =>
-                                  setHoverDelay(Number(event.target.value))
-                                }
-                                step={250}
-                                type="range"
-                                value={hoverDelay}
-                              />
-                            </label>
-                          ) : null}
-
-                          {isHoverTextOn ? (
                             <button
                               aria-checked={isPalaceImageTipsOn}
                               className="tracker-menu-option"
@@ -3089,12 +3079,40 @@ export function TrackerFrame() {
                             </button>
                           ) : null}
 
+                          {isHoverTextOn ? (
+                            <label className="tracker-menu-slider">
+                              <span className="tracker-menu-slider-label">
+                                Delay
+                                <span className="tracker-menu-slider-value">
+                                  {hoverDelay === 0
+                                    ? 'Instant'
+                                    : `${(hoverDelay / 1000).toFixed(hoverDelay % 1000 === 0 ? 0 : 2).replace(/0$/, '')}s`}
+                                </span>
+                              </span>
+                              <input
+                                aria-valuetext={
+                                  hoverDelay === 0
+                                    ? 'Instant'
+                                    : `${hoverDelay / 1000} seconds`
+                                }
+                                max={3000}
+                                min={0}
+                                onChange={(event) =>
+                                  setHoverDelay(Number(event.target.value))
+                                }
+                                step={250}
+                                type="range"
+                                value={hoverDelay}
+                              />
+                            </label>
+                          ) : null}
+
                           {/* Reflows the board into two columns. A checkbox like
                               Hide maps, and left open on click for the same reason:
                               it is worth toggling twice to compare the two layouts. */}
                           <button
                             aria-checked={isLandscape}
-                            className="tracker-menu-option"
+                            className="tracker-menu-option tracker-menu-option-bordered"
                             onClick={() => setIsLandscape((current) => !current)}
                             role="menuitemcheckbox"
                             type="button"
@@ -3114,11 +3132,22 @@ export function TrackerFrame() {
                             onClick={() => {
                               closeMenu()
                               setIsShowingControls(true)
+                              markControlsSeen()
                             }}
                             role="menuitem"
                             type="button"
                           >
+                            {hasSeenControls ? null : (
+                              <span aria-hidden="true" className="controls-hint-arrow">
+                                {'▶'}
+                              </span>
+                            )}
                             Controls
+                            {hasSeenControls ? null : (
+                              <span aria-hidden="true" className="controls-hint-arrow">
+                                {'◀'}
+                              </span>
+                            )}
                           </button>
 
                           <button

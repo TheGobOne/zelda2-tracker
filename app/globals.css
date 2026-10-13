@@ -2111,7 +2111,29 @@ gear's center to the center of the left lane (palace and map sections). */
 .tracker-menu-option-bordered {
   margin-top: 4px;
   border-top: 3px solid #f5f5f5;
-}
+  }
+
+  /* Blinking pointers either side of Controls until it has been opened once.
+  `steps(1)` gives a hard on/off blink like the game's own cursors. */
+  .controls-hint-arrow {
+  display: inline-block;
+  margin: 0 8px;
+  color: #f5f5f5;
+  font-size: 0.8em;
+  animation: controls-hint-blink 0.8s steps(1, end) infinite;
+  }
+
+  @keyframes controls-hint-blink {
+  50% {
+  opacity: 0;
+  }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+  .controls-hint-arrow {
+  animation: none;
+  }
+  }
 
 /* Tick box for the menu's checkbox entry, drawn as a square block to match the
    pixel art rather than a vector glyph. Inline-block rather than flex so the
