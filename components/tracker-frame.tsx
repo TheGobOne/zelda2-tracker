@@ -2978,23 +2978,24 @@ export function TrackerFrame() {
                             Notes
                           </button>
 
-                          <button
-                            aria-checked={isNotesPopout}
-                            className="tracker-menu-option"
-                            disabled={!isNotesVisible}
-                            onClick={() => {
-                              setIsNotesOpen(false)
-                              setIsNotesPopout((current) => !current)
-                            }}
-                            role="menuitemcheckbox"
-                            type="button"
-                          >
-                            <span
-                              aria-hidden="true"
-                              className={`tracker-menu-check${isNotesPopout ? ' is-checked' : ''}`}
-                            />
-                            Open in New Window
-                          </button>
+                          {isNotesVisible ? (
+                            <button
+                              aria-checked={isNotesPopout}
+                              className="tracker-menu-option"
+                              onClick={() => {
+                                setIsNotesOpen(false)
+                                setIsNotesPopout((current) => !current)
+                              }}
+                              role="menuitemcheckbox"
+                              type="button"
+                            >
+                              <span
+                                aria-hidden="true"
+                                className={`tracker-menu-check${isNotesPopout ? ' is-checked' : ''}`}
+                              />
+                              Open in New Window
+                            </button>
+                          ) : null}
 
                           <button
                             aria-checked={isHoverTextOn}
@@ -3483,7 +3484,7 @@ export function TrackerFrame() {
                       {CUSTOM_PRESET ? (
                         <button
                           aria-checked={hasPickedFlags && CUSTOM_PRESET.id === activeFlags}
-                          className="tracker-menu-option"
+                          className="tracker-menu-option tracker-menu-option-bordered"
                           onClick={() => {
                             closeMenu()
                             applyPreset(CUSTOM_PRESET)
