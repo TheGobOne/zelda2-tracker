@@ -3904,48 +3904,26 @@ export function TrackerFrame() {
             ) : null}
 
             {isShowingInstallHelp ? (
-              <div className="tracker-dialog-overlay">
-                <button
-                  aria-label="Close install help"
-                  className="item-picker-backdrop"
-                  onClick={() => setIsShowingInstallHelp(false)}
-                  type="button"
-                />
-                <div
-                  aria-labelledby="install-title"
-                  aria-modal="true"
-                  className="tracker-dialog controls-dialog"
-                  role="dialog"
-                >
-                  <div className="item-picker-header">
-                    <p className="item-picker-title" id="install-title">
-                      Install as App
-                    </p>
-                    <button
-                      aria-label="Close install help"
-                      className="item-picker-close"
-                      onClick={() => setIsShowingInstallHelp(false)}
-                      type="button"
-                    >
-                      <span aria-hidden="true">X</span>
-                    </button>
-                  </div>
-
-                  <div className="controls-groups install-groups">
-                    <section className="controls-group">
-                      <h3 className="controls-group-title">How to install</h3>
-                      <dl className="controls-list">
-                        {INSTALL_STEPS.map((step) => (
-                          <div className="controls-row" key={step.input}>
-                            <dt className="controls-input">{step.input}</dt>
-                            <dd className="controls-effect">{step.effect}</dd>
-                          </div>
-                        ))}
-                      </dl>
-                    </section>
-                  </div>
+              <FramedDialog
+                className="framed-controls framed-install"
+                onClose={() => setIsShowingInstallHelp(false)}
+                title="Install as App"
+                titleId="install-title"
+              >
+                <div className="controls-groups install-groups">
+                  <section className="controls-group">
+                    <h3 className="controls-group-title">How to install</h3>
+                    <dl className="controls-list">
+                      {INSTALL_STEPS.map((step) => (
+                        <div className="controls-row" key={step.input}>
+                          <dt className="controls-input">{step.input}</dt>
+                          <dd className="controls-effect">{step.effect}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </section>
                 </div>
-              </div>
+              </FramedDialog>
             ) : null}
 
             {pendingPreset ? (
