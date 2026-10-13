@@ -995,9 +995,17 @@
   column-gap: var(--sep);
 }
 
-.palace-column-right .palace-row {
+  .palace-column-right .palace-row {
   flex-direction: row-reverse;
-}
+  }
+
+  /* A lone slot sits centred in the 126px gutter between its boss (56px) and the
+  connector column: (126 - 56) / 2 = 35px on either side. */
+  .palace-row:has(.item-slot-wrap):not(:has(.item-slot-wrap + .item-slot-wrap)):not(
+  :has(.container-tally)
+  ) {
+  column-gap: 35px;
+  }
 
 /* A palace holding more than one item has to fit those slots between its boss and
    the note column at the canvas centre, and that gutter is only 114px wide. Three
