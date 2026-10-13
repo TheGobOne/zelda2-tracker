@@ -8,12 +8,14 @@ import { useEffect, type ReactNode } from 'react'
  * like one family.
  */
 export function FramedDialog({
+  actions,
   children,
   className,
   onClose,
   title,
   titleId,
 }: {
+  actions?: ReactNode
   children: ReactNode
   className?: string
   onClose: () => void
@@ -51,9 +53,11 @@ export function FramedDialog({
         </h2>
         {children}
         <div className="updates-footer framed-dialog-footer">
-          <button className="updates-close" onClick={onClose} type="button">
-            OK
-          </button>
+          {actions ?? (
+            <button className="updates-close" onClick={onClose} type="button">
+              OK
+            </button>
+          )}
         </div>
       </div>
     </div>

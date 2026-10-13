@@ -1215,6 +1215,11 @@ export function TrackerFrame() {
   const [isConfirmingClear, setIsConfirmingClear] = useState(false)
   const [isShowingControls, setIsShowingControls] = useState(false)
   const [isShowingAiDisclosure, setIsShowingAiDisclosure] = useState(false)
+  // A ruleset picked while one is already loaded, held here until the player
+  // confirms, since loading flags wipes the board.
+  const [pendingPreset, setPendingPreset] = useState<
+    (typeof PRESETS)[number] | null
+  >(null)
   const [updatesOpenRequest, setUpdatesOpenRequest] = useState(0)
   const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(
     null,
@@ -2397,6 +2402,15 @@ export function TrackerFrame() {
     setIsFlagsOpen(false)
   }
 
+  function requestPreset(preset: (typeof PRESETS)[number]) {
+    closeMenu()
+    if (hasPickedFlags) {
+      setPendingPreset(preset)
+    } else {
+      applyPreset(preset)
+    }
+  }
+
   function applyPreset(preset: (typeof PRESETS)[number]) {
     // The maps describe the seed being played, so a new ruleset empties them
     // along with everything else, back to just the home palace.
@@ -3410,10 +3424,7 @@ export function TrackerFrame() {
                           aria-checked={hasPickedFlags && preset.id === activeFlags}
                           className="tracker-menu-option"
                           key={preset.id}
-                          onClick={() => {
-                            closeMenu()
-                            applyPreset(preset)
-                          }}
+                          onClick={() => requestPreset(preset)}
                           role="menuitemradio"
                           type="button"
                         >
@@ -3462,10 +3473,7 @@ export function TrackerFrame() {
                                 aria-checked={hasPickedFlags && preset.id === activeFlags}
                                 className="tracker-menu-option"
                                 key={preset.id}
-                                onClick={() => {
-                                  closeMenu()
-                                  applyPreset(preset)
-                                }}
+                                onClick={() => requestPreset(preset)}
                                 role="menuitemradio"
                                 type="button"
                               >
@@ -3485,10 +3493,7 @@ export function TrackerFrame() {
                         <button
                           aria-checked={hasPickedFlags && CUSTOM_PRESET.id === activeFlags}
                           className="tracker-menu-option tracker-menu-option-bordered"
-                          onClick={() => {
-                            closeMenu()
-                            applyPreset(CUSTOM_PRESET)
-                          }}
+                          onClick={() => requestPreset(CUSTOM_PRESET)}
                           role="menuitemradio"
                           type="button"
                         >
@@ -3898,6 +3903,44 @@ export function TrackerFrame() {
                   </div>
                 </div>
               </div>
+            ) : null}
+
+            {pendingPreset ? (
+              <FramedDialog
+                actions={
+                  <>
+                    <button
+                      className="updates-close"
+                      onClick={() => setPendingPreset(null)}
+                      type="button"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      autoFocus
+                      className="updates-close"
+                      onClick={() => {
+                        applyPreset(pendingPreset)
+                        setPendingPreset(null)
+                      }}
+                      type="button"
+                    >
+                      Yes
+                    </button>
+                  </>
+                }
+                className="framed-disclosure framed-confirm"
+                onClose={() => setPendingPreset(null)}
+                title="Change Flags?"
+                titleId="flags-confirm-title"
+              >
+                <div className="framed-disclosure-body">
+                  <p>
+                    Loading {pendingPreset.name} will clear your tracker. Are you
+                    sure?
+                  </p>
+                </div>
+              </FramedDialog>
             ) : null}
 
             {isShowingAiDisclosure ? (
