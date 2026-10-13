@@ -661,9 +661,6 @@ const PRESETS: {
     placements: {
       "location-Downstab": 'downstab',
       "location-Upstab": 'upstab',
-      'location-Saria Table': 'mirror',
-      'location-Bagu': 'noteforriverman',
-      'location-Fountain': 'water',
     },
     counts: {},
   },
@@ -678,7 +675,11 @@ const PRESETS: {
     heartMax: 8,
     magicStart: 4,
     magicMax: 8,
-    placements: {},
+    placements: {
+      'location-Saria Table': 'mirror',
+      'location-Bagu': 'noteforriverman',
+      'location-Fountain': 'water',
+    },
     counts: {},
   },
   {
