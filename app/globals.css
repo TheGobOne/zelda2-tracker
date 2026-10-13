@@ -1786,8 +1786,8 @@
 }
 
 .tracker-menu-toggle:hover {
-  background: #233bea;
-}
+  background: transparent;
+  }
 
 .tracker-menu-toggle:focus-visible {
   outline: 3px solid #e52a08;
@@ -2421,7 +2421,24 @@ gear's center to the center of the left lane (palace and map sections). */
   color: #8a8a8a;
   font-size: 9px;
   line-height: 1.5;
-}
+  }
+
+  .controls-group-tall {
+    grid-row: span 2;
+  }
+
+  .controls-link {
+  color: #f2b21c;
+  font-size: 10px;
+  line-height: 1.5;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  }
+
+  .controls-link:hover,
+  .controls-link:focus-visible {
+  color: #f5f5f5;
+  }
 
 /* Palette of every item. Always opens in the same spot, spanning the tracker. */
 .item-picker {

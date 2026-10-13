@@ -1080,6 +1080,13 @@ const CONTROL_GROUPS: {
    * that shape would style the name as if it were a mouse button.
    */
   credit?: string
+  /** Outbound link shown at the very bottom of the box. */
+  link?: { href: string; label: string }
+  /**
+   * Spans two grid rows, so the boxes beside it stack in the other column
+   * instead of one being pushed onto a row of its own below.
+   */
+  tall?: boolean
 }[] = [
   {
     title: 'Palace bosses',
@@ -1124,6 +1131,7 @@ const CONTROL_GROUPS: {
   },
   {
     title: 'Overworld maps',
+    tall: true,
     note: 'Click a palette icon to hold it, click it again to put it down. In move mode, a box with no icons in it is discarded.',
     rows: [
       { input: 'Left click', effect: 'Drop the held icon on a square' },
@@ -1147,6 +1155,7 @@ const CONTROL_GROUPS: {
     // credit in the dimmer aside styling - the right weight for a footnote that
     // should sit under the name without competing with it.
     note: 'If you have any issues or bugs to report please find me on the Z2R Discord.',
+    link: { href: 'https://z2r.gg/discord', label: 'z2r.gg/discord' },
   },
 ]
 
@@ -3787,7 +3796,14 @@ export function TrackerFrame() {
 
                   <div className="controls-groups">
                     {CONTROL_GROUPS.map((group) => (
-                      <section className="controls-group" key={group.title}>
+                      <section
+                        className={
+                          group.tall
+                            ? 'controls-group controls-group-tall'
+                            : 'controls-group'
+                        }
+                        key={group.title}
+                      >
                         <h3 className="controls-group-title">{group.title}</h3>
 
                         {/* A description list, since each row really is a term
@@ -3811,6 +3827,17 @@ export function TrackerFrame() {
 
                         {group.note ? (
                           <p className="controls-note">{group.note}</p>
+                        ) : null}
+
+                        {group.link ? (
+                          <a
+                            className="controls-link"
+                            href={group.link.href}
+                            rel="noopener noreferrer"
+                            target="_blank"
+                          >
+                            {group.link.label}
+                          </a>
                         ) : null}
                       </section>
                     ))}
