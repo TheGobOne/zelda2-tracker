@@ -932,7 +932,7 @@ const OVERWORLD_SIZE = 11
 
 /** Where display preferences (hidden sections, tooltips, layout) are remembered in the browser. */
 const SETTINGS_STORAGE_KEY = 'z2-tracker-settings'
-const CONTROLS_SEEN_STORAGE_KEY = 'z2-tracker-controls-seen'
+const CONTROLS_SEEN_STORAGE_KEY = 'z2-tracker-controls-hint-seen'
 
 /** Every run starts at the home palace, so it is pre-placed in the middle of the west map. */
 const OVERWORLD_START_CELLS: Record<string, string> = {
