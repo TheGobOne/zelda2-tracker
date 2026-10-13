@@ -2993,7 +2993,7 @@ export function TrackerFrame() {
                               aria-hidden="true"
                               className={`tracker-menu-check${isMapVisible ? ' is-checked' : ''}`}
                             />
-                            Overworld Mapping
+                            Mapping
                           </button>
 
                           <button
