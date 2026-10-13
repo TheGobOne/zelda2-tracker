@@ -2982,7 +2982,7 @@ export function TrackerFrame() {
                               toggling twice to see the board both ways, and
                               closing the menu each time would fight that. */}
                           <button
-                            aria-checked={!isMapVisible}
+                            aria-checked={isMapVisible}
                             className="tracker-menu-option tracker-menu-option-bordered"
                             onClick={() => {
                     setMapMove(null)
@@ -2993,14 +2993,14 @@ export function TrackerFrame() {
                           >
                             <span
                               aria-hidden="true"
-                              className={`tracker-menu-check${isMapVisible ? '' : ' is-checked'}`}
+                              className={`tracker-menu-check${isMapVisible ? ' is-checked' : ''}`}
                             />
-                            Hide map section
+                            Overworld Mapping
                           </button>
 
                           <button
                             aria-checked={!isNotesVisible}
-                            className="tracker-menu-option"
+                            className="tracker-menu-option tracker-menu-option-bordered"
                             onClick={() => {
                               setIsNotesOpen(false)
                               setIsNotesVisible((current) => !current)
