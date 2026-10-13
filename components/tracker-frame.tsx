@@ -3988,6 +3988,7 @@ export function TrackerFrame() {
                       className="updates-close"
                       onClick={() => {
                         clearTracker()
+                        setHasPickedFlags(false)
                         setIsConfirmingClear(false)
                       }}
                       type="button"
@@ -4003,8 +4004,8 @@ export function TrackerFrame() {
               >
                 <div className="framed-disclosure-body">
                   <p>
-                    This will clear your tracker but keep your current flags. Are
-                    you sure?
+                    This will clear your tracker and your selected flags. Are you
+                    sure?
                   </p>
                 </div>
               </FramedDialog>
