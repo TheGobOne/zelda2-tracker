@@ -676,10 +676,13 @@ const PRESETS: {
     magicStart: 4,
     magicMax: 8,
     placements: {
+      "location-Downstab": 'downstab',
+      "location-Upstab": 'upstab',
       'location-Saria Table': 'mirror',
       'location-Bagu': 'noteforriverman',
       'location-Fountain': 'water',
     },
+    checkedSlots: ["location-Downstab"],
     counts: {},
   },
   {
