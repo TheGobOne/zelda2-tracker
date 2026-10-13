@@ -651,9 +651,23 @@ const PRESETS: {
     // Vanilla flags: Link only ever starts with the candle, and nothing on the
     // board is known in advance, so both placement maps stay empty.
     id: 'standard',
-    name: 'Standard',
+    name: 'Normal',
     collectedIds: ['candle'],
     // Vanilla containers: Link opens with four of the eight of each.
+    heartStart: 4,
+    heartMax: 8,
+    magicStart: 4,
+    magicMax: 8,
+    placements: {},
+    counts: {},
+  },
+  {
+    // Normal with a head start: Life and Downstab are already in hand. Kept after
+    // Normal in the array so `PRESETS[0]` stays the default board; the menu
+    // lists it first via `NAMED_PRESETS`.
+    id: 'beginner',
+    name: 'Beginner',
+    collectedIds: ['candle', 'life-spell', 'downstab'],
     heartStart: 4,
     heartMax: 8,
     magicStart: 4,
@@ -768,7 +782,7 @@ function customNameFontSize(length: number) {
 const UPSTARTS_PRESETS = PRESETS.filter((preset) => preset.group === 'upstarts')
 const NAMED_PRESETS = PRESETS.filter(
   (preset) => !preset.group && preset.id !== CUSTOM_FLAGS_ID,
-)
+).sort((a, b) => Number(b.id === 'beginner') - Number(a.id === 'beginner'))
 const CUSTOM_PRESET = PRESETS.find((preset) => preset.id === CUSTOM_FLAGS_ID)
 
 /**
