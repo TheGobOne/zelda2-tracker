@@ -4027,16 +4027,16 @@ export function TrackerFrame() {
               >
                 <div className="framed-disclosure-body">
                   <p>
-                    This tracker is made with the use of Assistive AI. I am not a
-                    coder, programmer, or designer so this tool is critical to my
-                    ability to make rapid changes to the tracker.
+                    This tracker is made with the use of Assistive AI with Vercel.
+                    I am not a coder, programmer, or designer, so this tool is
+                    critical to my ability to make rapid changes to the tracker.
                   </p>
                   <p>
                     No generative AI was used. All art is pulled from NES sprite
                     sheets found online.
                   </p>
                   <p>
-                    I understand if you don&apos;t approve and cease using the
+                    I understand if you don&apos;t approve and stop using the
                     tracker.
                   </p>
                   <p>
