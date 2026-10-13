@@ -2465,6 +2465,34 @@ gear's center to the center of the left lane (palace and map sections). */
   image-rendering: pixelated;
   }
 
+.icon-tooltip-image-frame {
+  position: relative;
+  display: block;
+  }
+
+/* Sits in the sky right of each screenshot's palace window, lettered like the
+   "BOSS:" label baked into the art (white, hard black outline). Percent
+   offsets keep it beside the window at any tooltip scale. */
+.icon-tooltip-credit {
+  position: absolute;
+  top: 4%;
+  left: 14%;
+  color: #ffffff;
+  font-family: var(--font-caption), sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: none;
+  text-shadow:
+    1px 0 0 #000,
+    -1px 0 0 #000,
+    0 1px 0 #000,
+    0 -1px 0 #000,
+    1px 1px 0 #000;
+  white-space: nowrap;
+  }
+
 .icon-tooltip-art {
   display: flex;
   

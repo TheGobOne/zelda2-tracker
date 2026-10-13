@@ -65,7 +65,11 @@ function readTipText(element: HTMLElement) {
  * (greyed, or covered by the item placed there) can still be recognised.
  */
 function readCaveArt(element: HTMLElement, text: string) {
-  if (!element.classList.contains('location-icon') || !/cave/i.test(text)) {
+  if (
+    !element.classList.contains('location-icon') ||
+    !/cave/i.test(text) ||
+    /hammer cave/i.test(text)
+  ) {
     return undefined
   }
 
@@ -281,13 +285,16 @@ export function IconTooltip({
     >
       {tip.image ? (
         // The screenshot already names the boss, so it replaces the text.
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          alt=""
-          height={TIP_IMAGE_HEIGHT}
-          src={tip.image}
-          width={TIP_IMAGE_WIDTH}
-        />
+        <span className="icon-tooltip-image-frame">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            alt=""
+            height={TIP_IMAGE_HEIGHT}
+            src={tip.image}
+            width={TIP_IMAGE_WIDTH}
+          />
+          <span className="icon-tooltip-credit">Credit: Mirai</span>
+        </span>
       ) : tip.art ? (
         <span className="icon-tooltip-art">
           {/* eslint-disable-next-line @next/next/no-img-element */}

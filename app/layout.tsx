@@ -1,7 +1,15 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
+import { Oswald } from 'next/font/google'
 import localFont from 'next/font/local'
 import './globals.css'
+
+// Matches the condensed lettering baked into the palace boss screenshots.
+const captionFont = Oswald({
+  subsets: ['latin'],
+  weight: '500',
+  variable: '--font-caption',
+})
 
 // "Zelda II: The Adventure of Link" by Patrick H. Lauke, a recreation of the
 // NES game's tile set. Licensed CC-BY 3.0; see public/fonts/zelda2-license.txt.
@@ -46,7 +54,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className="bg-background">
-      <body className={`${pixelFont.variable} font-sans`}>
+      <body className={`${pixelFont.variable} ${captionFont.variable} font-sans`}>
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
