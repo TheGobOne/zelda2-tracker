@@ -797,6 +797,22 @@
   row-gap: var(--sep);
 }
 
+/* Hovering a spell quest item in the collection spotlights the town it is
+   handed over in: the other towns desaturate and dim, and the target glows. */
+.town-column[data-town] {
+  transition: filter 150ms ease, opacity 150ms ease;
+}
+.game-canvas:has([data-quest-town]:hover) .town-column[data-town] {
+  filter: grayscale(1) brightness(0.55);
+}
+.game-canvas:has([data-quest-town="Ruto"]:hover) .town-column[data-town="Ruto"],
+.game-canvas:has([data-quest-town="Darunia"]:hover) .town-column[data-town="Darunia"],
+.game-canvas:has([data-quest-town="Saria"]:hover) .town-column[data-town="Saria"],
+.game-canvas:has([data-quest-town="Nabooru"]:hover) .town-column[data-town="Nabooru"],
+.game-canvas:has([data-quest-town="Mido"]:hover) .town-column[data-town="Mido"] {
+  filter: brightness(1.15) drop-shadow(0 0 4px rgb(255 255 255 / 0.85));
+}
+
 /* Mirror the boss sprites only, so item slots and their contents stay upright.
    Direct child, so the block sprites layered over the icon are not mirrored with
    it - a reversed glove or hammer would read as a different piece of art. */

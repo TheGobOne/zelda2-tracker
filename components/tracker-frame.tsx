@@ -358,6 +358,16 @@ const UNTRACKED_IDS = new Set([
 // The 16 tracked items, which fill two rows of eight above the spell row.
 const collectionItems = items.filter((entry) => !UNTRACKED_IDS.has(entry.id))
 
+// The town each spell quest item is handed over in. Hovering the item in the
+// collection spotlights that town (see `[data-quest-town]` in globals.css).
+const QUEST_ITEM_TOWNS: Record<string, string> = {
+  trophy: 'Ruto',
+  kid: 'Darunia',
+  mirror: 'Saria',
+  water: 'Nabooru',
+  wateroflife: 'Mido',
+}
+
 /** Tooltip names for the palace-section connector rows, top to bottom. */
 const CONNECTOR_TIPS = ['Connector Cave 1', 'Connector Cave 2', 'Raft', 'Bridge']
 
@@ -1966,6 +1976,7 @@ export function TrackerFrame() {
             ? 'collection-slot collection-slot-collected'
             : 'collection-slot'
         }
+        data-quest-town={QUEST_ITEM_TOWNS[entry.id]}
         key={entry.id}
         onClick={() => {
           if (isCollected) {
@@ -2658,7 +2669,7 @@ export function TrackerFrame() {
                 const mark = iconMarks[townKey]
 
                 return (
-                  <div className="town-column" key={town.name}>
+                  <div className="town-column" data-town={town.name} key={town.name}>
                     <button
                       aria-label={`${town.name} town${mark ? `, marked ${mark}` : ''}. Right click to cycle the location.`}
   className="town-icon icon-toggle"
