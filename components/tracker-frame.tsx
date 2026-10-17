@@ -1082,6 +1082,26 @@ const OVERWORLD_ICON_COLUMNS: { id: string; name: string; src: string }[][] = [
 /** Every placeable icon, flattened, for resolving whatever id a map cell holds. */
 const OVERWORLD_ICONS = OVERWORLD_ICON_COLUMNS.flat()
 
+// Items and spells share the map's cell store with the overworld icons, so their
+// ids carry a prefix that keeps them from ever colliding with an icon id.
+const MAP_ITEM_PREFIX = 'item:'
+
+function findMapIcon(id: string | undefined) {
+  if (!id) {
+    return undefined
+  }
+
+  if (id.startsWith(MAP_ITEM_PREFIX)) {
+    const item = allPickables.find(
+      (entry) => entry.id === id.slice(MAP_ITEM_PREFIX.length),
+    )
+    return item ? { kind: 'item' as const, name: item.name, item } : undefined
+  }
+
+  const icon = OVERWORLD_ICONS.find((entry) => entry.id === id)
+  return icon ? { kind: 'icon' as const, name: icon.name, src: icon.src } : undefined
+}
+
 /** The square a map menu was opened on, in the maps section's own layout pixels. */
 type MapMenu = { cellKey: string; x: number; y: number; size: number }
 
@@ -1485,6 +1505,8 @@ export function TrackerFrame() {
   const [mapMenu, setMapMenu] = useState<MapMenu | null>(null)
   const mapMenuRef = useRef<HTMLDivElement | null>(null)
   const mapMenuOpenerRef = useRef<HTMLButtonElement | null>(null)
+  // The square the items-and-spells picker will place onto, opened from the menu.
+  const [mapItemPickerCell, setMapItemPickerCell] = useState<string | null>(null)
   const [mapMove, setMapMove] = useState<MapMove | null>(null)
   // Dropping happens on press and ends move mode, so the click that follows
   // would otherwise be handled as a normal-mode click.
@@ -2390,6 +2412,83 @@ export function TrackerFrame() {
             Clear
           </button>
         ) : null}
+        <button
+          aria-haspopup="dialog"
+          className="overworld-menu-clear overworld-menu-items"
+          onClick={() => {
+            setMapItemPickerCell(mapMenu.cellKey)
+            setMapMenu(null)
+          }}
+          role="menuitem"
+          type="button"
+        >
+          Items and Spells
+        </button>
+      </div>
+    )
+  }
+
+  function placeMapItem(cellKey: string, itemId: string) {
+    setOverworldCells((current) => ({
+      ...current,
+      [cellKey]: `${MAP_ITEM_PREFIX}${itemId}`,
+    }))
+    setMapItemPickerCell(null)
+  }
+
+  function renderItemPicker(
+    title: string,
+    onPick: (itemId: string) => void,
+    onClose: () => void,
+  ) {
+    const renderOption = (entry: (typeof allPickables)[number]) => (
+      <button
+        aria-label={entry.name}
+        className="item-picker-option"
+        key={entry.id}
+        onClick={() => onPick(entry.id)}
+        type="button"
+      >
+        <ItemArt item={entry} />
+      </button>
+    )
+
+    return (
+      <div className="item-picker-overlay">
+        <button
+          aria-label="Close item menu"
+          className="item-picker-backdrop"
+          onClick={onClose}
+          type="button"
+        />
+        <div
+          aria-label={`Choose an item for ${title}`}
+          className="item-picker"
+          role="dialog"
+        >
+          {/* The title stays optically centred because the close button
+              is taken out of flow rather than sharing the row. */}
+          <div className="item-picker-header">
+            <p className="item-picker-title">{title}</p>
+            <button
+              aria-label="Close item menu"
+              className="item-picker-close"
+              onClick={onClose}
+              type="button"
+            >
+              <span aria-hidden="true">X</span>
+            </button>
+          </div>
+          <div className="item-picker-grid">{items.map(renderOption)}</div>
+
+          {/* Spells get their own labelled section under the items. */}
+          {spells.length > 0 ? (
+            <>
+              <p className="item-picker-subtitle">Spells</p>
+              <div className="item-picker-grid">{spells.map(renderOption)}</div>
+            </>
+          ) : null}
+        </div>
       </div>
     )
   }
@@ -3859,9 +3958,7 @@ export function TrackerFrame() {
                             (preview?.lifted.has(gridKey)
                               ? undefined
                               : overworldCells[cellKey])
-                          const icon = OVERWORLD_ICONS.find(
-                            (entry) => entry.id === shownIcon,
-                          )
+                          const icon = findMapIcon(shownIcon)
                           const isSelected =
                             selection !== null &&
                             row >= selection.top &&
@@ -3961,7 +4058,7 @@ export function TrackerFrame() {
                               role="gridcell"
                               type="button"
                             >
-                              {icon ? (
+                              {icon?.kind === 'icon' ? (
                                 <Image
                                   alt=""
                                   className="overworld-cell-icon"
@@ -3969,6 +4066,13 @@ export function TrackerFrame() {
                                   src={icon.src}
                                   width={16}
                                 />
+                              ) : icon?.kind === 'item' ? (
+                                <span
+                                  aria-hidden="true"
+                                  className="overworld-cell-icon overworld-cell-item"
+                                >
+                                  <ItemArt item={icon.item} />
+                                </span>
                               ) : null}
                             </button>
                           )
@@ -4202,68 +4306,20 @@ export function TrackerFrame() {
             ) : null}
 
             {/* Rendered last so the menu floats over the boss icons and slots. */}
-            {openSlot ? (
-              <div className="item-picker-overlay">
-                <button
-                  aria-label="Close item menu"
-                  className="item-picker-backdrop"
-                  onClick={() => setOpenSlot(null)}
-                  type="button"
-                />
-                <div
-                  aria-label={`Choose an item for ${slotLabel(openSlot)}`}
-                  className="item-picker"
-                  role="dialog"
-                >
-                  {/* The title stays optically centred because the close button
-                      is taken out of flow rather than sharing the row. */}
-                  <div className="item-picker-header">
-                    <p className="item-picker-title">{slotLabel(openSlot)}</p>
-                    <button
-                      aria-label="Close item menu"
-                      className="item-picker-close"
-                      onClick={() => setOpenSlot(null)}
-                      type="button"
-                    >
-                      <span aria-hidden="true">X</span>
-                    </button>
-                  </div>
-                  <div className="item-picker-grid">
-                    {items.map((entry) => (
-                      <button
-                        aria-label={entry.name}
-                        className="item-picker-option"
-                        key={entry.id}
-                        onClick={() => assignItem(openSlot, entry.id)}
-                        type="button"
-                      >
-                        <ItemArt item={entry} />
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Spells get their own labelled section under the items. */}
-                  {spells.length > 0 ? (
-                    <>
-                      <p className="item-picker-subtitle">Spells</p>
-                      <div className="item-picker-grid">
-                        {spells.map((entry) => (
-                          <button
-                            aria-label={entry.name}
-                            className="item-picker-option"
-                            key={entry.id}
-                            onClick={() => assignItem(openSlot, entry.id)}
-                            type="button"
-                          >
-                            <ItemArt item={entry} />
-                          </button>
-                        ))}
-                      </div>
-                    </>
-                  ) : null}
-                </div>
-              </div>
-            ) : null}
+            {openSlot
+              ? renderItemPicker(
+                  slotLabel(openSlot),
+                  (itemId) => assignItem(openSlot, itemId),
+                  () => setOpenSlot(null),
+                )
+              : null}
+            {mapItemPickerCell
+              ? renderItemPicker(
+                  'MAP',
+                  (itemId) => placeMapItem(mapItemPickerCell, itemId),
+                  () => setMapItemPickerCell(null),
+                )
+              : null}
 
             <div className="lane-divider" />
       <div className="frame-rail frame-rail-top" />

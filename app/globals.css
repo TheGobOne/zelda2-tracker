@@ -1563,22 +1563,22 @@
   z-index: 6;
   display: flex;
   flex-direction: column;
-  padding: 4px;
+  padding: 6px;
   background: #101010;
   border: 3px solid #f5f5f5;
   box-shadow: 0 0 0 3px #233bea;
-  row-gap: 2px;
+  row-gap: 3px;
 }
 
 .overworld-menu-row {
   display: flex;
-  column-gap: 2px;
+  column-gap: 3px;
 }
 
 .overworld-menu-icon {
   display: flex;
-  width: 22px;
-  height: 22px;
+  width: 33px;
+  height: 33px;
   align-items: center;
   justify-content: center;
   padding: 0;
@@ -1587,7 +1587,10 @@
   cursor: pointer;
 }
 
+/* 24px is exactly 1.5x the 16px art, the same scale as the menu itself. */
 .overworld-menu-icon img {
+  width: 24px;
+  height: 24px;
   image-rendering: pixelated;
 }
 
@@ -1607,12 +1610,12 @@
 }
 
 .overworld-menu-clear {
-  margin-top: 2px;
-  padding: 4px 8px;
+  margin-top: 3px;
+  padding: 6px 12px;
   background: transparent;
   border: 0;
   color: #f5f5f5;
-  font-size: 11px;
+  font-size: 16px;
   letter-spacing: 1px;
   text-transform: uppercase;
   cursor: pointer;
@@ -1620,6 +1623,31 @@
 
 .overworld-menu-clear:hover {
   background: #233bea;
+}
+
+/* Set apart from the icons above it, as it opens a whole new menu. */
+.overworld-menu-items {
+  border-top: 2px solid #3a3a3a;
+}
+
+/* An item or spell placed on a square, drawn to fill it like the 16px icons. */
+.overworld-cell-item {
+  display: flex;
+  width: 16px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
+}
+
+.overworld-cell-item img {
+  width: 16px;
+  height: 16px;
+  image-rendering: pixelated;
+}
+
+.overworld-cell-item .item-pair img {
+  width: 100%;
+  height: 100%;
 }
 
 /* Anchor for the item picker so it can float over the canvas. */
