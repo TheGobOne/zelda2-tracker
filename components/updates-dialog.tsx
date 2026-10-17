@@ -8,6 +8,7 @@ type UpdateRelease = {
   /** Unique per release; the newest one decides whether opted-out players see the popup again. */
   id: string
   date: string
+  intro?: string
   lines: string[]
 }
 
@@ -16,6 +17,7 @@ const UPDATE_RELEASES: UpdateRelease[] = [
   {
     id: '2026-10-17-mapping',
     date: '10/17/26',
+    intro: 'Mapping has been completely reworked. Changes below:',
     lines: [
       'Added Map Highlighting: hover an icon on your map to box it on the tracker and dim everything else (palaces box the boss and all of their item slots)',
       'Added drag and drop: drag any icon on your map to move it to another square',
@@ -156,7 +158,8 @@ export function UpdatesDialog({ openRequest = 0 }: { openRequest?: number }) {
             <span aria-hidden="true">{'>'}</span>
           </button>
         </div>
-        <ul className="updates-list">
+            {release.intro && <p className="updates-intro">{release.intro}</p>}
+            <ul className="updates-list">
           {release.lines.map((line) => (
             <li key={line}>{line}</li>
           ))}
