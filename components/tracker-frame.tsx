@@ -1101,7 +1101,6 @@ const WEST_CAVE_ICONS = [
     src: '/images/locations/magiccontainercave.png',
   },
   { id: 'cave-pillar-pbag', name: 'Pillar Pbag Cave', src: '/images/locations/westpbagcave.png' },
-  { id: 'cave-hammer', name: 'Hammer Cave', src: '/images/locations/hammercave.png' },
 ]
 
 const CAVE_MENUS = {
