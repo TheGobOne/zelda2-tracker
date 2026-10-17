@@ -1082,15 +1082,41 @@ const CONNECTOR_ICONS = [
   { id: 'connector-d', name: 'Connector D', src: '/images/overworld/connectord.png' },
 ]
 
+// West continent caves: the Parapa, Jump and Fairy connectors, then every West
+// item cave using the same art as its slot in the locations rows.
+const WEST_CAVE_ICONS = [
+  { id: 'connector-p', name: 'Parapa Cave', src: '/images/overworld/connectorp.png' },
+  { id: 'connector-j', name: 'Jump Cave', src: '/images/overworld/connectorj.png' },
+  { id: 'connector-f', name: 'Fairy Cave', src: '/images/overworld/connectorf.png' },
+  { id: 'cave-trophy', name: 'Trophy Cave', src: '/images/locations/trophycave.png' },
+  { id: 'cave-medicine', name: 'Medicine Cave', src: '/images/locations/wateroflifecave.png' },
+  {
+    id: 'cave-heart-container',
+    name: 'Heart Container Cave',
+    src: '/images/locations/heartcontainercave.png',
+  },
+  {
+    id: 'cave-magic-container',
+    name: 'Magic Container Cave',
+    src: '/images/locations/magiccontainercave.png',
+  },
+  { id: 'cave-pillar-pbag', name: 'Pillar Pbag Cave', src: '/images/locations/westpbagcave.png' },
+  { id: 'cave-hammer', name: 'Hammer Cave', src: '/images/locations/hammercave.png' },
+]
+
 const CAVE_MENUS = {
-  west: { title: 'West', icons: CONNECTOR_ICONS },
+  west: { title: 'West', icons: WEST_CAVE_ICONS },
   east: { title: 'East', icons: CONNECTOR_ICONS },
 } as const
 
 type CaveMenuView = keyof typeof CAVE_MENUS
 
 /** Every placeable icon, flattened, for resolving whatever id a map cell holds. */
-const OVERWORLD_ICONS = [...OVERWORLD_ICON_COLUMNS.flat(), ...CONNECTOR_ICONS]
+const OVERWORLD_ICONS = [
+  ...OVERWORLD_ICON_COLUMNS.flat(),
+  ...CONNECTOR_ICONS,
+  ...WEST_CAVE_ICONS,
+]
 
 // Items and spells share the map's cell store with the overworld icons, so their
 // ids carry a prefix that keeps them from ever colliding with an icon id.
@@ -2422,7 +2448,7 @@ export function TrackerFrame() {
           role="menu"
         >
           <p className="overworld-menu-title">{`${caveMenu.title} Caves`}</p>
-          <div className="overworld-menu-row" role="group">
+          <div className="overworld-menu-row overworld-menu-row-wrap" role="group">
             {caveMenu.icons.map(renderIcon)}
           </div>
           <button

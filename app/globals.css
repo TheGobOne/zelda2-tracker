@@ -1625,9 +1625,20 @@
   background: #233bea;
 }
 
-/* Set apart from the icons above it, as it opens a whole new menu. */
+/* Boxed like the West and East buttons, since it opens a whole new menu. */
 .overworld-menu-items {
-  border-top: 2px solid #3a3a3a;
+  border: 2px solid #3a3a3a;
+}
+
+.overworld-menu-items:hover {
+  border-color: #233bea;
+}
+
+/* The West cave list runs longer than one row, so it wraps at five icons */
+.overworld-menu-row-wrap {
+  max-width: calc(33px * 5 + 3px * 4);
+  flex-wrap: wrap;
+  row-gap: 3px;
 }
 
 /* West and East share the row with the lettered markers, at icon height. */
