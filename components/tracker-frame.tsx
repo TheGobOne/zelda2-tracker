@@ -1621,6 +1621,48 @@ export function TrackerFrame() {
     () => mapIconHighlightKeys(hoveredMapIcon),
     [hoveredMapIcon],
   )
+  // One box drawn around everything the hovered map icon points at, measured
+  // in the board's own layout pixels so the zoom on the scaler doesn't skew it.
+  // A palace's box grows with however many item slots that palace has.
+  const gameCanvasRef = useRef<HTMLDivElement | null>(null)
+  const [highlightBox, setHighlightBox] = useState<{
+    left: number
+    top: number
+    width: number
+    height: number
+  } | null>(null)
+  useLayoutEffect(() => {
+    const canvas = gameCanvasRef.current
+    const targets = canvas
+      ? [...canvas.querySelectorAll<HTMLElement>('.tracker-highlight')]
+      : []
+    if (!canvas || targets.length === 0) {
+      setHighlightBox(null)
+      return
+    }
+    // Screen rects include the zoom; dividing by the canvas's on-screen to
+    // layout ratio brings them back to the board pixels the box is styled in.
+    const canvasRect = canvas.getBoundingClientRect()
+    const ratio = canvasRect.width / canvas.offsetWidth || 1
+    let left = Infinity
+    let top = Infinity
+    let right = -Infinity
+    let bottom = -Infinity
+    for (const target of targets) {
+      const rect = target.getBoundingClientRect()
+      left = Math.min(left, (rect.left - canvasRect.left) / ratio)
+      top = Math.min(top, (rect.top - canvasRect.top) / ratio)
+      right = Math.max(right, (rect.right - canvasRect.left) / ratio)
+      bottom = Math.max(bottom, (rect.bottom - canvasRect.top) / ratio)
+    }
+    const pad = 4
+    setHighlightBox({
+      left: left - pad,
+      top: top - pad,
+      width: right - left + pad * 2,
+      height: bottom - top + pad * 2,
+    })
+  }, [highlightKeys])
   // The right-click icon menu, and the square it will place onto.
   const [mapMenu, setMapMenu] = useState<MapMenu | null>(null)
   const mapMenuRef = useRef<HTMLDivElement | null>(null)
@@ -3220,12 +3262,16 @@ export function TrackerFrame() {
         >
           <div
             aria-label="Zelda II tracker canvas with an eight-bit frame"
-            className={`game-canvas${isLandscape ? ' is-landscape' : ''}${!isMapVisible ? ' maps-hidden' : ''}`}
+            className={`game-canvas${isLandscape ? ' is-landscape' : ''}${!isMapVisible ? ' maps-hidden' : ''}${highlightBox ? ' is-highlighting' : ''}`}
+            ref={gameCanvasRef}
             role="img"
             // Owned here rather than in the stylesheet: the board has several
             // sizes now, and this is where that choice is already made.
             style={{ width: canvasWidth, height: canvasHeight }}
           >
+            {highlightBox ? (
+              <div aria-hidden="true" className="tracker-highlight-box" style={highlightBox} />
+            ) : null}
             <div aria-label="Town locations" className="town-grid">
               {towns.map((town) => {
                 const townKey = `town-${town.name}`

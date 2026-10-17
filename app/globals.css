@@ -3141,19 +3141,33 @@ gear's center to the center of the left lane (palace and map sections). */
 /* Counterpart of the map icon under the pointer. Outline plus a glow so it reads
    on black sprites and on the grey slot fill alike; outline takes no layout room,
    so the board does not shift as the pointer crosses the maps. */
-.tracker-highlight {
-  z-index: 5;
-  outline: 3px solid #ffd23f;
-  outline-offset: 1px;
-  box-shadow: 0 0 10px 4px rgb(255 210 63 / 0.75);
+/* `.tracker-highlight` only marks what the box is measured around; the box
+   itself is one element, so a palace's boss and every item slot share a frame. */
+.tracker-highlight-box {
+  position: absolute;
+  box-sizing: border-box;
+  z-index: 4;
+  pointer-events: none;
+  border: 3px solid #ffd23f;
+  /* The huge spread is the dim: it covers the whole board outside the box,
+     and the canvas's overflow: hidden clips it to the board. */
+  box-shadow:
+    0 0 0 9999px rgb(0 0 0 / 0.62),
+    0 0 12px 3px rgb(255 210 63 / 0.85),
+    inset 0 0 8px 1px rgb(255 210 63 / 0.6);
   animation: tracker-highlight-pulse 0.9s ease-in-out infinite alternate;
 }
 
+/* The maps stay above the dim so the hovered square is still in full view. */
+.game-canvas.is-highlighting .overworld {
+  z-index: 5;
+}
+
 @keyframes tracker-highlight-pulse {
-  from { box-shadow: 0 0 6px 2px rgb(255 210 63 / 0.55); }
-  to { box-shadow: 0 0 14px 6px rgb(255 210 63 / 0.9); }
+  from { border-color: rgb(255 210 63 / 0.75); }
+  to { border-color: #ffd23f; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tracker-highlight { animation: none; }
+  .tracker-highlight-box { animation: none; }
 }
