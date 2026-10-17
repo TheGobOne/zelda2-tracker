@@ -1164,6 +1164,50 @@ function findMapIcon(id: string | undefined) {
   return icon ? { kind: 'icon' as const, name: icon.name, src: icon.src } : undefined
 }
 
+/**
+ * The tracker keys a map icon stands for, so hovering it on a grid can light up
+ * its counterpart above: a palace lights its boss (whose key also lights its
+ * item slots), a town its icon and slot, an item cave its location, and a placed
+ * item or spell its collection slot. Terrain and connectors have no counterpart.
+ */
+function mapIconHighlightKeys(id: string | undefined): Set<string> {
+  const keys = new Set<string>()
+  if (!id) {
+    return keys
+  }
+
+  if (id.startsWith(MAP_ITEM_PREFIX)) {
+    keys.add(`collection-${id.slice(MAP_ITEM_PREFIX.length)}`)
+    return keys
+  }
+
+  const palace = /^palace-(\d)$/.exec(id)
+  if (palace) {
+    keys.add(`boss-Palace ${palace[1]}`)
+    return keys
+  }
+
+  const town = /^town-(\d)$/.exec(id)
+  if (town) {
+    const entry = towns[Number(town[1]) - 1]
+    if (entry) {
+      keys.add(`town-${entry.name}`)
+    }
+    return keys
+  }
+
+  if (id.startsWith('cave-')) {
+    const cave = [...WEST_CAVE_ICONS, ...EAST_CAVE_ICONS].find(
+      (entry) => entry.id === id,
+    )
+    if (cave) {
+      keys.add(`location-${cave.name}`)
+    }
+  }
+
+  return keys
+}
+
 /** The square a map menu was opened on, in the maps section's own layout pixels. */
 type MapMenu = {
   cellKey: string
@@ -1569,6 +1613,14 @@ export function TrackerFrame() {
   // Which icon sits on each overworld cell, keyed by grid id and coordinates.
   // Only filled cells are stored, so an absent key is an empty square.
   const [overworldCells, setOverworldCells] = useState<Record<string, string>>(OVERWORLD_START_CELLS)
+  // The map square under the pointer. The icon is read from the cells each
+  // render, so removing or moving it drops the highlight straight away.
+  const [hoveredCellKey, setHoveredCellKey] = useState<string | null>(null)
+  const hoveredMapIcon = hoveredCellKey ? overworldCells[hoveredCellKey] : undefined
+  const highlightKeys = useMemo(
+    () => mapIconHighlightKeys(hoveredMapIcon),
+    [hoveredMapIcon],
+  )
   // The right-click icon menu, and the square it will place onto.
   const [mapMenu, setMapMenu] = useState<MapMenu | null>(null)
   const mapMenuRef = useRef<HTMLDivElement | null>(null)
@@ -2056,6 +2108,8 @@ export function TrackerFrame() {
     onCycleMark?: () => void
     // Hover text while the slot is empty, for slots laid over another icon.
     emptyTip?: string
+    // Lit while its town or palace is hovered on the overworld maps.
+    highlighted?: boolean
   },
   ) {
     const item = allPickables.find((entry) => entry.id === slotItems[slotKey])
@@ -2089,7 +2143,7 @@ export function TrackerFrame() {
               : `${label}: ${isCollected ? 'checked' : 'empty'}${blockLabel}. ${options?.canCheckEmpty ? `Left click to mark ${isCollected ? 'unchecked' : 'checked'}, ` : ''}Right click to choose an item.${cycleHint}${blockHint}`
           }
           aria-pressed={item || options?.canCheckEmpty ? isCollected : undefined}
-          className={`${isCollected ? 'item-slot item-slot-collected' : 'item-slot'}${block ? ' item-slot-blocked' : ''}${isMinorItem ? ' item-slot-minor' : ''}`}
+          className={`${isCollected ? 'item-slot item-slot-collected' : 'item-slot'}${block ? ' item-slot-blocked' : ''}${isMinorItem ? ' item-slot-minor' : ''}${options?.highlighted ? ' tracker-highlight' : ''}`}
           // Read by the palace grid's wheel listener, the same way the bosses are.
           data-block-key={options?.canBlock ? slotKey : undefined}
           data-tip={item ? undefined : options?.emptyTip}
@@ -2296,11 +2350,7 @@ export function TrackerFrame() {
       <button
         aria-label={`${entry.name}${isCollected ? ', collected' : ', not collected'}${palaceNumber ? `, in palace ${palaceNumber}` : mark ? `, marked ${mark}` : ''}. Right click to cycle the location.`}
         aria-pressed={isCollected}
-        className={
-          isCollected
-            ? 'collection-slot collection-slot-collected'
-            : 'collection-slot'
-        }
+        className={`${isCollected ? 'collection-slot collection-slot-collected' : 'collection-slot'}${highlightKeys.has(slotKey) ? ' tracker-highlight' : ''}`}
         data-quest-town={QUEST_ITEM_TOWNS[entry.id]}
         key={entry.id}
         onClick={() => {
@@ -3185,7 +3235,7 @@ export function TrackerFrame() {
                   <div className="town-column" data-town={town.name} key={town.name}>
                     <button
                       aria-label={`${town.name} town${mark ? `, marked ${mark}` : ''}. Right click to cycle the location.`}
-  className="town-icon icon-toggle"
+  className={`town-icon icon-toggle${highlightKeys.has(townKey) ? ' tracker-highlight' : ''}`}
   data-tip={town.tip ?? town.name}
   // Right click steps through the requirement letters.
                       onContextMenu={(event) => {
@@ -3209,6 +3259,7 @@ export function TrackerFrame() {
                     {renderItemSlot(townKey, `${town.name} item`, {
   canCheckEmpty: true,
   emptyTip: town.tip ?? town.name,
+  highlighted: highlightKeys.has(townKey),
   onCycleMark: () => cycleMark(townKey, TOWN_MARKS),
                     })}
                   </div>
@@ -3265,11 +3316,7 @@ export function TrackerFrame() {
                           }
                           aria-label={`${palace.name} palace boss${isBeaten ? ', defeated' : ''}${mark ? `, marked ${mark}` : ''}${block ? `, blocked by ${block.name}` : ''}${slotLabel}. Left click to mark defeated, right click to cycle the location,${slotHint} scroll to cycle what blocks it.`}
                           aria-pressed={isBeaten}
-                          className={
-                            isBeaten
-                              ? 'town-icon icon-toggle boss-toggle-beaten'
-                              : 'town-icon icon-toggle'
-                          }
+                          className={`${isBeaten ? 'town-icon icon-toggle boss-toggle-beaten' : 'town-icon icon-toggle'}${highlightKeys.has(bossKey) ? ' tracker-highlight' : ''}`}
                           // Read by the grid's wheel listener to find what was
                           // scrolled. The listener sits on the grid rather than here
                           // because React registers `wheel` passively, which would
@@ -3362,7 +3409,11 @@ export function TrackerFrame() {
                           renderItemSlot(
                             `${palace.name}-${index}`,
                             `${palace.name} item ${index + 1}`,
-                            { canBlock: true, canCheckEmpty: true }
+                            {
+                              canBlock: true,
+                              canCheckEmpty: true,
+                              highlighted: highlightKeys.has(bossKey),
+                            }
                           )
                         )}
                         {'heartTally' in palace ? renderContainerTally('heart') : null}
@@ -3755,11 +3806,7 @@ export function TrackerFrame() {
                           : `${location.name}: ${isCollected ? 'checked' : 'empty'}. Left click to mark ${isCollected ? 'unchecked' : 'checked'}, right click to choose an item.`
                       }
                       aria-pressed={isCollected}
-                      className={
-                        isCollected
-                          ? 'location-icon location-icon-collected'
-                          : 'location-icon'
-                      }
+                      className={`${isCollected ? 'location-icon location-icon-collected' : 'location-icon'}${highlightKeys.has(slotKey) ? ' tracker-highlight' : ''}`}
                       key={location.name}
                       // Middle click clears the item.
                       onAuxClick={(event) => {
@@ -4342,9 +4389,15 @@ export function TrackerFrame() {
                                 }
                               }}
                               onMouseEnter={() => {
+                                setHoveredCellKey(cellKey)
                                 if (mapMove) {
                                   hoverMapCell(world.id, { row, column })
                                 }
+                              }}
+                              onMouseLeave={() => {
+                                setHoveredCellKey((current) =>
+                                  current === cellKey ? null : current,
+                                )
                               }}
                               role="gridcell"
                               type="button"
