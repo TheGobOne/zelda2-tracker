@@ -21,7 +21,7 @@ const UPDATE_RELEASES: UpdateRelease[] = [
     lines: [
       'Added Map Highlighting: hover an icon on your map to highlight it in the tracker above and dim everything else',
       'Added drag and drop: drag any icon on your map to move it to another square',
-      'West caves now use Parapa (P), Jump (J), and Fairy (F) icons and include the West item caves',
+      'West menu button now uses Parapa (P), Jump (J), and Fairy (F) icons and includes the West item caves',
       'East menu button includes the East item caves and includes renamed East connector caves A, B, C, D to Passthrough caves T1, T2, T3, T4',
       'Added duplicate placement: shift click a Parapa, Jump, Fairy, or Passthrough cave (in the menu or on your map) to pick up a copy, then click a square to place it',
       'Map menu buttons (West, East, Items and Spells) are now bordered and sized to match the rest of the menu',
