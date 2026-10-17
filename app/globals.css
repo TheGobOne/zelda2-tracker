@@ -1439,7 +1439,12 @@
   width: 572px;
   align-items: center;
   justify-content: center;
-  column-gap: 8px;
+}
+
+/* The gap sits only between the two maps, so each label's flex box spans the
+   full open band from rail to map and centres within it. */
+.overworld-grid + .overworld-grid {
+  margin-left: 8px;
 }
 
 /* One letter per line, read top to bottom, in the open band beside each outer map. */
