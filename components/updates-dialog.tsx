@@ -14,6 +14,22 @@ type UpdateRelease = {
 // Newest first. Add a new release at the top to publish new notes.
 const UPDATE_RELEASES: UpdateRelease[] = [
   {
+    id: '2026-10-17-mapping',
+    date: '10/17/26',
+    lines: [
+      'Added Map Highlighting: hover an icon on your map to box it on the tracker and dim everything else (palaces box the boss and all of their item slots)',
+      'Added drag and drop: drag any icon on your map to move it to another square',
+      'Added duplicate placement: shift click a Parapa, Jump, Fairy, or Passthrough cave (in the menu or on your map) to pick up a copy, then click a square to place it',
+      'The icon you are dragging or placing now shows next to your cursor',
+      'West caves now use Parapa (P), Jump (J), and Fairy (F) icons and include the West item caves',
+      'East caves now include the East item caves',
+      'Renamed connector caves A, B, C, D to Passthrough caves T1, T2, T3, T4 (icons you already placed carry over)',
+      'Removed Hammer cave from West caves',
+      'Updated the Controls section with the new mapping controls',
+      'Map menu buttons (West, East, Items and Spells) are now bordered and sized to match the rest of the menu',
+    ],
+  },
+  {
     id: '2026-10-13-flags',
     date: '10/13/26',
     lines: [
