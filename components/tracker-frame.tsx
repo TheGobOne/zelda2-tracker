@@ -6,6 +6,7 @@ import {
   Fragment,
   type PointerEvent as ReactPointerEvent,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -1016,14 +1017,11 @@ function isOnOverworld({ row, column }: MapCell) {
 }
 
 /**
- * Icons that can be dropped onto a grid, as the four vertical columns they are
- * laid out in between the two maps. Columns are written out rather than filled by
- * splitting one flat list, because which icons group together is a deliberate
- * choice: the palaces belong in a column of their own, in numbered order, and an
- * even split would scatter them across all four. Add an entry with its sprite
- * path to the column it belongs in and it becomes placeable.
- *
- * Every column must stay within nine icons, the height of a grid beside it.
+ * Icons that can be dropped onto a grid, as the four groups the right-click map
+ * menu lays out one per row. Groups are written out rather than filled by
+ * splitting one flat list, because which icons sit together is a deliberate
+ * choice: the palaces belong in a row of their own, in numbered order. Add an
+ * entry with its sprite path to the group it belongs in and it becomes placeable.
  */
 const OVERWORLD_ICON_COLUMNS: { id: string; name: string; src: string }[][] = [
   // Palaces. The unnumbered one leads, above the seven numbered ones: it is the
@@ -1081,13 +1079,11 @@ const OVERWORLD_ICON_COLUMNS: { id: string; name: string; src: string }[][] = [
   ],
 ]
 
-/** Every palette icon, flattened, for resolving whatever id a map cell holds. */
+/** Every placeable icon, flattened, for resolving whatever id a map cell holds. */
 const OVERWORLD_ICONS = OVERWORLD_ICON_COLUMNS.flat()
 
-/** The palette's columns, as laid out above. */
-function overworldIconColumns() {
-  return OVERWORLD_ICON_COLUMNS
-}
+/** The square a map menu was opened on, in the maps section's own layout pixels. */
+type MapMenu = { cellKey: string; x: number; y: number; size: number }
 
 /**
  * The controls reference, grouped by what you are pointing at. Every board
@@ -1179,10 +1175,10 @@ const CONTROL_GROUPS: {
   {
     title: 'Overworld maps',
     tall: true,
-    note: 'Click a palette icon to hold it, click it again to put it down. In move mode, a box with no icons in it is discarded.',
+    note: 'The icon menu also has Clear for a filled square. In move mode, a box with no icons in it is discarded.',
     rows: [
-      { input: 'Left click', effect: 'Drop the held icon on a square' },
-      { input: 'Right click', effect: 'Clear the square' },
+      { input: 'Right click', effect: 'Open the icon menu for a square' },
+      { input: 'Left click (menu)', effect: 'Place that icon on the square' },
       { input: 'Middle click', effect: 'Enter or exit move mode' },
       { input: 'Drag (move mode)', effect: 'Box-select the icons to lift' },
       { input: 'Click (move mode)', effect: 'Place the lifted icons' },
@@ -1485,13 +1481,13 @@ export function TrackerFrame() {
   // Which icon sits on each overworld cell, keyed by grid id and coordinates.
   // Only filled cells are stored, so an absent key is an empty square.
   const [overworldCells, setOverworldCells] = useState<Record<string, string>>(OVERWORLD_START_CELLS)
-  // The palette icon held ready to place. It stays armed after each drop, so a
-  // repeated icon can be placed across the map without reselecting it, and
-  // clicking it again puts it down.
-  const [armedIcon, setArmedIcon] = useState<string | null>(null)
+  // The right-click icon menu, and the square it will place onto.
+  const [mapMenu, setMapMenu] = useState<MapMenu | null>(null)
+  const mapMenuRef = useRef<HTMLDivElement | null>(null)
+  const mapMenuOpenerRef = useRef<HTMLButtonElement | null>(null)
   const [mapMove, setMapMove] = useState<MapMove | null>(null)
   // Dropping happens on press and ends move mode, so the click that follows
-  // would otherwise see normal mode and paint the selected palette icon.
+  // would otherwise be handled as a normal-mode click.
   const swallowNextCellClickRef = useRef(false)
   const palaceGridRef = useRef<HTMLDivElement | null>(null)
   // How tall the board currently stands. Everything that has to agree with the
@@ -1557,6 +1553,61 @@ export function TrackerFrame() {
     document.addEventListener('mouseup', finishSelection)
     return () => document.removeEventListener('mouseup', finishSelection)
   }, [mapMove, overworldCells])
+
+  // Places the icon menu beside its square once its real size is known: to the
+  // right, flipped left near the section's edge, and kept inside the section
+  // vertically. Then focus moves into it so the keyboard can pick an icon.
+  useLayoutEffect(() => {
+    const menu = mapMenuRef.current
+    const section = menu?.offsetParent as HTMLElement | null
+
+    if (!mapMenu || !menu || !section) {
+      return
+    }
+
+    const gap = 4
+    let left = mapMenu.x + mapMenu.size + gap
+    if (left + menu.offsetWidth > section.offsetWidth) {
+      left = mapMenu.x - menu.offsetWidth - gap
+    }
+    const centredTop = mapMenu.y + mapMenu.size / 2 - menu.offsetHeight / 2
+    const top = Math.max(
+      0,
+      Math.min(centredTop, section.offsetHeight - menu.offsetHeight),
+    )
+
+    menu.style.left = `${Math.max(0, left)}px`
+    menu.style.top = `${top}px`
+    menu.querySelector<HTMLButtonElement>('button')?.focus({ preventScroll: true })
+  }, [mapMenu])
+
+  // Any press outside the menu, or Escape, dismisses it.
+  const isMapMenuOpen = mapMenu !== null
+  useEffect(() => {
+    if (!isMapMenuOpen) {
+      return
+    }
+
+    function handlePointerDown(event: MouseEvent) {
+      if (!mapMenuRef.current?.contains(event.target as Node)) {
+        setMapMenu(null)
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setMapMenu(null)
+        mapMenuOpenerRef.current?.focus()
+      }
+    }
+
+    document.addEventListener('mousedown', handlePointerDown)
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isMapMenuOpen])
 
   // Escape backs out of move mode, leaving any lifted icons where they were.
   const isMapMoveActive = mapMove !== null
@@ -2244,73 +2295,98 @@ export function TrackerFrame() {
    * Returns the tracker to a fresh run. Zoom is deliberately left alone, since
    * it is a display preference rather than run progress.
    */
-  /**
-   * Drops the armed icon on a cell, or clears the cell when nothing is armed so
-   * a stray placement can be undone without first disarming.
-   */
-  function placeOverworldIcon(cellKey: string) {
+  /** Opens the icon menu on the right-clicked square, anchored to its position. */
+  function openMapMenu(cell: HTMLButtonElement, cellKey: string) {
+    const section = cell.closest<HTMLElement>('.overworld')
+    let x = 0
+    let y = 0
+    let element: HTMLElement | null = cell
+
+    // offset* are layout pixels, so the anchor is unaffected by the board's zoom.
+    while (element && element !== section) {
+      x += element.offsetLeft
+      y += element.offsetTop
+      element = element.offsetParent as HTMLElement | null
+    }
+
+    mapMenuOpenerRef.current = cell
+    setMapMenu({ cellKey, x, y, size: cell.offsetWidth })
+  }
+
+  /** Puts an icon on a square from the menu, or empties it when `iconId` is null. */
+  function chooseMapMenuIcon(iconId: string | null) {
+    if (!mapMenu) {
+      return
+    }
+
+    const { cellKey } = mapMenu
     setOverworldCells((current) => {
       const next = { ...current }
 
-      if (armedIcon) {
-        next[cellKey] = armedIcon
+      if (iconId) {
+        next[cellKey] = iconId
       } else {
         delete next[cellKey]
       }
 
       return next
     })
+    setMapMenu(null)
+    mapMenuOpenerRef.current?.focus({ preventScroll: true })
   }
 
-  /**
-   * The three columns of placeable icons. Rendered between the two maps, so it is
-   * defined here and called from inside the map loop rather than being laid out by
-   * CSS `order` - it needs to sit at the DOM position it is read at, so keyboard
-   * order matches what is on screen. Its width is reserved in CSS, so the maps
-   * stay put as the remaining two columns fill in.
-   */
-  function renderOverworldPalette() {
+  function renderMapMenu() {
+    if (!mapMenu) {
+      return null
+    }
+
+    const currentIcon = overworldCells[mapMenu.cellKey]
+
     return (
       <div
-        aria-label="Overworld icons"
-        className="overworld-palette"
-        role="toolbar"
+        aria-label="Place an icon"
+        className="overworld-menu"
+        ref={mapMenuRef}
+        role="menu"
       >
-        {overworldIconColumns().map((column, columnIndex) => (
-          <div className="overworld-palette-column" key={columnIndex}>
-            {column.map((icon) => (
+        {OVERWORLD_ICON_COLUMNS.map((group, groupIndex) => (
+          <div className="overworld-menu-row" key={groupIndex} role="group">
+            {group.map((icon) => (
               <button
-                aria-label={`${icon.name}${armedIcon === icon.id ? ', selected' : ''}. Click, then click a map square to place it.`}
-                aria-pressed={armedIcon === icon.id}
+                aria-label={`${icon.name}${currentIcon === icon.id ? ', placed' : ''}`}
                 className={
-                  armedIcon === icon.id
-                    ? 'overworld-palette-icon overworld-palette-icon-armed'
-                    : 'overworld-palette-icon'
+                  currentIcon === icon.id
+                    ? 'overworld-menu-icon overworld-menu-icon-current'
+                    : 'overworld-menu-icon'
                 }
+                data-tip={icon.name}
                 key={icon.id}
-                // Clicking the armed icon disarms it, so a left click on a cell
-                // goes back to clearing it.
-                onClick={() =>
-                  setArmedIcon((current) =>
-                    current === icon.id ? null : icon.id,
-                  )
-                }
+                onClick={() => chooseMapMenuIcon(icon.id)}
+                role="menuitem"
                 type="button"
               >
-                {/* Drawn at the sprite's native 16px rather than stretched to
-                    fill the box. These markers carry a palace number, and a
-                    fractional scale smears the digit's strokes to uneven widths,
-                    which is exactly the detail that has to stay readable. */}
+                {/* Native 16px, so the palace digits stay crisp. */}
                 <Image alt="" height={16} src={icon.src} width={16} />
               </button>
             ))}
           </div>
         ))}
+        {currentIcon ? (
+          <button
+            className="overworld-menu-clear"
+            onClick={() => chooseMapMenuIcon(null)}
+            role="menuitem"
+            type="button"
+          >
+            Clear
+          </button>
+        ) : null}
       </div>
     )
   }
 
   function toggleMapMoveMode() {
+    setMapMenu(null)
     setMapMove((current) =>
       current ? null : { phase: 'select', worldId: null, from: null, to: null },
     )
@@ -2399,23 +2475,9 @@ export function TrackerFrame() {
     setMapMove(null)
   }
 
-  /** Empties a single cell, on right click, whatever is armed. */
-  function clearOverworldCell(cellKey: string) {
-    setOverworldCells((current) => {
-      if (!(cellKey in current)) {
-        return current
-      }
-
-      const next = { ...current }
-      delete next[cellKey]
-
-      return next
-    })
-  }
-
   function clearTracker() {
     setOverworldCells({ ...OVERWORLD_START_CELLS })
-    setArmedIcon(null)
+    setMapMenu(null)
     setSlotItems({})
     setCollected({})
     setSlotCounts({})
@@ -2461,7 +2523,7 @@ export function TrackerFrame() {
     // The maps describe the seed being played, so a new ruleset empties them
     // along with everything else, back to just the home palace.
     setOverworldCells({ ...OVERWORLD_START_CELLS })
-    setArmedIcon(null)
+    setMapMenu(null)
     setSlotItems({ ...preset.placements })
     setCollected(collectedFromPreset(preset))
     setSlotCounts({})
@@ -3764,7 +3826,6 @@ export function TrackerFrame() {
 
                 return (
                 <Fragment key={world.id}>
-                {worldIndex === 1 ? renderOverworldPalette() : null}
                   {/* Unlabelled on screen - the two grids are self-evidently the
                       west and east maps, and dropping the headings buys the height
                       the larger squares need. The name still reaches screen readers
@@ -3813,27 +3874,26 @@ export function TrackerFrame() {
                             <button
                               aria-label={
                                 icon
-                                  ? `${world.name} ${position}: ${icon.name}. Right click to clear.`
-                                  : `${world.name} ${position}: empty.`
+                                  ? `${world.name} ${position}: ${icon.name}. Right click to change.`
+                                  : `${world.name} ${position}: empty. Right click to place an icon.`
                               }
-                              className={cellClassName}
+                              aria-haspopup="menu"
+                              aria-expanded={mapMenu?.cellKey === cellKey}
+                              className={
+                                mapMenu?.cellKey === cellKey
+                                  ? `${cellClassName} overworld-cell-open`
+                                  : cellClassName
+                              }
                               data-tip={icon?.name}
                               key={column}
                               onClick={() => {
-                                if (swallowNextCellClickRef.current) {
-                                  swallowNextCellClickRef.current = false
-                                  return
-                                }
-
-                                if (!mapMove) {
-                                  placeOverworldIcon(cellKey)
-                                }
+                                swallowNextCellClickRef.current = false
                               }}
                               onContextMenu={(event) => {
                                 event.preventDefault()
 
                                 if (!mapMove) {
-                                  clearOverworldCell(cellKey)
+                                  openMapMenu(event.currentTarget, cellKey)
                                 }
                               }}
                               // In move mode a left press starts the selection
@@ -3890,6 +3950,7 @@ export function TrackerFrame() {
                 </Fragment>
                 )
               })}
+              {renderMapMenu()}
             </section>
             </>
             ) : null}
