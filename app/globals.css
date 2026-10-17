@@ -3146,7 +3146,9 @@ gear's center to the center of the left lane (palace and map sections). */
 .tracker-highlight-box {
   position: absolute;
   box-sizing: border-box;
-  z-index: 4;
+  /* Above the palace notes (4) so the connector column dims too; the maps
+     share 5 but come later in the DOM, so they still sit above the dim. */
+  z-index: 5;
   pointer-events: none;
   border: 3px solid #ffd23f;
   /* The huge spread is the dim: it covers the whole board outside the box,
@@ -3158,7 +3160,8 @@ gear's center to the center of the left lane (palace and map sections). */
   animation: tracker-highlight-pulse 0.9s ease-in-out infinite alternate;
 }
 
-/* The maps stay above the dim so the hovered square is still in full view. */
+/* The maps stay above the dim so the hovered square is still in full view.
+   They tie with the box at 5 and win by coming later in the DOM. */
 .game-canvas.is-highlighting .overworld {
   z-index: 5;
 }
