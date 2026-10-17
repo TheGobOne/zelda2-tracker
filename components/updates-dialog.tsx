@@ -19,7 +19,7 @@ const UPDATE_RELEASES: UpdateRelease[] = [
     date: '10/17/26',
     intro: 'Mapping has been completely reworked. Changes below:',
     lines: [
-      'Added Map Highlighting: hover an icon on your map to box it on the tracker and dim everything else',
+      'Added Map Highlighting: hover an icon on your map to highlight it in the tracker above and dim everything else',
       'Added drag and drop: drag any icon on your map to move it to another square',
       'West caves now use Parapa (P), Jump (J), and Fairy (F) icons and include the West item caves',
       'Added duplicate placement: shift click a Parapa, Jump, Fairy, or Passthrough cave (in the menu or on your map) to pick up a copy, then click a square to place it',
