@@ -1431,13 +1431,32 @@
      bottom rail's inner edge (1124), 250px. Each 11x11 map is 236px, so 7px
      either side centres it. */
   top: calc(818px + var(--sep) * 4 + 7px);
-  /* Rail to rail (x14 -> x586), with the maps spread evenly across it. */
+  /* Rail to rail (x14 -> x586). The maps sit close together in the middle, with
+     their WEST / EAST labels in the open space either side. */
   left: 14px;
   z-index: 3;
   display: flex;
   width: 572px;
-  align-items: flex-start;
-  justify-content: space-evenly;
+  align-items: center;
+  justify-content: center;
+  column-gap: 8px;
+}
+
+/* One letter per line, read top to bottom, in the open band beside each outer map. */
+.overworld-side-label {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+}
+
+.overworld-side-text {
+  color: #f5f5f5;
+  font-size: 26px;
+  line-height: 1.15;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing: 2px;
+  user-select: none;
 }
 
 /* Framed like the board's other panels. The 1px gaps between cells show this

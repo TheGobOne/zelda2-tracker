@@ -2313,6 +2313,15 @@ export function TrackerFrame() {
     setMapMenu({ cellKey, x, y, size: cell.offsetWidth })
   }
 
+  function clearMapCell(cellKey: string) {
+    setOverworldCells((current) => {
+      const next = { ...current }
+      delete next[cellKey]
+      return next
+    })
+    setMapMenu((current) => (current?.cellKey === cellKey ? null : current))
+  }
+
   /** Puts an icon on a square from the menu, or empties it when `iconId` is null. */
   function chooseMapMenuIcon(iconId: string | null) {
     if (!mapMenu) {
@@ -3826,10 +3835,14 @@ export function TrackerFrame() {
 
                 return (
                 <Fragment key={world.id}>
-                  {/* Unlabelled on screen - the two grids are self-evidently the
-                      west and east maps, and dropping the headings buys the height
-                      the larger squares need. The name still reaches screen readers
-                      through the grid's own label and every cell's. */}
+                  {/* Labelled on their outer sides, in the open space beside each map,
+                      so the band's height stays with the squares. Screen readers get
+                      the name from the grid's own label instead. */}
+                  {worldIndex === 0 ? (
+                    <span aria-hidden="true" className="overworld-side-label">
+                      <span className="overworld-side-text">{world.name.toUpperCase()}</span>
+                    </span>
+                  ) : null}
                   <div
                     aria-label={`${world.name} overworld grid`}
                     className="overworld-grid"
@@ -3886,6 +3899,22 @@ export function TrackerFrame() {
                               }
                               data-tip={icon?.name}
                               key={column}
+                              // Middle click on an icon removes it. Empty squares,
+                              // and any square while move mode is on, let the click
+                              // reach the section so it still toggles move mode.
+                              onAuxClick={(event) => {
+                                if (
+                                  event.button !== 1 ||
+                                  mapMove ||
+                                  !overworldCells[cellKey]
+                                ) {
+                                  return
+                                }
+
+                                event.preventDefault()
+                                event.stopPropagation()
+                                clearMapCell(cellKey)
+                              }}
                               onClick={() => {
                                 swallowNextCellClickRef.current = false
                               }}
@@ -3944,10 +3973,15 @@ export function TrackerFrame() {
                             </button>
                           )
                         })}
-                      </div>
-                    ))}
-                  </div>
-                </Fragment>
+  </div>
+  ))}
+  </div>
+  {worldIndex === OVERWORLDS.length - 1 ? (
+    <span aria-hidden="true" className="overworld-side-label">
+      <span className="overworld-side-text">{world.name.toUpperCase()}</span>
+    </span>
+  ) : null}
+</Fragment>
                 )
               })}
               {renderMapMenu()}
