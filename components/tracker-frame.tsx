@@ -1263,14 +1263,14 @@ const CONTROL_GROUPS: {
   {
     title: 'Overworld maps',
     tall: true,
-    note: 'West and East in the icon menu open each continent\u2019s caves. In move mode, a box with no icons in it is discarded.',
+    note: 'West/East in the menu hold each continent\u2019s caves. Escape leaves move mode.',
     rows: [
       { input: 'Right click', effect: 'Open the icon menu for a square' },
       { input: 'Left click (menu)', effect: 'Place that icon on the square' },
-      { input: 'Middle click', effect: 'Enter or exit move mode' },
-      { input: 'Drag (move mode)', effect: 'Box-select the icons to lift' },
-      { input: 'Click (move mode)', effect: 'Place the lifted icons' },
-      { input: 'Escape', effect: 'Leave move mode, lifted icons stay put' },
+      { input: 'Drag an icon', effect: 'Move it to another square' },
+      { input: 'Shift click P/J/F/T', effect: 'Pick up a copy to place' },
+      { input: 'Middle click', effect: 'Remove an icon, or toggle move mode' },
+      { input: 'Move mode', effect: 'Box-select icons, click to drop them' },
     ],
   },
   {
@@ -2656,7 +2656,7 @@ export function TrackerFrame() {
         style={{
           left: held.x,
           top: held.y,
-          transform: `translate(-50%, -50%) scale(${held.size / 16})`,
+          transform: `translate(10px, 10px) scale(${(held.size * 1.75) / 16})`,
         }}
       >
         {icon.kind === 'icon' ? (

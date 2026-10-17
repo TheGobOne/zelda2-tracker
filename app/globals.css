@@ -1549,15 +1549,19 @@
   opacity: 0.4;
 }
 
-/* An icon being dragged, or a shift-click copy waiting to be dropped. Sits under
-   the pointer without catching it, so the square beneath still reads the drop. */
+/* An icon being dragged, or a shift-click copy waiting to be dropped. Drawn
+   enlarged and offset below-right so the cursor arrow never covers it, and
+   ignores the pointer so the square beneath still reads the drop. */
 .overworld-held {
   position: fixed;
   z-index: 1000;
   width: 16px;
   height: 16px;
   pointer-events: none;
-  opacity: 0.85;
+  transform-origin: top left;
+  background: #000;
+  outline: 1px solid #f2b21c;
+  box-shadow: 0 0 0 2px #000;
 }
 
 .overworld-holding .overworld-cell {
