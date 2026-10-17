@@ -981,6 +981,89 @@ const OVERWORLD_SIZE = 11
 const SETTINGS_STORAGE_KEY = 'z2-tracker-settings'
 const CONTROLS_SEEN_STORAGE_KEY = 'z2-tracker-controls-hint-seen'
 const GEAR_SEEN_STORAGE_KEY = 'z2-tracker-gear-hint-seen'
+const RUN_STORAGE_KEY = 'z2-tracker-run'
+const SAVE_FILE_APP_ID = 'z2-tracker'
+const SAVE_FILE_VERSION = 1
+
+type RunSnapshot = {
+  overworldCells: Record<string, string>
+  slotItems: Record<string, string>
+  collected: Record<string, boolean>
+  slotCounts: Record<string, number>
+  iconMarks: Record<string, string>
+  blocks: Record<string, string>
+  countValues: Record<string, string>
+  connectorEnds: Record<string, string>
+  notes: string
+  activeFlags: string
+  hasPickedFlags: boolean
+  customFlagsName: string
+  customLimits: ContainerLimits
+}
+
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function recordOf<T>(value: unknown, isValue: (entry: unknown) => entry is T) {
+  if (!isPlainRecord(value)) return null
+  return Object.values(value).every(isValue) ? (value as Record<string, T>) : null
+}
+
+const isString = (entry: unknown): entry is string => typeof entry === 'string'
+const isBoolean = (entry: unknown): entry is boolean => typeof entry === 'boolean'
+const isFiniteNumber = (entry: unknown): entry is number =>
+  typeof entry === 'number' && Number.isFinite(entry)
+
+/** Checks an untrusted save (storage or an imported file) field by field. */
+function parseRunSnapshot(value: unknown): RunSnapshot | null {
+  if (!isPlainRecord(value)) return null
+  const overworldCells = recordOf(value.overworldCells, isString)
+  const slotItems = recordOf(value.slotItems, isString)
+  const collected = recordOf(value.collected, isBoolean)
+  const slotCounts = recordOf(value.slotCounts, isFiniteNumber)
+  const iconMarks = recordOf(value.iconMarks, isString)
+  const blocks = recordOf(value.blocks, isString)
+  const countValues = recordOf(value.countValues, isString)
+  const connectorEnds = recordOf(value.connectorEnds, isString)
+  const limits = value.customLimits
+  if (
+    !overworldCells ||
+    !slotItems ||
+    !collected ||
+    !slotCounts ||
+    !iconMarks ||
+    !blocks ||
+    !countValues ||
+    !connectorEnds ||
+    !isString(value.notes) ||
+    !isString(value.activeFlags) ||
+    !PRESETS.some((preset) => preset.id === value.activeFlags) ||
+    !isBoolean(value.hasPickedFlags) ||
+    !isString(value.customFlagsName) ||
+    !isPlainRecord(limits) ||
+    !['heartStart', 'heartMax', 'magicStart', 'magicMax'].every((key) =>
+      CONTAINER_LIMIT_CHOICES.includes(limits[key] as number),
+    )
+  ) {
+    return null
+  }
+  return {
+    overworldCells,
+    slotItems,
+    collected,
+    slotCounts,
+    iconMarks,
+    blocks,
+    countValues,
+    connectorEnds,
+    notes: value.notes,
+    activeFlags: value.activeFlags,
+    hasPickedFlags: value.hasPickedFlags,
+    customFlagsName: value.customFlagsName,
+    customLimits: limits as ContainerLimits,
+  }
+}
 
 /** Every run starts at the home palace, so it is pre-placed in the middle of the west map. */
 const OVERWORLD_START_CELLS: Record<string, string> = {
@@ -1617,6 +1700,139 @@ export function TrackerFrame() {
   // render, so removing or moving it drops the highlight straight away.
   const [hoveredCellKey, setHoveredCellKey] = useState<string | null>(null)
   const hoveredMapIcon = hoveredCellKey ? overworldCells[hoveredCellKey] : undefined
+
+  const runSnapshot: RunSnapshot = {
+    overworldCells,
+    slotItems,
+    collected,
+    slotCounts,
+    iconMarks,
+    blocks,
+    countValues,
+    connectorEnds,
+    notes,
+    activeFlags,
+    hasPickedFlags,
+    customFlagsName,
+    customLimits,
+  }
+  const runSnapshotJson = JSON.stringify(runSnapshot)
+
+  function applyRunSnapshot(snapshot: RunSnapshot) {
+    setOverworldCells(snapshot.overworldCells)
+    setSlotItems(snapshot.slotItems)
+    setCollected(snapshot.collected)
+    setSlotCounts(snapshot.slotCounts)
+    setIconMarks(snapshot.iconMarks)
+    setBlocks(snapshot.blocks)
+    setCountValues(snapshot.countValues)
+    setConnectorEnds(snapshot.connectorEnds)
+    setNotes(snapshot.notes)
+    setActiveFlags(snapshot.activeFlags)
+    setHasPickedFlags(snapshot.hasPickedFlags)
+    setCustomFlagsName(snapshot.customFlagsName)
+    setCustomLimits(snapshot.customLimits)
+    setIsNamingCustom(false)
+    setMapMenu(null)
+    setOpenSlot(null)
+    setOpenLimitPicker(null)
+  }
+
+  // Restored after mount, like the settings above, so the server render matches
+  // and the default board never overwrites a saved run before it is read.
+  const [hasRestoredRun, setHasRestoredRun] = useState(false)
+  useEffect(() => {
+    try {
+      const saved = parseRunSnapshot(
+        JSON.parse(window.localStorage.getItem(RUN_STORAGE_KEY) ?? 'null'),
+      )
+      if (saved) applyRunSnapshot(saved)
+    } catch {
+      // A corrupt or blocked save just means starting on a fresh board.
+    }
+    setHasRestoredRun(true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  useEffect(() => {
+    if (!hasRestoredRun) return
+    try {
+      window.localStorage.setItem(RUN_STORAGE_KEY, runSnapshotJson)
+    } catch {
+      // Storage full or disabled; Export Save still works as a backup.
+    }
+  }, [hasRestoredRun, runSnapshotJson])
+
+  function exportSave() {
+    const payload = {
+      app: SAVE_FILE_APP_ID,
+      version: SAVE_FILE_VERSION,
+      savedAt: new Date().toISOString(),
+      run: runSnapshot,
+      settings: {
+        isMapVisible,
+        isNotesVisible,
+        isNotesPopout,
+        isHoverTextOn,
+        hoverDelay,
+        isLandscape,
+        isPalaceImageTipsOn,
+        isCaveImageTipsOn,
+        scale,
+      },
+    }
+    const stamp = new Date()
+      .toISOString()
+      .slice(0, 16)
+      .replace('T', '-')
+      .replace(':', '')
+    const url = URL.createObjectURL(
+      new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }),
+    )
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `z2-tracker-${stamp}.json`
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    URL.revokeObjectURL(url)
+  }
+
+  const importInputRef = useRef<HTMLInputElement | null>(null)
+  async function importSave(file: File) {
+    try {
+      const payload: unknown = JSON.parse(await file.text())
+      const run =
+        isPlainRecord(payload) && payload.app === SAVE_FILE_APP_ID
+          ? parseRunSnapshot(payload.run)
+          : null
+      if (!run || !isPlainRecord(payload)) throw new Error('invalid save')
+      applyRunSnapshot(run)
+      const settings = payload.settings
+      if (isPlainRecord(settings)) {
+        if (isBoolean(settings.isMapVisible)) setIsMapVisible(settings.isMapVisible)
+        if (isBoolean(settings.isNotesVisible)) setIsNotesVisible(settings.isNotesVisible)
+        if (isBoolean(settings.isNotesPopout)) setIsNotesPopout(settings.isNotesPopout)
+        if (isBoolean(settings.isHoverTextOn)) setIsHoverTextOn(settings.isHoverTextOn)
+        if (isBoolean(settings.isLandscape)) setIsLandscape(settings.isLandscape)
+        if (isBoolean(settings.isPalaceImageTipsOn)) {
+          setIsPalaceImageTipsOn(settings.isPalaceImageTipsOn)
+        }
+        if (isBoolean(settings.isCaveImageTipsOn)) {
+          setIsCaveImageTipsOn(settings.isCaveImageTipsOn)
+        }
+        if (
+          isFiniteNumber(settings.hoverDelay) &&
+          settings.hoverDelay >= 0 &&
+          settings.hoverDelay <= 3000
+        ) {
+          setHoverDelay(settings.hoverDelay)
+        }
+        if (isFiniteNumber(settings.scale)) setScale(clampScale(settings.scale))
+      }
+    } catch {
+      window.alert('That file is not a Z2 Tracker save.')
+    }
+  }
   const highlightKeys = useMemo(
     () => mapIconHighlightKeys(hoveredMapIcon),
     [hoveredMapIcon],
@@ -3660,6 +3876,30 @@ export function TrackerFrame() {
                             Landscape
                           </button>
 
+                          <button
+                            className="tracker-menu-option tracker-menu-option-bordered"
+                            onClick={() => {
+                              closeMenu()
+                              exportSave()
+                            }}
+                            role="menuitem"
+                            type="button"
+                          >
+                            Export Save
+                          </button>
+
+                          <button
+                            className="tracker-menu-option"
+                            onClick={() => {
+                              closeMenu()
+                              importInputRef.current?.click()
+                            }}
+                            role="menuitem"
+                            type="button"
+                          >
+                            Import Save
+                          </button>
+
                           {/* Opens the controls reference. */}
                           <button
                             className="tracker-menu-option tracker-menu-option-bordered"
@@ -4725,6 +4965,19 @@ export function TrackerFrame() {
           {/* A sibling of the board rather than a child: the board is role="img",
               which would hide the dialog's controls from assistive tech. */}
           <UpdatesDialog openRequest={updatesOpenRequest} />
+          <input
+            accept="application/json,.json"
+            aria-label="Import save file"
+            className="sr-only"
+            onChange={(event) => {
+              const file = event.target.files?.[0]
+              event.target.value = ''
+              if (file) void importSave(file)
+            }}
+            ref={importInputRef}
+            tabIndex={-1}
+            type="file"
+          />
         </div>
 
         {handles.map((handle) => (
