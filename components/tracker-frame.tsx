@@ -1072,14 +1072,16 @@ const OVERWORLD_ICON_COLUMNS: { id: string; name: string; src: string }[][] = [
   ],
 ]
 
-// The cave connectors, in alphabetical order since each only means something
-// paired with the matching letter at the cave's other end. Both continents list
-// all four until each gets its own caves.
-const CONNECTOR_ICONS = [
-  { id: 'connector-a', name: 'Connector A', src: '/images/overworld/connectora.png' },
-  { id: 'connector-b', name: 'Connector B', src: '/images/overworld/connectorb.png' },
-  { id: 'connector-c', name: 'Connector C', src: '/images/overworld/connectorc.png' },
-  { id: 'connector-d', name: 'Connector D', src: '/images/overworld/connectord.png' },
+// East continent caves: the four passthrough caves, each only meaningful paired
+// with the matching number at its other end, then the East item caves. The
+// passthrough ids predate the T1-T4 names and are kept so saved maps still load.
+const EAST_CAVE_ICONS = [
+  { id: 'connector-a', name: 'Passthrough Cave 1', src: '/images/overworld/connectort1.png' },
+  { id: 'connector-b', name: 'Passthrough Cave 2', src: '/images/overworld/connectort2.png' },
+  { id: 'connector-c', name: 'Passthrough Cave 3', src: '/images/overworld/connectort3.png' },
+  { id: 'connector-d', name: 'Passthrough Cave 4', src: '/images/overworld/connectort4.png' },
+  { id: 'cave-sunken-pbag', name: 'Sunken Pbag Cave', src: '/images/locations/eastpbagcave.png' },
+  { id: 'cave-risen-pbag', name: 'Risen Pbag Cave', src: '/images/locations/eastpbagcave2.png' },
 ]
 
 // West continent caves: the Parapa, Jump and Fairy connectors, then every West
@@ -1105,7 +1107,7 @@ const WEST_CAVE_ICONS = [
 
 const CAVE_MENUS = {
   west: { title: 'West', icons: WEST_CAVE_ICONS },
-  east: { title: 'East', icons: CONNECTOR_ICONS },
+  east: { title: 'East', icons: EAST_CAVE_ICONS },
 } as const
 
 type CaveMenuView = keyof typeof CAVE_MENUS
@@ -1113,7 +1115,7 @@ type CaveMenuView = keyof typeof CAVE_MENUS
 /** Every placeable icon, flattened, for resolving whatever id a map cell holds. */
 const OVERWORLD_ICONS = [
   ...OVERWORLD_ICON_COLUMNS.flat(),
-  ...CONNECTOR_ICONS,
+  ...EAST_CAVE_ICONS,
   ...WEST_CAVE_ICONS,
 ]
 
