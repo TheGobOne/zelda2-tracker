@@ -1626,9 +1626,12 @@
 }
 
 /* Boxed like the West and East buttons, since it opens a whole new menu. */
-.overworld-menu-items {
+  .overworld-menu-items {
+  height: 27px;
+  padding: 0 6px;
   border: 2px solid #3a3a3a;
-}
+  font-size: 10px;
+  }
 
 .overworld-menu-items:hover {
   border-color: #233bea;
@@ -1641,14 +1644,17 @@
   row-gap: 3px;
 }
 
-/* West and East share the row with the lettered markers, at icon height. */
-.overworld-menu-cave {
+/* West and East share the row with the lettered markers at icon height. */
+  /* Each spans exactly two icon columns, so the row lines up with the grid. */
+  .overworld-menu-cave {
+  flex: none;
+  width: calc(33px * 2 + 3px);
   height: 33px;
-  padding: 0 9px;
+  padding: 0;
+  font-size: 10px;
   background: transparent;
   border: 2px solid #3a3a3a;
   color: #f5f5f5;
-  font-size: 14px;
   letter-spacing: 1px;
   text-transform: uppercase;
   cursor: pointer;
