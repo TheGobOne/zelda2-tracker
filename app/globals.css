@@ -2302,9 +2302,21 @@ gear's center to the center of the left lane (palace and map sections). */
   }
   
 .tracker-scaler:has(> .game-canvas.is-landscape) .updates-list {
-  gap: 6px;
-  overflow-y: visible;
+  gap: 5px;
+  font-size: 12px;
+  line-height: 1.35;
+  overflow-y: auto;
   }
+
+.tracker-scaler:has(> .game-canvas.is-landscape) .updates-intro {
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  font-size: 12px;
+  }
+
+.tracker-scaler:has(> .game-canvas.is-landscape) .updates-footer {
+  padding-top: 8px;
+}
 
 
 
