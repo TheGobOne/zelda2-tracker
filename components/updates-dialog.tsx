@@ -19,7 +19,8 @@ const UPDATE_RELEASES: UpdateRelease[] = [
     date: '10/17/26',
     intro: 'Mapping has been completely reworked. Changes below:',
     lines: [
-      'Added Map Highlighting: hover an icon on your map to highlight it in the tracker above and dim everything else',
+      'Added Save/Autosave: your entire run (tracker and maps) saves automatically in your browser and is restored on reload. Export and Import a save file from the gear menu',
+  'Added Map Highlighting: hover an icon on your map to highlight it in the tracker above and dim everything else',
       'Added drag and drop: drag any icon on your map to move it to another square',
       'West menu button now uses Parapa (P), Jump (J), and Fairy (F) icons and includes the West item caves',
       'East menu button includes the East item caves and includes renamed East connector caves A, B, C, D to Passthrough caves T1, T2, T3, T4',
