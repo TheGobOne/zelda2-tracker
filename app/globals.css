@@ -1549,6 +1549,21 @@
   opacity: 0.4;
 }
 
+/* An icon being dragged, or a shift-click copy waiting to be dropped. Sits under
+   the pointer without catching it, so the square beneath still reads the drop. */
+.overworld-held {
+  position: fixed;
+  z-index: 1000;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.overworld-holding .overworld-cell {
+  cursor: grabbing;
+}
+
 /* The square the icon menu is open on stays lit while the pointer is in the menu. */
 .overworld-cell.overworld-cell-open {
   background: #f2b21c;

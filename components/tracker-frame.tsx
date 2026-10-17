@@ -1112,6 +1112,31 @@ const CAVE_MENUS = {
 
 type CaveMenuView = keyof typeof CAVE_MENUS
 
+// Connector markers come in pairs or more, so shift-click hands over a copy
+// instead of placing or moving the original.
+const DUPLICABLE_MAP_ICONS = new Set([
+  'connector-p',
+  'connector-j',
+  'connector-f',
+  'connector-a',
+  'connector-b',
+  'connector-c',
+  'connector-d',
+])
+
+/**
+ * An icon riding the cursor. `from` is the square it was dragged off, or null for
+ * a shift-click copy that drops on the next square clicked. `size` and the point
+ * are screen pixels, so the floating art matches the board at any zoom.
+ */
+type HeldMapIcon = {
+  icon: string
+  from: string | null
+  size: number
+  x: number
+  y: number
+}
+
 /** Every placeable icon, flattened, for resolving whatever id a map cell holds. */
 const OVERWORLD_ICONS = [
   ...OVERWORLD_ICON_COLUMNS.flat(),
@@ -1554,6 +1579,17 @@ export function TrackerFrame() {
   // Dropping happens on press and ends move mode, so the click that follows
   // would otherwise be handled as a normal-mode click.
   const swallowNextCellClickRef = useRef(false)
+  const [heldIcon, setHeldIcon] = useState<HeldMapIcon | null>(null)
+  const heldIconElementRef = useRef<HTMLDivElement | null>(null)
+  // A press on a filled square only becomes a drag once the pointer travels, so
+  // a plain click on an icon does not pick it up.
+  const pendingMapDragRef = useRef<{
+    cellKey: string
+    icon: string
+    x: number
+    y: number
+    size: number
+  } | null>(null)
   const palaceGridRef = useRef<HTMLDivElement | null>(null)
   // How tall the board currently stands. Everything that has to agree with the
   // board's height reads this rather than `BASE_HEIGHT`, so the canvas, the stage
@@ -1618,6 +1654,90 @@ export function TrackerFrame() {
     document.addEventListener('mouseup', finishSelection)
     return () => document.removeEventListener('mouseup', finishSelection)
   }, [mapMove, overworldCells])
+
+  // Drives dragging and held copies from the document, so the pointer can leave
+  // the grid mid-drag. The floating art is moved directly rather than through
+  // state, keeping every mousemove from re-rendering the whole board.
+  useEffect(() => {
+    function handleMouseMove(event: MouseEvent) {
+      const pending = pendingMapDragRef.current
+
+      if (pending) {
+        if (Math.hypot(event.clientX - pending.x, event.clientY - pending.y) > 4) {
+          pendingMapDragRef.current = null
+          setHeldIcon({
+            icon: pending.icon,
+            from: pending.cellKey,
+            size: pending.size,
+            x: event.clientX,
+            y: event.clientY,
+          })
+        }
+        return
+      }
+
+      const element = heldIconElementRef.current
+      if (element) {
+        element.style.left = `${event.clientX}px`
+        element.style.top = `${event.clientY}px`
+      }
+    }
+
+    function handleMouseUp(event: MouseEvent) {
+      if (event.button !== 0) {
+        return
+      }
+
+      pendingMapDragRef.current = null
+
+      if (!heldIcon?.from) {
+        return
+      }
+
+      const { from, icon } = heldIcon
+      const to = document
+        .elementFromPoint(event.clientX, event.clientY)
+        ?.closest<HTMLElement>('[data-cell-key]')?.dataset.cellKey
+
+      // Released off the maps, or back on its own square, leaves it where it was.
+      if (to && to !== from) {
+        setOverworldCells((current) => {
+          const next = { ...current }
+          delete next[from]
+          next[to] = icon
+          return next
+        })
+      }
+      setHeldIcon(null)
+    }
+
+    function handleMouseDown(event: MouseEvent) {
+      if (
+        heldIcon &&
+        !heldIcon.from &&
+        !(event.target as Element | null)?.closest?.('[data-cell-key]')
+      ) {
+        setHeldIcon(null)
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape' && heldIcon) {
+        setHeldIcon(null)
+      }
+    }
+
+    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseup', handleMouseUp)
+    document.addEventListener('mousedown', handleMouseDown)
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+      document.removeEventListener('mousedown', handleMouseDown)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [heldIcon])
 
   // Places the icon menu beside its square once its real size is known: to the
   // right, flipped left near the section's edge, and kept inside the section
@@ -2426,7 +2546,21 @@ export function TrackerFrame() {
         }
         data-tip={icon.name}
         key={icon.id}
-        onClick={() => chooseMapMenuIcon(icon.id)}
+        onClick={(event) => {
+          if (event.shiftKey && DUPLICABLE_MAP_ICONS.has(icon.id)) {
+            setHeldIcon({
+              icon: icon.id,
+              from: null,
+              size: mapMenuOpenerRef.current?.getBoundingClientRect().width ?? 16,
+              x: event.clientX,
+              y: event.clientY,
+            })
+            setMapMenu(null)
+            return
+          }
+
+          chooseMapMenuIcon(icon.id)
+        }}
         role="menuitem"
         type="button"
       >
@@ -2503,6 +2637,37 @@ export function TrackerFrame() {
           Items and Spells
         </button>
       </div>
+    )
+  }
+
+  /** The icon riding the cursor, portalled out so the board's zoom transform cannot offset it. */
+  function renderHeldIcon(held: HeldMapIcon) {
+    const icon = findMapIcon(held.icon)
+
+    if (!icon) {
+      return null
+    }
+
+    return createPortal(
+      <div
+        aria-hidden="true"
+        className="overworld-held"
+        ref={heldIconElementRef}
+        style={{
+          left: held.x,
+          top: held.y,
+          transform: `translate(-50%, -50%) scale(${held.size / 16})`,
+        }}
+      >
+        {icon.kind === 'icon' ? (
+          <Image alt="" className="overworld-cell-icon" height={16} src={icon.src} width={16} />
+        ) : (
+          <span className="overworld-cell-icon overworld-cell-item">
+            <ItemArt item={icon.item} />
+          </span>
+        )}
+      </div>,
+      document.body,
     )
   }
 
@@ -3973,7 +4138,7 @@ export function TrackerFrame() {
             <>
             <section
               aria-label="Overworld maps"
-              className={`overworld${mapMove ? ` overworld-move-${mapMove.phase}` : ''}`}
+              className={`overworld${mapMove ? ` overworld-move-${mapMove.phase}` : ''}${heldIcon ? ' overworld-holding' : ''}`}
               // Middle click toggles move mode for the maps.
               onAuxClick={(event) => {
                 if (event.button === 1) {
@@ -4033,7 +4198,8 @@ export function TrackerFrame() {
                           const ghostIcon = preview?.ghosts.get(gridKey)
                           const shownIcon =
                             ghostIcon ??
-                            (preview?.lifted.has(gridKey)
+                            (preview?.lifted.has(gridKey) ||
+                            heldIcon?.from === cellKey
                               ? undefined
                               : overworldCells[cellKey])
                           const icon = findMapIcon(shownIcon)
@@ -4072,6 +4238,7 @@ export function TrackerFrame() {
                                   ? `${cellClassName} overworld-cell-open`
                                   : cellClassName
                               }
+                              data-cell-key={cellKey}
                               data-tip={icon?.name}
                               key={column}
                               // Middle click on an icon removes it. Empty squares,
@@ -4096,6 +4263,11 @@ export function TrackerFrame() {
                               onContextMenu={(event) => {
                                 event.preventDefault()
 
+                                if (heldIcon) {
+                                  setHeldIcon(null)
+                                  return
+                                }
+
                                 if (!mapMove) {
                                   openMapMenu(event.currentTarget, cellKey)
                                 }
@@ -4109,9 +4281,50 @@ export function TrackerFrame() {
                                   return
                                 }
 
+                                // A held copy drops on the square clicked.
+                                if (heldIcon && !heldIcon.from) {
+                                  event.preventDefault()
+                                  const placed = heldIcon.icon
+                                  setOverworldCells((current) => ({
+                                    ...current,
+                                    [cellKey]: placed,
+                                  }))
+                                  setHeldIcon(null)
+                                  return
+                                }
+
                                 swallowNextCellClickRef.current = mapMove !== null
 
                                 if (!mapMove) {
+                                  const placed = overworldCells[cellKey]
+
+                                  if (placed) {
+                                    // Also stops the browser's own image drag.
+                                    event.preventDefault()
+                                    const size =
+                                      event.currentTarget.getBoundingClientRect().width
+
+                                    if (
+                                      event.shiftKey &&
+                                      DUPLICABLE_MAP_ICONS.has(placed)
+                                    ) {
+                                      setHeldIcon({
+                                        icon: placed,
+                                        from: null,
+                                        size,
+                                        x: event.clientX,
+                                        y: event.clientY,
+                                      })
+                                    } else {
+                                      pendingMapDragRef.current = {
+                                        cellKey,
+                                        icon: placed,
+                                        x: event.clientX,
+                                        y: event.clientY,
+                                        size,
+                                      }
+                                    }
+                                  }
                                   return
                                 }
 
@@ -4167,6 +4380,7 @@ export function TrackerFrame() {
                 )
               })}
               {renderMapMenu()}
+              {heldIcon ? renderHeldIcon(heldIcon) : null}
             </section>
             </>
             ) : null}
