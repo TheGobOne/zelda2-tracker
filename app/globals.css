@@ -1630,6 +1630,42 @@
   border-top: 2px solid #3a3a3a;
 }
 
+/* West and East share the row with the lettered markers, at icon height. */
+.overworld-menu-cave {
+  height: 33px;
+  padding: 0 9px;
+  background: transparent;
+  border: 2px solid #3a3a3a;
+  color: #f5f5f5;
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.overworld-menu-icon + .overworld-menu-cave {
+  margin-left: auto;
+}
+
+.overworld-menu-cave:hover {
+  background: #233bea;
+  border-color: #233bea;
+}
+
+.overworld-menu-cave:focus-visible {
+  outline: 2px solid #e52a08;
+  outline-offset: 0;
+}
+
+.overworld-menu-title {
+  margin: 0 0 3px;
+  color: #f2b21c;
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
 /* An item or spell placed on a square, drawn to fill it like the 16px icons. */
 .overworld-cell-item {
   display: flex;

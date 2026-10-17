@@ -1049,19 +1049,12 @@ const OVERWORLD_ICON_COLUMNS: { id: string; name: string; src: string }[][] = [
   { id: 'town-8', name: 'Old Kasuto', src: '/images/overworld/town8.png' },
   ],
   // Lettered markers - the ones that stand for something found rather than for a
-  // piece of ground: the four item/entrance markers, then the four cave connectors
-  // in alphabetical order, since a connector is only meaningful paired with the
-  // matching letter at the cave's other end. Eight entries, the most this column
-  // can take before it outgrows the nine-row grids beside it.
+  // piece of ground. The menu ends this row with the West and East cave buttons.
   [
     { id: 'w-marker', name: 'W', src: '/images/overworld/w.png' },
     { id: 'e-marker', name: 'E', src: '/images/overworld/e.png' },
     { id: 'mi-marker', name: 'MI', src: '/images/overworld/mi.png' },
     { id: 'dm-entrance', name: 'DM', src: '/images/overworld/dmentrance.png' },
-    { id: 'connector-a', name: 'Connector A', src: '/images/overworld/connectora.png' },
-    { id: 'connector-b', name: 'Connector B', src: '/images/overworld/connectorb.png' },
-    { id: 'connector-c', name: 'Connector C', src: '/images/overworld/connectorc.png' },
-    { id: 'connector-d', name: 'Connector D', src: '/images/overworld/connectord.png' },
   ],
   // Terrain and connectors. Eight entries, so they still stack in one column of
   // nine rows now that the lettered markers have moved out of this group. Mountain
@@ -1079,8 +1072,25 @@ const OVERWORLD_ICON_COLUMNS: { id: string; name: string; src: string }[][] = [
   ],
 ]
 
+// The cave connectors, in alphabetical order since each only means something
+// paired with the matching letter at the cave's other end. Both continents list
+// all four until each gets its own caves.
+const CONNECTOR_ICONS = [
+  { id: 'connector-a', name: 'Connector A', src: '/images/overworld/connectora.png' },
+  { id: 'connector-b', name: 'Connector B', src: '/images/overworld/connectorb.png' },
+  { id: 'connector-c', name: 'Connector C', src: '/images/overworld/connectorc.png' },
+  { id: 'connector-d', name: 'Connector D', src: '/images/overworld/connectord.png' },
+]
+
+const CAVE_MENUS = {
+  west: { title: 'West', icons: CONNECTOR_ICONS },
+  east: { title: 'East', icons: CONNECTOR_ICONS },
+} as const
+
+type CaveMenuView = keyof typeof CAVE_MENUS
+
 /** Every placeable icon, flattened, for resolving whatever id a map cell holds. */
-const OVERWORLD_ICONS = OVERWORLD_ICON_COLUMNS.flat()
+const OVERWORLD_ICONS = [...OVERWORLD_ICON_COLUMNS.flat(), ...CONNECTOR_ICONS]
 
 // Items and spells share the map's cell store with the overworld icons, so their
 // ids carry a prefix that keeps them from ever colliding with an icon id.
@@ -1103,7 +1113,13 @@ function findMapIcon(id: string | undefined) {
 }
 
 /** The square a map menu was opened on, in the maps section's own layout pixels. */
-type MapMenu = { cellKey: string; x: number; y: number; size: number }
+type MapMenu = {
+  cellKey: string
+  x: number
+  y: number
+  size: number
+  view?: CaveMenuView
+}
 
 /**
  * The controls reference, grouped by what you are pointing at. Every board
@@ -1195,7 +1211,7 @@ const CONTROL_GROUPS: {
   {
     title: 'Overworld maps',
     tall: true,
-    note: 'The icon menu also has Clear for a filled square. In move mode, a box with no icons in it is discarded.',
+    note: 'West and East in the icon menu open each continent\u2019s caves. In move mode, a box with no icons in it is discarded.',
     rows: [
       { input: 'Right click', effect: 'Open the icon menu for a square' },
       { input: 'Left click (menu)', effect: 'Place that icon on the square' },
@@ -2373,6 +2389,54 @@ export function TrackerFrame() {
 
     const currentIcon = overworldCells[mapMenu.cellKey]
 
+    const renderIcon = (icon: { id: string; name: string; src: string }) => (
+      <button
+        aria-label={`${icon.name}${currentIcon === icon.id ? ', placed' : ''}`}
+        className={
+          currentIcon === icon.id
+            ? 'overworld-menu-icon overworld-menu-icon-current'
+            : 'overworld-menu-icon'
+        }
+        data-tip={icon.name}
+        key={icon.id}
+        onClick={() => chooseMapMenuIcon(icon.id)}
+        role="menuitem"
+        type="button"
+      >
+        {/* Native 16px, so the palace digits stay crisp. */}
+        <Image alt="" height={16} src={icon.src} width={16} />
+      </button>
+    )
+
+    const showView = (view: CaveMenuView | undefined) =>
+      setMapMenu((current) => (current ? { ...current, view } : current))
+
+    if (mapMenu.view) {
+      const caveMenu = CAVE_MENUS[mapMenu.view]
+
+      return (
+        <div
+          aria-label={`${caveMenu.title} caves`}
+          className="overworld-menu"
+          ref={mapMenuRef}
+          role="menu"
+        >
+          <p className="overworld-menu-title">{`${caveMenu.title} Caves`}</p>
+          <div className="overworld-menu-row" role="group">
+            {caveMenu.icons.map(renderIcon)}
+          </div>
+          <button
+            className="overworld-menu-clear overworld-menu-items"
+            onClick={() => showView(undefined)}
+            role="menuitem"
+            type="button"
+          >
+            Back
+          </button>
+        </div>
+      )
+    }
+
     return (
       <div
         aria-label="Place an icon"
@@ -2382,36 +2446,23 @@ export function TrackerFrame() {
       >
         {OVERWORLD_ICON_COLUMNS.map((group, groupIndex) => (
           <div className="overworld-menu-row" key={groupIndex} role="group">
-            {group.map((icon) => (
-              <button
-                aria-label={`${icon.name}${currentIcon === icon.id ? ', placed' : ''}`}
-                className={
-                  currentIcon === icon.id
-                    ? 'overworld-menu-icon overworld-menu-icon-current'
-                    : 'overworld-menu-icon'
-                }
-                data-tip={icon.name}
-                key={icon.id}
-                onClick={() => chooseMapMenuIcon(icon.id)}
-                role="menuitem"
-                type="button"
-              >
-                {/* Native 16px, so the palace digits stay crisp. */}
-                <Image alt="" height={16} src={icon.src} width={16} />
-              </button>
-            ))}
+            {group.map(renderIcon)}
+            {groupIndex === 2
+              ? (Object.keys(CAVE_MENUS) as CaveMenuView[]).map((view) => (
+                  <button
+                    aria-haspopup="menu"
+                    className="overworld-menu-cave"
+                    key={view}
+                    onClick={() => showView(view)}
+                    role="menuitem"
+                    type="button"
+                  >
+                    {CAVE_MENUS[view].title}
+                  </button>
+                ))
+              : null}
           </div>
         ))}
-        {currentIcon ? (
-          <button
-            className="overworld-menu-clear"
-            onClick={() => chooseMapMenuIcon(null)}
-            role="menuitem"
-            type="button"
-          >
-            Clear
-          </button>
-        ) : null}
         <button
           aria-haspopup="dialog"
           className="overworld-menu-clear overworld-menu-items"
