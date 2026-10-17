@@ -154,8 +154,8 @@ export function UpdatesDialog({ openRequest = 0 }: { openRequest?: number }) {
             <span aria-hidden="true">{'>'}</span>
           </button>
         </div>
-            {release.intro && <p className="updates-intro">{release.intro}</p>}
-            <ul className="updates-list">
+        {release.intro && <p className="updates-intro">{release.intro}</p>}
+        <ul className="updates-list">
           {release.lines.map((line) => (
             <li key={line}>{line}</li>
           ))}

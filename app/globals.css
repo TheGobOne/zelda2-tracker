@@ -2309,7 +2309,9 @@ gear's center to the center of the left lane (palace and map sections). */
 
 
 .updates-intro {
-  margin: 0 0 10px;
+  margin: 0 0 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #333;
   font-size: 14px;
   font-weight: 700;
   line-height: 1.45;
