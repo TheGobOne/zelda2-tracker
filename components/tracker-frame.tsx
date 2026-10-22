@@ -4238,7 +4238,7 @@ export function TrackerFrame() {
                             : undefined
                         }
                       >
-                        {hasPickedFlags ? flagsDisplayName : 'Right click to select'}
+                        {hasPickedFlags ? flagsDisplayName : 'Right click to select/clear'}
                       </span>
                     </button>
                     )}
