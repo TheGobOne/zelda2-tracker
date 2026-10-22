@@ -3137,20 +3137,24 @@ export function TrackerFrame() {
   function clearTracker() {
     setOverworldCells({ ...OVERWORLD_START_CELLS })
     setMapMenu(null)
-    setSlotItems({})
-    setCollected({})
+    // Back to the loaded flagset's opening state rather than a blank board, so
+    // its starting items, requirement marks, counts and connections come back
+    // exactly as they did when the flags were first picked.
+    const seed = hasPickedFlags ? loadedPreset : null
+    setSlotItems(seed ? { ...seed.placements } : {})
+    setCollected(seed ? collectedFromPreset(seed) : {})
     setSlotCounts({})
-    setIconMarks({})
+    setIconMarks(seed ? { ...seed.marks } : {})
     setBlocks({})
-    setCountValues({})
-    setConnectorEnds({})
+    setCountValues(seed ? { ...seed.counts } : {})
+    setConnectorEnds(seed ? { ...seed.connectorEnds } : {})
     setOpenSlot(null)
     setOpenLimitPicker(null)
     setNotes('')
     setIsNotesOpen(false)
-    // `customLimits` deliberately survives: Clear empties the board but keeps the
-    // loaded ruleset, and these figures describe that ruleset rather than the run.
-    // Resetting them would make a blank board mean re-entering the flags too.
+    // The flag selection, the custom flagset name and `customLimits` all survive:
+    // Clear resets the run but keeps the loaded ruleset, and these describe that
+    // ruleset rather than the run.
   }
 
   /**
@@ -4825,7 +4829,6 @@ export function TrackerFrame() {
                       className="updates-close"
                       onClick={() => {
                         clearTracker()
-                        setHasPickedFlags(false)
                         setIsConfirmingClear(false)
                       }}
                       type="button"
@@ -4841,8 +4844,8 @@ export function TrackerFrame() {
               >
                 <div className="framed-disclosure-body">
                   <p>
-                    This will clear your tracker and your selected flags. Are you
-                    sure?
+                    This will clear your tracker but keep your selected flags. Are
+                    you sure?
                   </p>
                 </div>
               </FramedDialog>
