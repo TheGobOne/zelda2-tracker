@@ -108,12 +108,12 @@ function findIcon(target: EventTarget | null) {
 export function IconTooltip({
   delay,
   enabled,
-  extraWindow = null,
+  getExtraWindow = null,
   showCaveArt = true,
 }: {
   delay: number
   enabled: boolean
-  extraWindow?: Window | null
+  getExtraWindow?: (() => Window | null) | null
   showCaveArt?: boolean
 }) {
   const [tip, setTip] = useState<Tip | null>(null)
@@ -206,7 +206,8 @@ export function IconTooltip({
 
     // Any click, scroll or keypress changes what the icon says (or moves it),
     // so the tip is dropped rather than left showing stale text.
-    const windows = extraWindow ? [window, extraWindow] : [window]
+    const extraWindow = getExtraWindow ? getExtraWindow() : null
+  const windows = extraWindow ? [window, extraWindow] : [window]
 
     windows.forEach((win) => {
       win.document.addEventListener('pointerover', handleOver)
@@ -232,7 +233,7 @@ export function IconTooltip({
         win.removeEventListener('blur', hide)
       })
     }
-  }, [delay, enabled, extraWindow, showCaveArt])
+  }, [delay, enabled, getExtraWindow, showCaveArt])
 
   // Places the tip once its real size is known: above the icon when it fits
   // inside the tracker, below otherwise, and slid sideways so it never pokes

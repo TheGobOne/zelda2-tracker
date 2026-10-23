@@ -5,6 +5,7 @@ import Image from 'next/image'
 import {
   Fragment,
   type PointerEvent as ReactPointerEvent,
+  useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -19,6 +20,10 @@ import { PopoutHost, preparePopupWindow } from '@/components/popout-window'
 import { UpdatesDialog } from '@/components/updates-dialog'
 
 const BASE_WIDTH = 600
+// The popped-out maps' natural size: the 572px-wide, 236px-tall maps plus a 6px
+// margin all round. The popup opens at exactly this, and scales from it.
+const MAP_STAGE_WIDTH = 584
+const MAP_STAGE_HEIGHT = 248
 // The board's full height, with the overworld maps on it. Applied to the canvas
 // as well as scaled against, so `.game-canvas` sets no height of its own.
 const BASE_HEIGHT = 1138
@@ -1895,6 +1900,11 @@ export function TrackerFrame() {
   // popped-out maps share every piece of tracker state with the board. It is
   // never restored on load: a window opened without a click would be blocked.
   const [mapWindow, setMapWindow] = useState<Window | null>(null)
+  const getMapWindow = useCallback(() => mapWindow, [mapWindow])
+  const getMapWindowBody = useCallback(
+    () => (mapWindow ? mapWindow.document.body : null),
+    [mapWindow],
+  )
   const closeMapWindow = () => {
     setMapWindow((current) => {
       if (current && !current.closed) current.close()
@@ -1906,7 +1916,11 @@ export function TrackerFrame() {
       closeMapWindow()
       return
     }
-    const popup = window.open('', 'z2-tracker-map', 'popup,width=640,height=360')
+    const popup = window.open(
+      '',
+      'z2-tracker-map',
+      `popup,width=${MAP_STAGE_WIDTH},height=${MAP_STAGE_HEIGHT}`,
+    )
     if (!popup) {
       window.alert('Allow pop-ups for this site to open the maps in a new window.')
       return
@@ -1938,8 +1952,11 @@ export function TrackerFrame() {
     const fitToWindow = () =>
       setMapWindowScale(
         Math.max(
-          0.5,
-          Math.min(mapWindow.innerWidth / 596, mapWindow.innerHeight / 266),
+          0.25,
+          Math.min(
+            mapWindow.innerWidth / MAP_STAGE_WIDTH,
+            mapWindow.innerHeight / MAP_STAGE_HEIGHT,
+          ),
         ),
       )
     fitToWindow()
@@ -3530,7 +3547,7 @@ export function TrackerFrame() {
         <IconTooltip
         delay={hoverDelay}
         enabled={isHoverTextOn && !mapMove}
-        extraWindow={mapWindow}
+        getExtraWindow={getMapWindow}
         showCaveArt={isCaveImageTipsOn}
       />
         <div
@@ -4568,7 +4585,7 @@ export function TrackerFrame() {
                 </button>
               </section>
             ) : null}
-            <PopoutHost target={mapWindow?.document.body ?? null}>
+            <PopoutHost getTarget={getMapWindowBody}>
             <div
               className={mapWindow ? 'map-popout-stage' : 'map-inline-stage'}
               style={mapWindow ? { zoom: mapWindowScale } : undefined}
@@ -5050,7 +5067,7 @@ export function TrackerFrame() {
                 )
               : null}
             {mapItemPickerCell ? (
-              <PopoutHost target={mapWindow?.document.body ?? null}>
+              <PopoutHost getTarget={getMapWindowBody}>
                 {renderItemPicker(
                   'MAP',
                   (itemId) => placeMapItem(mapItemPickerCell, itemId),

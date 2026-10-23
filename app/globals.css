@@ -726,7 +726,11 @@
   }
 
   .map-popout-body {
+  display: flex;
+  min-height: 100vh;
   margin: 0;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
   background: #101010;
 }
@@ -739,10 +743,12 @@
    can be dragged to any size and the map stays in proportion. */
 .map-popout-stage {
   position: relative;
+  flex: none;
   box-sizing: border-box;
-  width: 596px;
-  margin: 0 auto;
-  padding: 12px;
+  width: 584px;
+  height: 248px;
+  padding: 6px;
+  line-height: 0;
 }
 
 .map-popout-stage .overworld {

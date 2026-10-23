@@ -7,14 +7,19 @@ import { createPortal } from 'react-dom'
  * Renders its children into a popup window's body, or in place when there is
  * no popup. The children's React state and handlers stay with the board, so the
  * popup is just another view of the same tracker.
+ *
+ * The target is passed as a getter rather than an element: in development React
+ * walks prop values to log render diffs, and walking a popup's DOM node reaches
+ * its cross-origin frame properties and throws.
  */
 export function PopoutHost({
-  target,
+  getTarget,
   children,
 }: {
-  target: HTMLElement | null
+  getTarget: (() => HTMLElement | null) | null
   children: ReactNode
 }) {
+  const target = getTarget ? getTarget() : null
   return target ? createPortal(children, target) : <>{children}</>
 }
 
