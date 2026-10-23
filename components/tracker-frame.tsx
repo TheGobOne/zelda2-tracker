@@ -3847,7 +3847,15 @@ export function TrackerFrame() {
                               className="tracker-menu-option"
                               onClick={() => {
                                 setIsNotesOpen(false)
-                                setIsNotesPopout((current) => !current)
+                                // Opened from this click so the browser treats it as
+                                // a user gesture and does not block the popup.
+                                if (isNotesPopout) {
+                                  closeNotesWindow()
+                                  setIsNotesPopout(false)
+                                } else {
+                                  setIsNotesPopout(true)
+                                  openNotesWindow()
+                                }
                               }}
                               role="menuitemcheckbox"
                               type="button"
