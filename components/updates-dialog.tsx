@@ -19,10 +19,8 @@ const UPDATE_RELEASES: UpdateRelease[] = [
     date: '10/22/26',
     lines: [
       'Added Mapping pop-out: turn on Open in New Window under Mapping in the gear menu to move your map into its own window. Resize it however you like and the map scales to fit',
-      'Fixed Notes Open in New Window so it opens (and closes) the Notes window from the gear menu',
-      'Pop-out windows now remember where you put them and how big they are, and reopen in the same spot when you reload',
-      'Clear now keeps your selected flags and resets the tracker to that flagset\u2019s starting state',
-      'Updated the Flags hint to read "Right click to select/clear"',
+ 'Pop-out windows now remember where you put them and how big they are, and reopen in the same spot when you reload',
+
       'Fixed the Updates popup being cut off in landscape layout',
     ],
   },
