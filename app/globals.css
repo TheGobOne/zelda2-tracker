@@ -2356,23 +2356,29 @@ gear's center to the center of the left lane (palace and map sections). */
   }
 
   /* Landscape halves the board's height, so the dialog goes wider and the
-  backdrop gives up some padding to keep every entry visible. */
+  backdrop gives up padding, which keeps every entry visible without a scrollbar. */
 .tracker-scaler:has(> .game-canvas.is-landscape) .updates-backdrop {
-  padding: 20px;
+  padding: 14px;
   }
 
 .tracker-scaler:has(> .game-canvas.is-landscape) .updates-dialog {
-  width: 820px;
-  max-width: 100%;
-  gap: 14px;
-  padding: 22px 32px 20px;
+  width: 100%;
+  max-width: 940px;
+  gap: 12px;
+  padding: 20px 36px 18px;
   }
   
 .tracker-scaler:has(> .game-canvas.is-landscape) .updates-list {
-  gap: 5px;
-  font-size: 12px;
+  gap: 6px;
+  padding-bottom: 2px;
+  font-size: 13px;
   line-height: 1.35;
   overflow-y: auto;
+  scrollbar-width: none;
+  }
+
+.tracker-scaler:has(> .game-canvas.is-landscape) .updates-list::-webkit-scrollbar {
+  display: none;
   }
 
 .tracker-scaler:has(> .game-canvas.is-landscape) .updates-intro {
