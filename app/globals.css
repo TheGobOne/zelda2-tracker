@@ -2196,7 +2196,7 @@ gear's center to the center of the left lane (palace and map sections). */
   left: calc(50% - 244px);
   right: auto;
   bottom: auto;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) scale(0.7);
   }
 
 /* Names the flags list, since the entries are bare ruleset names and the
@@ -2343,6 +2343,11 @@ gear's center to the center of the left lane (palace and map sections). */
   list-style: square;
   min-height: 0;
   overflow-y: auto;
+  scrollbar-width: none;
+  }
+
+  .updates-list::-webkit-scrollbar {
+  display: none;
   }
 
   .updates-title,
