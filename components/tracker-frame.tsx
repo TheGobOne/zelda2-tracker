@@ -16,7 +16,7 @@ import { createPortal } from 'react-dom'
 import { GlyphText } from '@/components/glyph-text'
 import { IconTooltip } from '@/components/icon-tooltip'
 import { FramedDialog } from '@/components/framed-dialog'
-import { PopoutHost, preparePopupWindow } from '@/components/popout-window'
+import { PopoutHost, usePopoutWindow } from '@/components/popout-window'
 import { UpdatesDialog } from '@/components/updates-dialog'
 
 const BASE_WIDTH = 600
@@ -1554,38 +1554,6 @@ export function TrackerFrame() {
   // in-board panel. The popup's body is a React portal target, so it shares the
   // same `notes` state and stays in sync with the board.
   const [isNotesPopout, setIsNotesPopout] = useState(false)
-  const [notesWindow, setNotesWindow] = useState<Window | null>(null)
-  const closeNotesWindow = () => {
-    setNotesWindow((current) => {
-      if (current && !current.closed) current.close()
-      return null
-    })
-  }
-  const openNotes = () => {
-    if (!isNotesPopout) {
-      setIsNotesOpen(true)
-      return
-    }
-    if (notesWindow && !notesWindow.closed) {
-      notesWindow.focus()
-      return
-    }
-    const popup = window.open('', 'z2-tracker-notes', 'popup,width=480,height=560')
-    // Popup blocked: fall back to the in-board panel so notes are still reachable.
-    if (!popup) {
-      setIsNotesOpen(true)
-      return
-    }
-    preparePopupWindow(popup, 'Notes - Z2 Tracker', 'notes-popout-body')
-    popup.addEventListener('pagehide', () => setNotesWindow(null))
-    setIsNotesOpen(false)
-    setNotesWindow(popup)
-    popup.focus()
-  }
-  useEffect(() => {
-    if (!isNotesPopout || !isNotesVisible) closeNotesWindow()
-  }, [isNotesPopout, isNotesVisible])
-  useEffect(() => () => closeNotesWindow(), [])
   const [isHoverTextOn, setIsHoverTextOn] = useState(true)
   const [hoverDelay, setHoverDelay] = useState(500)
   const [isPalaceImageTipsOn, setIsPalaceImageTipsOn] = useState(true)
@@ -1598,6 +1566,30 @@ export function TrackerFrame() {
   // so the server render and first client render agree, and saving waits until
   // that restore has happened so the defaults never overwrite stored values.
   const [hasRestoredSettings, setHasRestoredSettings] = useState(false)
+  const {
+    win: notesWindow,
+    getBody: getNotesWindowBody,
+    open: openNotesWindow,
+    close: closeNotesWindow,
+  } = usePopoutWindow({
+    id: 'notes',
+    title: 'Notes - Z2 Tracker',
+    bodyClass: 'notes-popout-body',
+    defaultWidth: 480,
+    defaultHeight: 560,
+    enabled: isNotesPopout && isNotesVisible,
+    restoreReady: hasRestoredSettings,
+    onOpened: () => setIsNotesOpen(false),
+    // Popup blocked: fall back to the in-board panel so notes are still reachable.
+    onBlocked: () => setIsNotesOpen(true),
+  })
+  const openNotes = () => {
+    if (!isNotesPopout) {
+      setIsNotesOpen(true)
+      return
+    }
+    openNotesWindow()
+  }
   // Starts true so the hint arrows never flash in before storage is read.
   const [hasSeenControls, setHasSeenControls] = useState(true)
   useEffect(() => {
@@ -1897,53 +1889,34 @@ export function TrackerFrame() {
 
   // The maps can be popped out into their own window, which the player can then
   // size freely. Like the notes popup, its body is a React portal target, so the
-  // popped-out maps share every piece of tracker state with the board. It is
-  // never restored on load: a window opened without a click would be blocked.
-  const [mapWindow, setMapWindow] = useState<Window | null>(null)
+  // popped-out maps share every piece of tracker state with the board. Its size
+  // and position are remembered, and it reopens where it was left.
+  const {
+    win: mapWindow,
+    getBody: getMapWindowBody,
+    open: openMapWindow,
+    close: closeMapWindow,
+  } = usePopoutWindow({
+    id: 'map',
+    title: 'Mapping - Z2 Tracker',
+    bodyClass: 'map-popout-body',
+    defaultWidth: MAP_STAGE_WIDTH,
+    defaultHeight: MAP_STAGE_HEIGHT,
+    enabled: isMapVisible,
+    restoreReady: hasRestoredSettings,
+    onOpened: () => {
+      setMapMenu(null)
+      setMapMove(null)
+      setHeldIcon(null)
+    },
+    onBlocked: () =>
+      window.alert('Allow pop-ups for this site to open the maps in a new window.'),
+  })
   const getMapWindow = useCallback(() => mapWindow, [mapWindow])
-  const getMapWindowBody = useCallback(
-    () => (mapWindow ? mapWindow.document.body : null),
-    [mapWindow],
-  )
-  const closeMapWindow = () => {
-    setMapWindow((current) => {
-      if (current && !current.closed) current.close()
-      return null
-    })
-  }
   const toggleMapWindow = () => {
-    if (mapWindow) {
-      closeMapWindow()
-      return
-    }
-    const popup = window.open(
-      '',
-      'z2-tracker-map',
-      `popup,width=${MAP_STAGE_WIDTH},height=${MAP_STAGE_HEIGHT}`,
-    )
-    if (!popup) {
-      window.alert('Allow pop-ups for this site to open the maps in a new window.')
-      return
-    }
-    preparePopupWindow(popup, 'Mapping - Z2 Tracker', 'map-popout-body')
-    popup.addEventListener('pagehide', () => setMapWindow(null))
-    setMapMenu(null)
-    setMapMove(null)
-    setHeldIcon(null)
-    setMapWindow(popup)
-    popup.focus()
+    if (mapWindow) closeMapWindow()
+    else openMapWindow()
   }
-  useEffect(() => {
-    if (!isMapVisible) closeMapWindow()
-  }, [isMapVisible])
-  useEffect(() => {
-    const closeWithBoard = () => closeMapWindow()
-    window.addEventListener('pagehide', closeWithBoard)
-    return () => {
-      window.removeEventListener('pagehide', closeWithBoard)
-      closeMapWindow()
-    }
-  }, [])
   // Resizing the popup rescales the maps to fill it, so dragging its edges is
   // the resize control.
   const [mapWindowScale, setMapWindowScale] = useState(1)
@@ -4503,8 +4476,8 @@ export function TrackerFrame() {
               </section>
             ) : null}
 
-            {notesWindow
-              ? createPortal(
+            {notesWindow ? (
+              <PopoutHost getTarget={getNotesWindowBody}>
                   <section
                     aria-labelledby="popout-notes-title"
                     className="notes-panel is-popout"
@@ -4537,10 +4510,9 @@ export function TrackerFrame() {
                       spellCheck={false}
                       value={notes}
                     />
-                  </section>,
-                  notesWindow.document.body,
-                )
-              : null}
+                  </section>
+              </PopoutHost>
+            ) : null}
 
             {/* The collection + maps are the board's lower half in portrait; in
                 landscape they become the right column. Wrapping them in one box
