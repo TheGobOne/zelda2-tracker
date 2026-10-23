@@ -12,6 +12,7 @@ type Tip = {
   iconBottom: number
   cursorX: number
   cursorY: number
+  ownerDocument: Document
 }
 
 const CURSOR_GAP = 16
@@ -93,7 +94,9 @@ function findIcon(target: EventTarget | null) {
     return null
   }
 
-  const icon = target.closest<HTMLElement>('.game-canvas button, .game-canvas [data-tip]')
+  const icon = target.closest<HTMLElement>(
+    '.game-canvas button, .game-canvas [data-tip], .map-popout-stage button, .map-popout-stage [data-tip]',
+  )
 
   if (!icon || icon.closest(EXCLUDED_AREAS) || icon.matches(EXCLUDED_ICONS)) {
     return null
@@ -105,10 +108,12 @@ function findIcon(target: EventTarget | null) {
 export function IconTooltip({
   delay,
   enabled,
+  extraWindow = null,
   showCaveArt = true,
 }: {
   delay: number
   enabled: boolean
+  extraWindow?: Window | null
   showCaveArt?: boolean
 }) {
   const [tip, setTip] = useState<Tip | null>(null)
@@ -160,6 +165,7 @@ export function IconTooltip({
         iconBottom: rect.bottom,
         cursorX: pointer.x,
         cursorY: pointer.y,
+        ownerDocument: icon.ownerDocument,
       })
     }
 
@@ -200,27 +206,33 @@ export function IconTooltip({
 
     // Any click, scroll or keypress changes what the icon says (or moves it),
     // so the tip is dropped rather than left showing stale text.
-    document.addEventListener('pointerover', handleOver)
-    document.addEventListener('pointermove', handleMove)
-    document.addEventListener('pointerout', handleOut)
-    document.addEventListener('pointerdown', hide, true)
-    document.addEventListener('wheel', hide, { capture: true, passive: true })
-    document.addEventListener('keydown', hide, true)
-    window.addEventListener('scroll', hide, true)
-    window.addEventListener('blur', hide)
+    const windows = extraWindow ? [window, extraWindow] : [window]
+
+    windows.forEach((win) => {
+      win.document.addEventListener('pointerover', handleOver)
+      win.document.addEventListener('pointermove', handleMove)
+      win.document.addEventListener('pointerout', handleOut)
+      win.document.addEventListener('pointerdown', hide, true)
+      win.document.addEventListener('wheel', hide, { capture: true, passive: true })
+      win.document.addEventListener('keydown', hide, true)
+      win.addEventListener('scroll', hide, true)
+      win.addEventListener('blur', hide)
+    })
 
     return () => {
       clearTimeout(timer)
-      document.removeEventListener('pointerover', handleOver)
-      document.removeEventListener('pointermove', handleMove)
-      document.removeEventListener('pointerout', handleOut)
-      document.removeEventListener('pointerdown', hide, true)
-      document.removeEventListener('wheel', hide, { capture: true })
-      document.removeEventListener('keydown', hide, true)
-      window.removeEventListener('scroll', hide, true)
-      window.removeEventListener('blur', hide)
+      windows.forEach((win) => {
+        win.document.removeEventListener('pointerover', handleOver)
+        win.document.removeEventListener('pointermove', handleMove)
+        win.document.removeEventListener('pointerout', handleOut)
+        win.document.removeEventListener('pointerdown', hide, true)
+        win.document.removeEventListener('wheel', hide, { capture: true })
+        win.document.removeEventListener('keydown', hide, true)
+        win.removeEventListener('scroll', hide, true)
+        win.removeEventListener('blur', hide)
+      })
     }
-  }, [delay, enabled, showCaveArt])
+  }, [delay, enabled, extraWindow, showCaveArt])
 
   // Places the tip once its real size is known: above the icon when it fits
   // inside the tracker, below otherwise, and slid sideways so it never pokes
@@ -232,12 +244,15 @@ export function IconTooltip({
       return
     }
 
-    const board = document.querySelector('.game-canvas')?.getBoundingClientRect()
+    const tipWindow = tip.ownerDocument.defaultView ?? window
+    const board = tip.ownerDocument
+      .querySelector('.game-canvas')
+      ?.getBoundingClientRect()
     const bounds = board ?? {
       left: 0,
       top: 0,
-      right: window.innerWidth,
-      bottom: window.innerHeight,
+      right: tipWindow.innerWidth,
+      bottom: tipWindow.innerHeight,
     }
     const { width, height } = element.getBoundingClientRect()
 
@@ -310,6 +325,6 @@ export function IconTooltip({
         tip.text
       )}
     </div>,
-    document.body,
+    tip.ownerDocument.body,
   )
 }

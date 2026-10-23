@@ -15,6 +15,7 @@ import { createPortal } from 'react-dom'
 import { GlyphText } from '@/components/glyph-text'
 import { IconTooltip } from '@/components/icon-tooltip'
 import { FramedDialog } from '@/components/framed-dialog'
+import { PopoutHost, preparePopupWindow } from '@/components/popout-window'
 import { UpdatesDialog } from '@/components/updates-dialog'
 
 const BASE_WIDTH = 600
@@ -1570,19 +1571,7 @@ export function TrackerFrame() {
       setIsNotesOpen(true)
       return
     }
-    const doc = popup.document
-    doc.title = 'Notes - Z2 Tracker'
-    doc.head.querySelectorAll('style, link[rel="stylesheet"]').forEach((node) => node.remove())
-    document.querySelectorAll<HTMLStyleElement | HTMLLinkElement>('style, link[rel="stylesheet"]').forEach((node) => {
-      const clone = doc.importNode(node, true) as HTMLStyleElement | HTMLLinkElement
-      if (node instanceof HTMLLinkElement) (clone as HTMLLinkElement).href = node.href
-      doc.head.appendChild(clone)
-    })
-    doc.documentElement.className = document.documentElement.className
-    doc.body.replaceChildren()
-    doc.body.className = `${document.body.className} notes-popout-body`
-    const canvas = document.querySelector('.game-canvas')
-    if (canvas) doc.body.style.fontFamily = getComputedStyle(canvas).fontFamily
+    preparePopupWindow(popup, 'Notes - Z2 Tracker', 'notes-popout-body')
     popup.addEventListener('pagehide', () => setNotesWindow(null))
     setIsNotesOpen(false)
     setNotesWindow(popup)
@@ -1900,6 +1889,63 @@ export function TrackerFrame() {
     y: number
     size: number
   } | null>(null)
+
+  // The maps can be popped out into their own window, which the player can then
+  // size freely. Like the notes popup, its body is a React portal target, so the
+  // popped-out maps share every piece of tracker state with the board. It is
+  // never restored on load: a window opened without a click would be blocked.
+  const [mapWindow, setMapWindow] = useState<Window | null>(null)
+  const closeMapWindow = () => {
+    setMapWindow((current) => {
+      if (current && !current.closed) current.close()
+      return null
+    })
+  }
+  const toggleMapWindow = () => {
+    if (mapWindow) {
+      closeMapWindow()
+      return
+    }
+    const popup = window.open('', 'z2-tracker-map', 'popup,width=640,height=360')
+    if (!popup) {
+      window.alert('Allow pop-ups for this site to open the maps in a new window.')
+      return
+    }
+    preparePopupWindow(popup, 'Mapping - Z2 Tracker', 'map-popout-body')
+    popup.addEventListener('pagehide', () => setMapWindow(null))
+    setMapMenu(null)
+    setMapMove(null)
+    setHeldIcon(null)
+    setMapWindow(popup)
+    popup.focus()
+  }
+  useEffect(() => {
+    if (!isMapVisible) closeMapWindow()
+  }, [isMapVisible])
+  useEffect(() => {
+    const closeWithBoard = () => closeMapWindow()
+    window.addEventListener('pagehide', closeWithBoard)
+    return () => {
+      window.removeEventListener('pagehide', closeWithBoard)
+      closeMapWindow()
+    }
+  }, [])
+  // Resizing the popup rescales the maps to fill it, so dragging its edges is
+  // the resize control.
+  const [mapWindowScale, setMapWindowScale] = useState(1)
+  useEffect(() => {
+    if (!mapWindow) return
+    const fitToWindow = () =>
+      setMapWindowScale(
+        Math.max(
+          0.5,
+          Math.min(mapWindow.innerWidth / 596, mapWindow.innerHeight / 266),
+        ),
+      )
+    fitToWindow()
+    mapWindow.addEventListener('resize', fitToWindow)
+    return () => mapWindow.removeEventListener('resize', fitToWindow)
+  }, [mapWindow])
   const palaceGridRef = useRef<HTMLDivElement | null>(null)
   // How tall the board currently stands. Everything that has to agree with the
   // board's height reads this rather than `BASE_HEIGHT`, so the canvas, the stage
@@ -1961,9 +2007,11 @@ export function TrackerFrame() {
       )
     }
 
-    document.addEventListener('mouseup', finishSelection)
-    return () => document.removeEventListener('mouseup', finishSelection)
-  }, [mapMove, overworldCells])
+    const docs = mapWindow ? [document, mapWindow.document] : [document]
+    docs.forEach((doc) => doc.addEventListener('mouseup', finishSelection))
+    return () =>
+      docs.forEach((doc) => doc.removeEventListener('mouseup', finishSelection))
+  }, [mapMove, overworldCells, mapWindow])
 
   // Drives dragging and held copies from the document, so the pointer can leave
   // the grid mid-drag. The floating art is moved directly rather than through
@@ -2005,7 +2053,11 @@ export function TrackerFrame() {
       }
 
       const { from, icon } = heldIcon
-      const to = document
+      const target = event.target as Node
+      const eventDocument =
+        (target.nodeType === 9 ? (target as Document) : target.ownerDocument) ??
+        document
+      const to = eventDocument
         .elementFromPoint(event.clientX, event.clientY)
         ?.closest<HTMLElement>('[data-cell-key]')?.dataset.cellKey
 
@@ -2037,17 +2089,22 @@ export function TrackerFrame() {
       }
     }
 
-    document.addEventListener('mousemove', handleMouseMove)
-    document.addEventListener('mouseup', handleMouseUp)
-    document.addEventListener('mousedown', handleMouseDown)
-    document.addEventListener('keydown', handleKeyDown)
+    const docs = mapWindow ? [document, mapWindow.document] : [document]
+    docs.forEach((doc) => {
+      doc.addEventListener('mousemove', handleMouseMove)
+      doc.addEventListener('mouseup', handleMouseUp)
+      doc.addEventListener('mousedown', handleMouseDown)
+      doc.addEventListener('keydown', handleKeyDown)
+    })
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove)
-      document.removeEventListener('mouseup', handleMouseUp)
-      document.removeEventListener('mousedown', handleMouseDown)
-      document.removeEventListener('keydown', handleKeyDown)
+      docs.forEach((doc) => {
+        doc.removeEventListener('mousemove', handleMouseMove)
+        doc.removeEventListener('mouseup', handleMouseUp)
+        doc.removeEventListener('mousedown', handleMouseDown)
+        doc.removeEventListener('keydown', handleKeyDown)
+      })
     }
-  }, [heldIcon])
+  }, [heldIcon, mapWindow])
 
   // Places the icon menu beside its square once its real size is known: to the
   // right, flipped left near the section's edge, and kept inside the section
@@ -2096,13 +2153,18 @@ export function TrackerFrame() {
       }
     }
 
-    document.addEventListener('mousedown', handlePointerDown)
-    document.addEventListener('keydown', handleKeyDown)
+    const docs = mapWindow ? [document, mapWindow.document] : [document]
+    docs.forEach((doc) => {
+      doc.addEventListener('mousedown', handlePointerDown)
+      doc.addEventListener('keydown', handleKeyDown)
+    })
     return () => {
-      document.removeEventListener('mousedown', handlePointerDown)
-      document.removeEventListener('keydown', handleKeyDown)
+      docs.forEach((doc) => {
+        doc.removeEventListener('mousedown', handlePointerDown)
+        doc.removeEventListener('keydown', handleKeyDown)
+      })
     }
-  }, [isMapMenuOpen])
+  }, [isMapMenuOpen, mapWindow])
 
   // Escape backs out of move mode, leaving any lifted icons where they were.
   const isMapMoveActive = mapMove !== null
@@ -2117,9 +2179,11 @@ export function TrackerFrame() {
       }
     }
 
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [isMapMoveActive])
+    const docs = mapWindow ? [document, mapWindow.document] : [document]
+    docs.forEach((doc) => doc.addEventListener('keydown', handleKeyDown))
+    return () =>
+      docs.forEach((doc) => doc.removeEventListener('keydown', handleKeyDown))
+  }, [isMapMoveActive, mapWindow])
 
   /**
    * Sets one side of a Custom container tally, keeping the pair coherent: a start
@@ -2975,7 +3039,7 @@ export function TrackerFrame() {
           </span>
         )}
       </div>,
-      document.body,
+      (mapWindow?.document ?? document).body,
     )
   }
 
@@ -3466,6 +3530,7 @@ export function TrackerFrame() {
         <IconTooltip
         delay={hoverDelay}
         enabled={isHoverTextOn && !mapMove}
+        extraWindow={mapWindow}
         showCaveArt={isCaveImageTipsOn}
       />
         <div
@@ -3752,6 +3817,22 @@ export function TrackerFrame() {
                             />
                             Mapping
                           </button>
+
+                          {isMapVisible ? (
+                            <button
+                              aria-checked={mapWindow !== null}
+                              className="tracker-menu-option"
+                              onClick={toggleMapWindow}
+                              role="menuitemcheckbox"
+                              type="button"
+                            >
+                              <span
+                                aria-hidden="true"
+                                className={`tracker-menu-check${mapWindow ? ' is-checked' : ''}`}
+                              />
+                              Open in New Window
+                            </button>
+                          ) : null}
 
                           <button
                             aria-checked={isNotesVisible}
@@ -4473,6 +4554,25 @@ export function TrackerFrame() {
                 tallest block on the board. */}
             {isMapVisible ? (
             <>
+            {mapWindow ? (
+              <section
+                aria-label="Maps are open in a separate window"
+                className="overworld overworld-popped"
+              >
+                <button
+                  className="overworld-popped-button"
+                  onClick={closeMapWindow}
+                  type="button"
+                >
+                  Maps are open in a separate window. Click to bring them back.
+                </button>
+              </section>
+            ) : null}
+            <PopoutHost target={mapWindow?.document.body ?? null}>
+            <div
+              className={mapWindow ? 'map-popout-stage' : 'map-inline-stage'}
+              style={mapWindow ? { zoom: mapWindowScale } : undefined}
+            >
             <section
               aria-label="Overworld maps"
               className={`overworld${mapMove ? ` overworld-move-${mapMove.phase}` : ''}${heldIcon ? ' overworld-holding' : ''}`}
@@ -4725,6 +4825,8 @@ export function TrackerFrame() {
               {renderMapMenu()}
               {heldIcon ? renderHeldIcon(heldIcon) : null}
             </section>
+            </div>
+            </PopoutHost>
             </>
             ) : null}
             </div>
@@ -4947,13 +5049,15 @@ export function TrackerFrame() {
                   () => setOpenSlot(null),
                 )
               : null}
-            {mapItemPickerCell
-              ? renderItemPicker(
+            {mapItemPickerCell ? (
+              <PopoutHost target={mapWindow?.document.body ?? null}>
+                {renderItemPicker(
                   'MAP',
                   (itemId) => placeMapItem(mapItemPickerCell, itemId),
                   () => setMapItemPickerCell(null),
-                )
-              : null}
+                )}
+              </PopoutHost>
+            ) : null}
 
             <div className="lane-divider" />
       <div className="frame-rail frame-rail-top" />
