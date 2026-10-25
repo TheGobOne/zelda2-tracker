@@ -16,7 +16,7 @@ type UpdateRelease = {
 const UPDATE_RELEASES: UpdateRelease[] = [
   {
     id: '2026-10-22-windows',
-    date: '10/22/26',
+    date: '10/25/26',
     lines: [
       'Marking a palace on the map places its continent marker automatically. Thanks Cody!',
     ],
