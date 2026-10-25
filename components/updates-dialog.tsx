@@ -15,7 +15,7 @@ type UpdateRelease = {
 // Newest first. Add a new release at the top to publish new notes.
 const UPDATE_RELEASES: UpdateRelease[] = [
   {
-    id: '2026-10-22-windows',
+    id: '2026-10-25-palace-continent',
     date: '10/25/26',
     lines: [
       'Marking a palace on the map places its continent marker automatically. Thanks Cody!',
