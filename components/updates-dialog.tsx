@@ -22,11 +22,12 @@ const UPDATE_RELEASES: UpdateRelease[] = [
  'Pop-out windows now remember where you put them and how big they are, and reopen in the same spot when you reload',
 
       'Placing a numbered palace on the West map now automatically marks it West (W), and placing one on the East map marks it East (E)',
-      'Fixed the Updates popup being cut off in landscape layout',
-    ],
+  'Fixed the Updates popup being cut off in landscape layout',
+  'Thanks Cody!',
+  ],
   },
   {
-    id: '2026-10-17-mapping',
+  id: '2026-10-17-mapping',
     date: '10/17/26',
     intro: 'Mapping has been completely reworked. Changes below:',
     lines: [
