@@ -2053,6 +2053,7 @@ export function TrackerFrame() {
 
       // Released off the maps, or back on its own square, leaves it where it was.
       if (to && to !== from) {
+        markPalaceContinent(to, icon)
         setOverworldCells((current) => {
           const next = { ...current }
           delete next[from]
@@ -2860,6 +2861,33 @@ export function TrackerFrame() {
     setMapMenu({ cellKey, x, y, size: cell.offsetWidth })
   }
 
+  /**
+   * Sets a numbered palace's requirement letter from the map it lands on: W for
+   * the west map, E for the east. The Great Palace is left alone because it is
+   * not tied to a continent. Any hand-set letter on that palace is replaced,
+   * since where it was just placed is the newer information.
+   */
+  function markPalaceContinent(cellKey: string, iconId: string | undefined) {
+    const palace = iconId ? /^palace-([1-6])$/.exec(iconId) : null
+    if (!palace) {
+      return
+    }
+
+    const letter = cellKey.startsWith('west-')
+      ? 'W'
+      : cellKey.startsWith('east-')
+        ? 'E'
+        : null
+    if (!letter) {
+      return
+    }
+
+    setIconMarks((current) => ({
+      ...current,
+      [`boss-Palace ${palace[1]}`]: letter,
+    }))
+  }
+
   function clearMapCell(cellKey: string) {
     setOverworldCells((current) => {
       const next = { ...current }
@@ -2876,6 +2904,7 @@ export function TrackerFrame() {
     }
 
     const { cellKey } = mapMenu
+    markPalaceContinent(cellKey, iconId ?? undefined)
     setOverworldCells((current) => {
       const next = { ...current }
 
@@ -3172,6 +3201,9 @@ export function TrackerFrame() {
     }
 
     const { picked } = mapMove
+    for (const target of targets) {
+      markPalaceContinent(`${worldId}-${target.row}-${target.column}`, target.icon)
+    }
     setOverworldCells((current) => {
       const next = { ...current }
 
@@ -4719,6 +4751,7 @@ export function TrackerFrame() {
                                 if (heldIcon && !heldIcon.from) {
                                   event.preventDefault()
                                   const placed = heldIcon.icon
+                                  markPalaceContinent(cellKey, placed)
                                   setOverworldCells((current) => ({
                                     ...current,
                                     [cellKey]: placed,
