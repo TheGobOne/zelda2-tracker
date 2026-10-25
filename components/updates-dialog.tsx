@@ -21,6 +21,7 @@ const UPDATE_RELEASES: UpdateRelease[] = [
       'Added Mapping pop-out: turn on Open in New Window under Mapping in the gear menu to move your map into its own window. Resize it however you like and the map scales to fit',
  'Pop-out windows now remember where you put them and how big they are, and reopen in the same spot when you reload',
 
+      'Placing a numbered palace on the West map now automatically marks it West (W), and placing one on the East map marks it East (E)',
       'Fixed the Updates popup being cut off in landscape layout',
     ],
   },
