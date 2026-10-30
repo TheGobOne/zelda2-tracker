@@ -2862,13 +2862,12 @@ export function TrackerFrame() {
   }
 
   /**
-   * Sets a numbered palace's requirement letter from the map it lands on: W for
-   * the west map, E for the east. The Great Palace is left alone because it is
-   * not tied to a continent. Any hand-set letter on that palace is replaced,
-   * since where it was just placed is the newer information.
+   * Sets a palace's requirement letter from the map it lands on: W for the
+   * west map and E for the east. Any hand-set letter is replaced, since where
+   * the palace was just placed is the newer information.
    */
   function markPalaceContinent(cellKey: string, iconId: string | undefined) {
-    const palace = iconId ? /^palace-([1-6])$/.exec(iconId) : null
+    const palace = iconId ? /^palace-([1-7])$/.exec(iconId) : null
     if (!palace) {
       return
     }
