@@ -2249,6 +2249,17 @@ gear's center to the center of the left lane (palace and map sections). */
 /* The border copies the frame's rail: white 4px / blue 6px / white 4px, the
    inner white line drawn by the outline so the content box stays black. Red
    corner blocks sit over each corner, as on the board. */
+@media (max-width: 600px) {
+  .updates-backdrop {
+    padding: 12px;
+  }
+
+  .updates-backdrop .updates-dialog {
+    padding: 18px 16px 16px;
+    gap: 12px;
+  }
+}
+
 .updates-dialog {
   position: relative;
   display: flex;

@@ -1418,7 +1418,7 @@ const CONTROL_GROUPS: {
     // Reuses the existing note slot, which already renders directly beneath the
     // credit in the dimmer aside styling - the right weight for a footnote that
     // should sit under the name without competing with it.
-    note: 'If you have any issues or bugs to report please find me on the Z2R Discord.',
+    note: 'Designed for mouse and keyboard on desktop. If you have any issues or bugs to report please find me on the Z2R Discord.',
     link: { href: 'https://discord.com/channels/429952107593072652/645362483074433025/1543315804391604324', label: 'z2r.gg/discord' },
   },
 ]
@@ -1869,6 +1869,9 @@ export function TrackerFrame() {
   const [mapMenu, setMapMenu] = useState<MapMenu | null>(null)
   const mapMenuRef = useRef<HTMLDivElement | null>(null)
   const mapMenuOpenerRef = useRef<HTMLButtonElement | null>(null)
+  // A right click opens the menu without the keyboard, so closing it must not hand
+  // focus back to the square: that would draw the keyboard focus ring on it.
+  const mapMenuOpenedByMouseRef = useRef(false)
   // The square the items-and-spells picker will place onto, opened from the menu.
   const [mapItemPickerCell, setMapItemPickerCell] = useState<string | null>(null)
   const [mapMove, setMapMove] = useState<MapMove | null>(null)
@@ -2140,7 +2143,9 @@ export function TrackerFrame() {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
         setMapMenu(null)
-        mapMenuOpenerRef.current?.focus()
+        if (!mapMenuOpenedByMouseRef.current) {
+          mapMenuOpenerRef.current?.focus()
+        }
       }
     }
 
@@ -2844,7 +2849,7 @@ export function TrackerFrame() {
    * it is a display preference rather than run progress.
    */
   /** Opens the icon menu on the right-clicked square, anchored to its position. */
-  function openMapMenu(cell: HTMLButtonElement, cellKey: string) {
+  function openMapMenu(cell: HTMLButtonElement, cellKey: string, byMouse: boolean) {
     const section = cell.closest<HTMLElement>('.overworld')
     let x = 0
     let y = 0
@@ -2858,6 +2863,7 @@ export function TrackerFrame() {
     }
 
     mapMenuOpenerRef.current = cell
+    mapMenuOpenedByMouseRef.current = byMouse
     setMapMenu({ cellKey, x, y, size: cell.offsetWidth })
   }
 
@@ -2916,7 +2922,9 @@ export function TrackerFrame() {
       return next
     })
     setMapMenu(null)
-    mapMenuOpenerRef.current?.focus({ preventScroll: true })
+    if (!mapMenuOpenedByMouseRef.current) {
+      mapMenuOpenerRef.current?.focus({ preventScroll: true })
+    }
   }
 
   function renderMapMenu() {
@@ -4734,7 +4742,7 @@ export function TrackerFrame() {
                                 }
 
                                 if (!mapMove) {
-                                  openMapMenu(event.currentTarget, cellKey)
+                                  openMapMenu(event.currentTarget, cellKey, event.button === 2)
                                 }
                               }}
                               // In move mode a left press starts the selection
