@@ -1458,6 +1458,15 @@ function focusAtEnd(node: HTMLTextAreaElement | null) {
 
 export function TrackerFrame() {
   const [scale, setScale] = useState(0.85)
+  // A narrow screen shrinks the board to fit rather than cutting it off at the edges;
+  // the saved zoom is left alone and applies again on a wider one.
+  const [viewportWidth, setViewportWidth] = useState<number | null>(null)
+  useEffect(() => {
+    const read = () => setViewportWidth(window.innerWidth)
+    read()
+    window.addEventListener('resize', read)
+    return () => window.removeEventListener('resize', read)
+  }, [])
   const [activeHandle, setActiveHandle] = useState<string | null>(null)
   // Only bosses whose count has been changed are stored here; the rest fall back
   // to `startSlotsFor`. Middle click cycles a boss up to its max, then to zero.
@@ -1981,6 +1990,8 @@ export function TrackerFrame() {
   // visibility no longer changes the height - the left column governs it, and a
   // hidden right-column maps block just leaves that lane shorter than its column.
   const canvasWidth = isLandscape ? LANDSCAPE_WIDTH : BASE_WIDTH // landscape: two 600px lanes
+  const shownScale =
+    viewportWidth === null ? scale : Math.min(scale, Math.max(MIN_SCALE, (viewportWidth - 16) / canvasWidth))
   const canvasHeight = isLandscape
     ? LANDSCAPE_HEIGHT
     : isMapVisible
@@ -3334,9 +3345,30 @@ export function TrackerFrame() {
     setIsFlagsOpen(false)
   }
 
+  /** Whether anything has been marked yet, so a first flag pick does not silently wipe it. */
+  function hasTrackerWork() {
+    const startCells = Object.entries(OVERWORLD_START_CELLS)
+    const hasMapIcons =
+      Object.keys(overworldCells).length !== startCells.length ||
+      startCells.some(([key, icon]) => overworldCells[key] !== icon)
+    return (
+      hasMapIcons ||
+      Object.keys(slotItems).length > 0 ||
+      Object.keys(slotCounts).length > 0 ||
+      Object.keys(iconMarks).length > 0 ||
+      Object.keys(blocks).length > 0 ||
+      Object.keys(countValues).length > 0 ||
+      Object.keys(connectorEnds).length > 0 ||
+      Object.keys(palaceRooms).length > 0 ||
+      palaceLinks.length > 0 ||
+      notes.trim() !== '' ||
+      JSON.stringify(collected) !== JSON.stringify(collectedFromPreset(PRESETS[0]))
+    )
+  }
+
   function requestPreset(preset: (typeof PRESETS)[number]) {
     closeMenu()
-    if (hasPickedFlags) {
+    if (hasPickedFlags || hasTrackerWork()) {
       setPendingPreset(preset)
     } else {
       applyPreset(preset)
@@ -3618,10 +3650,10 @@ export function TrackerFrame() {
       <div
         className={`tracker-stage${activeHandle ? ' is-resizing' : ''}`}
         style={{
-          width: canvasWidth * scale,
+          width: canvasWidth * shownScale,
           // The grips sit against the stage's edges, so shrinking it with the
           // board is what carries them up when the maps are put away.
-          height: canvasHeight * scale,
+          height: canvasHeight * shownScale,
         }}
       >
         {/* Off while moving map icons, where the tip would sit over the squares
@@ -3641,7 +3673,7 @@ export function TrackerFrame() {
             // final on-screen size. `transform: scale()` instead rasterizes at
             // the base size and stretches that bitmap, which is why the art
             // looked soft until an interaction forced a fresh repaint.
-            zoom: scale,
+            zoom: shownScale,
           }}
         >
           <div

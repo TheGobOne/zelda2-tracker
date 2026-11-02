@@ -1511,14 +1511,14 @@
 
 /* One letter per line, read top to bottom, in the open band beside each outer map. */
 .overworld-side-label {
+  position: relative;
   display: flex;
   flex: 1;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  /* The paging arrow sits in the same stack, above the letters, so the two can
-     never overlap whatever the page. */
-  row-gap: 8px;
+  /* Full height of the band, so the paging arrow can be pinned to the same spot on
+     every page whatever the letters beside it. */
+  align-self: stretch;
 }
 
 .overworld-side-text {
@@ -3360,9 +3360,11 @@ gear's center to the center of the left lane (palace and map sections). */
 
 /* Page arrows sit in the open space beside the maps, under each side label. */
 .map-page-arrow {
-  flex: none;
-  order: -1;
+  position: absolute;
+  top: 10px;
+  left: 50%;
   z-index: 4;
+  transform: translateX(-50%);
   display: flex;
   width: 26px;
   height: 22px;
@@ -3407,4 +3409,10 @@ gear's center to the center of the left lane (palace and map sections). */
 
 .map-popout-stage .overworld:has(.palace-map) {
   top: auto;
+}
+
+/* The palace pages sit a pixel higher in the band than the overworld maps, so their
+   arrow starts a pixel lower to land on the same spot. */
+.overworld:has(.palace-map) .map-page-arrow {
+  top: 11px;
 }

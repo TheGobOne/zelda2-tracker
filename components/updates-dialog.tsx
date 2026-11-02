@@ -15,6 +15,19 @@ type UpdateRelease = {
 // Newest first. Add a new release at the top to publish new notes.
 const UPDATE_RELEASES: UpdateRelease[] = [
   {
+    id: '2026-11-02-palace-maps',
+    date: '11/02/26',
+    intro: 'Palace mapping is here. Changes below:',
+    lines: [
+      'Added Palace Maps: use the arrows beside the maps to page to P1-P6 and the Great Palace',
+      'Right click a square to place rooms (passthroughs, 3-ways, 4-way, dead ends) and mark Entrance elevators, Boss, and Item rooms. Left click turns a room, middle click clears it',
+      'Rooms connect on their own when their doorways face each other. Drag from one room to another to link doorways that are not neighbors, for reconstructed palaces',
+      'Added Bridge, Grass, Swamp, and Graveyard tiles, a three-peak Mountain, and 3/6 icons for Palaces 3 and 6. The icon menu has a fifth row, and Items/Spells moved into it',
+      'Picking a flagset for the first time now warns you before it clears anything you have already marked. The board also shrinks to fit narrow screens',
+      'Notes and Maps popouts now remember their size and place, including on another monitor. After a refresh, click once to bring each back',
+    ],
+  },
+  {
     id: '2026-10-25-palace-continent',
     date: '10/25/26',
     lines: [
