@@ -1162,19 +1162,23 @@ const OVERWORLD_ICON_COLUMNS: { id: string; name: string; src: string }[][] = [
     { id: 'mi-marker', name: 'MI', src: '/images/overworld/mi.png' },
     { id: 'dm-entrance', name: 'DM', src: '/images/overworld/dmentrance.png' },
   ],
-  // Terrain and connectors. Eight entries, so they still stack in one column of
-  // nine rows now that the lettered markers have moved out of this group. Mountain
-  // sits next to Boulder, the other impassable rock, and the three ground-surface
-  // fills - Water, Desert, Lava - close the column as a run.
+  // Terrain: the impassable rock first, then the ground-surface fills.
   [
-    { id: 'bridge', name: 'Bridge/Raft', src: '/images/overworld/bridge.png' },
-    { id: 'river-devil', name: 'River Devil', src: '/images/overworld/riverdevil.png' },
-    { id: 'boulder', name: 'Boulder', src: '/images/overworld/boulder.png' },
     { id: 'mountain', name: 'Mountain', src: '/images/overworld/mountain.png' },
     { id: 'forest', name: 'Forest', src: '/images/overworld/forest.png' },
     { id: 'water', name: 'Water', src: '/images/overworld/water.png' },
     { id: 'desert', name: 'Desert', src: '/images/overworld/desert.png' },
     { id: 'lava', name: 'Lava', src: '/images/overworld/lava.png' },
+    { id: 'grass', name: 'Grass', src: '/images/overworld/grass.png' },
+    { id: 'swamp', name: 'Swamp', src: '/images/overworld/swamp.png' },
+    { id: 'graveyard', name: 'Graveyard', src: '/images/overworld/graveyard.png' },
+  ],
+  // The crossings and what blocks them, on a row of their own.
+  [
+    { id: 'bridge', name: 'Bridge', src: '/images/overworld/bridge.png' },
+    { id: 'raft', name: 'Raft', src: '/images/overworld/raft.png' },
+    { id: 'river-devil', name: 'River Devil', src: '/images/overworld/riverdevil.png' },
+    { id: 'boulder', name: 'Boulder', src: '/images/overworld/boulder.png' },
   ],
 ]
 
@@ -3050,20 +3054,24 @@ export function TrackerFrame() {
                   </button>
                 ))
               : null}
+            {groupIndex === OVERWORLD_ICON_COLUMNS.length - 1 ? (
+              <button
+                aria-haspopup="dialog"
+                className="overworld-menu-cave"
+                onClick={() => {
+                  setMapItemPickerCell(mapMenu.cellKey)
+                  setMapMenu(null)
+                }}
+                role="menuitem"
+                // Fills the columns the row's four icons leave, the right half of it.
+                style={{ flex: 1, marginLeft: 3, width: 'auto' }}
+                type="button"
+              >
+                Items/Spells
+              </button>
+            ) : null}
           </div>
         ))}
-        <button
-          aria-haspopup="dialog"
-          className="overworld-menu-clear overworld-menu-items"
-          onClick={() => {
-            setMapItemPickerCell(mapMenu.cellKey)
-            setMapMenu(null)
-          }}
-          role="menuitem"
-          type="button"
-        >
-          Items and Spells
-        </button>
       </div>
     )
   }
