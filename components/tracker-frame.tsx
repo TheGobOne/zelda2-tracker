@@ -16,6 +16,14 @@ import { createPortal } from 'react-dom'
 import { GlyphText } from '@/components/glyph-text'
 import { IconTooltip } from '@/components/icon-tooltip'
 import { FramedDialog } from '@/components/framed-dialog'
+import {
+  PalaceGrid,
+  PALACE_PAGES,
+  parsePalaceLinks,
+  parsePalaceRooms,
+  type PalaceLink,
+  type PalaceRoom,
+} from '@/components/palace-map'
 import { PopoutHost, usePopoutWindow } from '@/components/popout-window'
 import { UpdatesDialog } from '@/components/updates-dialog'
 
@@ -993,6 +1001,8 @@ const SAVE_FILE_VERSION = 1
 
 type RunSnapshot = {
   overworldCells: Record<string, string>
+  palaceRooms: Record<string, PalaceRoom>
+  palaceLinks: PalaceLink[]
   slotItems: Record<string, string>
   collected: Record<string, boolean>
   slotCounts: Record<string, number>
@@ -1025,6 +1035,9 @@ const isFiniteNumber = (entry: unknown): entry is number =>
 function parseRunSnapshot(value: unknown): RunSnapshot | null {
   if (!isPlainRecord(value)) return null
   const overworldCells = recordOf(value.overworldCells, isString)
+  // Saves from before the palace maps have none.
+  const palaceRooms = parsePalaceRooms(value.palaceRooms)
+  const palaceLinks = parsePalaceLinks(value.palaceLinks)
   const slotItems = recordOf(value.slotItems, isString)
   const collected = recordOf(value.collected, isBoolean)
   const slotCounts = recordOf(value.slotCounts, isFiniteNumber)
@@ -1035,6 +1048,8 @@ function parseRunSnapshot(value: unknown): RunSnapshot | null {
   const limits = value.customLimits
   if (
     !overworldCells ||
+    !palaceRooms ||
+    !palaceLinks ||
     !slotItems ||
     !collected ||
     !slotCounts ||
@@ -1056,6 +1071,8 @@ function parseRunSnapshot(value: unknown): RunSnapshot | null {
   }
   return {
     overworldCells,
+    palaceRooms,
+    palaceLinks,
     slotItems,
     collected,
     slotCounts,
@@ -1404,6 +1421,7 @@ const CONTROL_GROUPS: {
       { input: 'Shift click P/J/F/T', effect: 'Pick up a copy to place' },
       { input: 'Middle click', effect: 'Remove an icon, or toggle move mode' },
       { input: 'Move mode', effect: 'Box-select icons, click to drop them' },
+      { input: 'Arrows', effect: 'Page to the palace maps and back' },
     ],
   },
   {
@@ -1571,6 +1589,7 @@ export function TrackerFrame() {
     getBody: getNotesWindowBody,
     open: openNotesWindow,
     close: closeNotesWindow,
+    isPending: isNotesWindowPending,
   } = usePopoutWindow({
     id: 'notes',
     title: 'Notes - Z2 Tracker',
@@ -1682,6 +1701,12 @@ export function TrackerFrame() {
   // Which icon sits on each overworld cell, keyed by grid id and coordinates.
   // Only filled cells are stored, so an absent key is an empty square.
   const [overworldCells, setOverworldCells] = useState<Record<string, string>>(OVERWORLD_START_CELLS)
+  // The rooms mapped on each palace page, keyed by page id and coordinates.
+  const [palaceRooms, setPalaceRooms] = useState<Record<string, PalaceRoom>>({})
+  const [palaceLinks, setPalaceLinks] = useState<PalaceLink[]>([])
+  // Which map the arrows have paged to: the two overworlds, or one palace.
+  const [mapPageIndex, setMapPageIndex] = useState(0)
+  const mapPage = mapPageIndex === 0 ? null : PALACE_PAGES[mapPageIndex - 1]
   // The map square under the pointer. The icon is read from the cells each
   // render, so removing or moving it drops the highlight straight away.
   const [hoveredCellKey, setHoveredCellKey] = useState<string | null>(null)
@@ -1689,6 +1714,8 @@ export function TrackerFrame() {
 
   const runSnapshot: RunSnapshot = {
     overworldCells,
+    palaceRooms,
+    palaceLinks,
     slotItems,
     collected,
     slotCounts,
@@ -1706,6 +1733,8 @@ export function TrackerFrame() {
 
   function applyRunSnapshot(snapshot: RunSnapshot) {
     setOverworldCells(snapshot.overworldCells)
+    setPalaceRooms(snapshot.palaceRooms)
+    setPalaceLinks(snapshot.palaceLinks)
     setSlotItems(snapshot.slotItems)
     setCollected(snapshot.collected)
     setSlotCounts(snapshot.slotCounts)
@@ -1899,6 +1928,7 @@ export function TrackerFrame() {
     getBody: getMapWindowBody,
     open: openMapWindow,
     close: closeMapWindow,
+    isPending: isMapWindowPending,
   } = usePopoutWindow({
     id: 'map',
     title: 'Mapping - Z2 Tracker',
@@ -3227,8 +3257,38 @@ export function TrackerFrame() {
     setMapMove(null)
   }
 
+  /** Steps the map to the next or previous page, wrapping, and drops any half-finished edit. */
+  function pageMap(step: 1 | -1) {
+    const pages = PALACE_PAGES.length + 1
+    setMapMove(null)
+    setHeldIcon(null)
+    setMapMenu(null)
+    setMapPageIndex((index) => (index + step + pages) % pages)
+  }
+
+  /** The paging arrow that sits in the open space beside the maps, under its side label. */
+  function renderMapArrow(step: 1 | -1) {
+    const pages = PALACE_PAGES.length + 1
+    const target = PALACE_PAGES[(mapPageIndex + step + pages) % pages - 1]
+
+    return (
+      <button
+        aria-label={`${step === 1 ? 'Next' : 'Previous'} map: ${target?.name ?? 'Overworld maps'}`}
+        className="map-page-arrow"
+        onClick={() => pageMap(step)}
+        type="button"
+      >
+        <svg aria-hidden="true" height="10" viewBox="0 0 10 10" width="10">
+          <polygon fill="currentColor" points={step === 1 ? '2,0 9,5 2,10' : '8,0 1,5 8,10'} />
+        </svg>
+      </button>
+    )
+  }
+
   function clearTracker() {
     setOverworldCells({ ...OVERWORLD_START_CELLS })
+    setPalaceRooms({})
+    setPalaceLinks([])
     setMapMenu(null)
     // Back to the loaded flagset's opening state rather than a blank board, so
     // its starting items, requirement marks, counts and connections come back
@@ -3279,6 +3339,8 @@ export function TrackerFrame() {
     // The maps describe the seed being played, so a new ruleset empties them
     // along with everything else, back to just the home palace.
     setOverworldCells({ ...OVERWORLD_START_CELLS })
+    setPalaceRooms({})
+    setPalaceLinks([])
     setMapMenu(null)
     setSlotItems({ ...preset.placements })
     setCollected(collectedFromPreset(preset))
@@ -3849,7 +3911,7 @@ export function TrackerFrame() {
 
                           {isMapVisible ? (
                             <button
-                              aria-checked={mapWindow !== null}
+                              aria-checked={mapWindow !== null || isMapWindowPending}
                               className="tracker-menu-option"
                               onClick={toggleMapWindow}
                               role="menuitemcheckbox"
@@ -3857,7 +3919,7 @@ export function TrackerFrame() {
                             >
                               <span
                                 aria-hidden="true"
-                                className={`tracker-menu-check${mapWindow ? ' is-checked' : ''}`}
+                                className={`tracker-menu-check${mapWindow || isMapWindowPending ? ' is-checked' : ''}`}
                               />
                               Open in New Window
                             </button>
@@ -4603,6 +4665,19 @@ export function TrackerFrame() {
                   Maps are open in a separate window. Click to bring them back.
                 </button>
               </section>
+            ) : isMapWindowPending ? (
+              // The browser would not reopen the window by itself; the next click anywhere does.
+              <section
+                aria-label="Maps will reopen in a separate window"
+                className="overworld overworld-popped"
+              >
+                <p
+                  className="overworld-popped-button"
+                  style={{ alignItems: 'center', cursor: 'default', display: 'flex', justifyContent: 'center', margin: 0 }}
+                >
+                  Maps will reopen in their own window. Click anywhere to open it.
+                </p>
+              </section>
             ) : null}
             <PopoutHost getTarget={getMapWindowBody}>
             <div
@@ -4612,6 +4687,7 @@ export function TrackerFrame() {
             <section
               aria-label="Overworld maps"
               className={`overworld${mapMove ? ` overworld-move-${mapMove.phase}` : ''}${heldIcon ? ' overworld-holding' : ''}`}
+              style={isMapWindowPending ? { visibility: 'hidden' } : undefined}
               // Middle click toggles move mode for the maps.
               onAuxClick={(event) => {
                 if (event.button === 1) {
@@ -4633,7 +4709,30 @@ export function TrackerFrame() {
                     ? 'Move mode. Drag across map squares to select icons. Middle click or Escape to exit.'
                     : ''}
               </p>
+              {mapPage ? (
+                <>
+                  <div className="overworld-side-label">
+<span aria-hidden="true" className="overworld-side-text">{mapPage.label}</span>
+{renderMapArrow(-1)}
+</div>
+                  <PalaceGrid
+                    links={palaceLinks}
+                    onChange={setPalaceRooms}
+                    onLinksChange={setPalaceLinks}
+                    page={mapPage}
+                    rooms={palaceRooms}
+                  />
+                  <div className="overworld-side-label">
+<span aria-hidden="true" className="overworld-side-text">{mapPage.label}</span>
+{renderMapArrow(1)}
+</div>
+                </>
+              ) : null}
               {OVERWORLDS.map((world, worldIndex) => {
+                if (mapPage) {
+                  return null
+                }
+
                 const preview = getMovePreview(world.id)
                 const selection =
                   mapMove?.phase === 'select' &&
@@ -4654,9 +4753,10 @@ export function TrackerFrame() {
                       so the band's height stays with the squares. Screen readers get
                       the name from the grid's own label instead. */}
                   {worldIndex === 0 ? (
-                    <span aria-hidden="true" className="overworld-side-label">
-                      <span className="overworld-side-text">{world.name.toUpperCase()}</span>
-                    </span>
+                    <div className="overworld-side-label">
+<span aria-hidden="true" className="overworld-side-text">{world.name.toUpperCase()}</span>
+{renderMapArrow(-1)}
+</div>
                   ) : null}
                   <div
                     aria-label={`${world.name} overworld grid`}
@@ -4852,9 +4952,10 @@ export function TrackerFrame() {
   ))}
   </div>
   {worldIndex === OVERWORLDS.length - 1 ? (
-    <span aria-hidden="true" className="overworld-side-label">
-      <span className="overworld-side-text">{world.name.toUpperCase()}</span>
-    </span>
+    <div className="overworld-side-label">
+<span aria-hidden="true" className="overworld-side-text">{world.name.toUpperCase()}</span>
+{renderMapArrow(1)}
+</div>
   ) : null}
 </Fragment>
                 )
