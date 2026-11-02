@@ -1,0 +1,12 @@
+{
+  "name": "tracker-e2e",
+  "private": true,
+  "type": "module",
+  "description": "Browser tests for the tracker. Kept apart from the app so the app's lockfile and Vercel build are untouched.",
+  "scripts": {
+    "test": "node --test tracker.test.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "1.49.1"
+  }
+}
