@@ -111,7 +111,7 @@ describe('flag presets', () => {
 
   it('asks before a first flag pick wipes palace rooms', async () => {
     await pageTo('Palace 1')
-    await place(4, 4, 'Pass L')
+    await place(4, 4, 'Door L')
     await pickBeginner()
     await page.getByText('Change Flags?').waitFor()
     await page.getByRole('button', { name: 'Cancel' }).click()
@@ -167,23 +167,81 @@ describe('palace maps', () => {
   it('joins a room placed above a vertical connector', async () => {
     await pageTo('Palace 3')
     await place(6, 4, 'Pass up-down')
-    await place(5, 4, 'Pass L')
+    await place(5, 4, 'Door L')
     assert.equal(await exits(5, 4), 'SW')
   })
 
-  it('turns a room on a left click and clears it on a middle click', async () => {
+  it('leaves neighbours alone when auto-join is off', async () => {
+    await pageTo('Palace 3')
+    await place(6, 4, 'Pass up-down')
+    await cell(5, 4).click({ button: 'right' })
+    await page.getByRole('menuitemcheckbox', { name: /Auto-join/ }).click()
+    await page.locator('.palace-menu-button', { hasText: /^Door L$/ }).click()
+    assert.equal(await exits(5, 4), 'W')
+  })
+
+  it('keeps a placed dead end facing its default when auto-join is off', async () => {
+    await pageTo('Palace 3')
+    await place(6, 4, 'Pass up-down')
+    await cell(5, 4).click({ button: 'right' })
+    await page.getByRole('menuitemcheckbox', { name: /Auto-join/ }).click()
+    await page.locator('.palace-menu-button', { hasText: /^Dead end$/ }).click()
+    assert.equal(await exits(5, 4), 'W')
+  })
+
+  it('makes an elevator entrance from a dead end with just that doorway', async () => {
+    await pageTo('Palace 3')
+    await place(6, 4, 'Door L')
+    await place(6, 4, 'E elevator up')
+    assert.equal(await exits(6, 4), 'N')
+  })
+
+  it('does not join a room to a doorway that carries a link', async () => {
+    await pageTo('Palace 1')
+    await place(7, 5, 'Pass up-down')
+    await place(11, 3, 'Pass up-down')
+    const a = await cell(7, 5).boundingBox()
+    const c = await cell(11, 3).boundingBox()
+    await page.mouse.move(a.x + a.width / 2, a.y + a.height - 1)
+    await page.mouse.down()
+    await page.mouse.move(c.x + c.width / 2, c.y + 1, { steps: 8 })
+    await page.mouse.up()
+    assert.equal((await savedRun()).palaceLinks.length, 1)
+    await place(8, 5, 'Dead end')
+    assert.notEqual(await exits(8, 5), 'N')
+  })
+
+  it('turns a room on a left click', async () => {
     await pageTo('Palace 3')
     await place(4, 4, 'Pass up-down')
     await cell(4, 4).click()
     assert.equal(await exits(4, 4), 'EW')
-    await cell(4, 4).click({ button: 'middle' })
-    assert.match((await cell(4, 4).getAttribute('aria-label')) ?? '', /empty/)
+  })
+
+  it('moves a room with a middle click then a left click, and links follow it', async () => {
+    await pageTo('Palace 2')
+    await place(2, 1, 'Door R')
+    await place(9, 10, 'Door L')
+    await place(6, 6, 'Door R')
+    await cell(2, 1).click({ button: 'middle' })
+    await cell(5, 3).click()
+    assert.match((await cell(2, 1).getAttribute('aria-label')) ?? '', /empty/)
+    assert.equal(await exits(5, 3), 'E')
+    // Picking up and putting back on the same square changes nothing.
+    await cell(5, 3).click({ button: 'middle' })
+    await cell(5, 3).click()
+    assert.equal(await exits(5, 3), 'E')
+    // Swapping with an occupied square.
+    await cell(5, 3).click({ button: 'middle' })
+    await cell(9, 10).click()
+    assert.equal(await exits(9, 10), 'E')
+    assert.equal(await exits(5, 3), 'W')
   })
 
   it('links two far apart rooms by dragging, and only across opposite sides', async () => {
     await pageTo('Palace 2')
-    await place(2, 1, 'Pass R')
-    await place(9, 10, 'Pass L')
+    await place(2, 1, 'Door R')
+    await place(9, 10, 'Door L')
     const drag = async (from, fromDx, to, toDx) => {
       const a = await cell(...from).boundingBox()
       const b = await cell(...to).boundingBox()
@@ -206,10 +264,47 @@ describe('palace maps', () => {
     assert.equal(await page.locator('.palace-links path').count(), 1)
   })
 
+  it('keeps working after a link drag, and keeps the link when a room is turned', async () => {
+    await pageTo('Palace 2')
+    await place(2, 1, 'Door R')
+    await place(9, 10, 'Door L')
+    await place(5, 5, '3-way up')
+    const a = await cell(2, 1).boundingBox()
+    const c = await cell(9, 10).boundingBox()
+    await page.mouse.move(a.x + a.width / 2 + 8, a.y + a.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(c.x + c.width / 2 - 8, c.y + c.height / 2, { steps: 8 })
+    await page.mouse.up()
+    // The first click after a drag must still turn a room.
+    await cell(5, 5).click()
+    assert.notEqual(await exits(5, 5), 'WEN')
+    // A linked room turns only to positions that keep its linked doorway.
+    for (let i = 0; i < 5; i++) await cell(2, 1).click()
+    assert.equal((await savedRun()).palaceLinks.length, 1)
+    assert.equal(await exits(2, 1), 'E')
+  })
+
+  it('closes a doorway a link opened when the link is removed', async () => {
+    await pageTo('Palace 2')
+    await place(2, 1, 'Door L')
+    await place(9, 10, 'Door R')
+    const a = await cell(2, 1).boundingBox()
+    const c = await cell(9, 10).boundingBox()
+    await page.mouse.move(a.x + a.width / 2 + 8, a.y + a.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(c.x + c.width / 2 - 8, c.y + c.height / 2, { steps: 8 })
+    await page.mouse.up()
+    assert.equal(await exits(2, 1), 'EW')
+    await cell(2, 1).click({ button: 'right' })
+    await page.getByRole('menuitem', { name: 'Unlink' }).click()
+    assert.equal(await exits(2, 1), 'W')
+    assert.equal((await savedRun()).palaceLinks.length, 0)
+  })
+
   it('keeps rooms and links after a reload', async () => {
     await pageTo('Palace 4')
-    await place(3, 3, 'Pass L')
-    await place(3, 9, 'Pass R')
+    await place(3, 3, 'Door L')
+    await place(3, 9, 'Door R')
     await page.waitForTimeout(300)
     await openTracker(true)
     await pageTo('Palace 4')

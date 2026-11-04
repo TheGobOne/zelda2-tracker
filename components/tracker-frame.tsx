@@ -1429,6 +1429,16 @@ const CONTROL_GROUPS: {
     ],
   },
   {
+    title: 'Palace maps',
+    note: 'Rooms join neighbouring doorways on their own; Auto-join in the room menu turns that off.',
+    rows: [
+      { input: 'Right click', effect: 'Room menu: shape, marker, Unlink, Clear' },
+      { input: 'Left click', effect: 'Turn a room' },
+      { input: 'Middle click', effect: 'Pick a room up, left click to drop it' },
+      { input: 'Drag room to room', effect: 'Link doorways that are not neighbours' },
+    ],
+  },
+  {
     title: 'Heart/Magic containers',
     note: 'The heart/magic containers will increment on their own when collected. Setting the flags to Custom allows selection.',
   },

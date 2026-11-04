@@ -3322,6 +3322,33 @@ gear's center to the center of the left lane (palace and map sections). */
   column-gap: 8px;
 }
 
+.palace-cell-blocked {
+  animation: palace-blocked 0.3s;
+}
+
+@keyframes palace-blocked {
+  25% {
+    transform: translateX(-2px);
+  }
+  75% {
+    transform: translateX(2px);
+  }
+}
+
+.palace-menu-footer {
+  display: flex;
+  column-gap: 4px;
+}
+
+.palace-menu-footer > button {
+  flex: 1;
+  padding: 6px 4px;
+  font-size: 14px;
+  width: auto;
+  margin-top: 4px;
+  white-space: nowrap;
+}
+
 .palace-menu-columns > div {
   min-width: 118px;
 }
@@ -3390,6 +3417,15 @@ gear's center to the center of the left lane (palace and map sections). */
 }
 
 /* Links drawn between doorways that are not neighbours, over the whole grid. */
+.palace-map .overworld-grid {
+  position: relative;
+  z-index: 1;
+}
+
+.palace-links.palace-links-under {
+  z-index: 0;
+}
+
 .palace-links {
   position: absolute;
   top: 0;

@@ -53,8 +53,8 @@ export type Shape = 'dead' | 'pass' | 'turn' | 'three' | 'four'
  * was reached. A dead end has no `exits`: it turns to face a neighbour.
  */
 export const MENU_SHAPES: { id: string; label: string; exits?: Side[] }[] = [
-  { id: 'pass-left', label: 'Pass L', exits: ['W'] },
-  { id: 'pass-right', label: 'Pass R', exits: ['E'] },
+  { id: 'pass-left', label: 'Door L', exits: ['W'] },
+  { id: 'pass-right', label: 'Door R', exits: ['E'] },
   { id: 'pass-v', label: 'Pass up-down', exits: ['N', 'S'] },
   { id: 'three-up', label: '3-way up', exits: ['W', 'E', 'N'] },
   { id: 'three-down', label: '3-way down', exits: ['W', 'E', 'S'] },
@@ -66,7 +66,7 @@ export const MENU_SHAPES: { id: string; label: string; exits?: Side[] }[] = [
 export const SHAPE_NAMES: Record<Shape, string> = {
   dead: 'Dead end',
   pass: 'Passthrough',
-  turn: 'Elevator and one side',
+  turn: 'Corner',
   three: '3-way',
   four: '4-way',
 }
@@ -121,14 +121,16 @@ export function pickDeadEnd(
   row: number,
   column: number,
   role?: PalaceRole,
+  skip: Side[] = [],
 ) {
   const required = requiredExit(role)
   if (required) return required
 
-  let best: Side = DEAD_END_SIDES[0]
+  let best: Side = DEAD_END_SIDES.find((side) => !skip.includes(side)) ?? DEAD_END_SIDES[0]
   let bestScore = -Infinity
 
   for (const side of DEAD_END_SIDES) {
+    if (skip.includes(side)) continue
     const next = neighbour(rooms, pageId, row, column, side)
     const score = next ? (next.exits.includes(OPPOSITE[side]) ? 2 : 1) : 0
     if (score > bestScore) {
@@ -199,7 +201,8 @@ export function parsePalaceRooms(value: unknown): Record<string, PalaceRoom> | n
 }
 
 /** One end of a drawn link: a room's doorway on one of its sides. */
-export type PalaceLinkEnd = { row: number; column: number; side: Side }
+/** `added` marks a doorway the link itself opened, so unlinking can close it again. */
+export type PalaceLinkEnd = { row: number; column: number; side: Side; added?: true }
 /**
  * A doorway joined to another that is not beside it, for the palaces whose rooms
  * loop back on themselves. Drawn as a line over the grid.
@@ -232,8 +235,8 @@ export function parsePalaceLinks(value: unknown): PalaceLink[] | null {
     if (!page || !isLinkEnd(a, page.columns) || !isLinkEnd(b, page.columns)) return null
     links.push({
       page: page.id,
-      a: { row: a.row, column: a.column, side: a.side },
-      b: { row: b.row, column: b.column, side: b.side },
+      a: { row: a.row, column: a.column, side: a.side, ...((a as PalaceLinkEnd).added === true && { added: true as const }) },
+      b: { row: b.row, column: b.column, side: b.side, ...((b as PalaceLinkEnd).added === true && { added: true as const }) },
     })
   }
   return links
@@ -244,3 +247,14 @@ export const sameEnd = (x: PalaceLinkEnd, y: PalaceLinkEnd) =>
 
 export const touches = (link: PalaceLink, row: number, column: number) =>
   [link.a, link.b].some((end) => end.row === row && end.column === column)
+
+/** Whether a doorway already opens onto a neighbouring room's matching doorway. */
+export function isJoinedToNeighbour(
+  rooms: Record<string, PalaceRoom>,
+  pageId: string,
+  row: number,
+  column: number,
+  side: Side,
+) {
+  return Boolean(neighbour(rooms, pageId, row, column, side)?.exits.includes(OPPOSITE[side]))
+}

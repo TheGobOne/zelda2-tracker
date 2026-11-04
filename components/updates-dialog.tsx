@@ -15,12 +15,27 @@ type UpdateRelease = {
 // Newest first. Add a new release at the top to publish new notes.
 const UPDATE_RELEASES: UpdateRelease[] = [
   {
+    id: '2026-11-04-palace-maps-2',
+    date: '11/04/26',
+    intro: 'Palace maps are better, with reconstructed palaces in mind. Changes below:',
+    lines: [
+      'Middle click now picks a palace room up to move it; left click a square to put it down. Rooms swap if the square is taken, and links follow',
+      'Reconstructed palaces: drag from one room to another to link doorways that are not neighbours. Links are dashed, run behind rooms, and rings show where a drag starts and lands',
+      'New Auto-join button in the room menu. Turn it off and rooms stop opening doorways on their neighbours, so you can lay out a reconstructed palace as it really is',
+      'Pass L and Pass R are now Door L and Door R',
+      'Turning a linked room keeps its link; Unlink closes any door the link opened',
+      'Elevator entrances on a one-door room now use just that door',
+      'New Bridge tile, and a gold circle on the North Palace icon',
+      'Controls now has a Palace maps box',
+    ],
+  },
+  {
     id: '2026-11-02-palace-maps',
     date: '11/02/26',
     intro: 'Palace mapping is here. Changes below:',
     lines: [
       'Added Palace Maps: use the arrows beside the maps to page to P1-P6 and the Great Palace',
-      'Right click a square to place rooms (passthroughs, 3-ways, 4-way, dead ends) and mark Entrance elevators, Boss, and Item rooms. Left click turns a room, middle click clears it',
+      'Right click a square to place rooms (passthroughs, 3-ways, 4-way, dead ends) and mark Entrance elevators, Boss, and Item rooms. Left click turns a room, middle click picks it up to move it (left click a square to put it down)',
       'Rooms connect on their own when their doorways face each other. Drag from one room to another to link doorways that are not neighbors, for reconstructed palaces',
       'Added Bridge, Grass, Swamp, and Graveyard tiles, a three-peak Mountain, and 3/6 icons for Palaces 3 and 6. The icon menu has a fifth row, and Items/Spells moved into it',
       'Picking a flagset for the first time now warns you before it clears anything you have already marked. The board also shrinks to fit narrow screens',
