@@ -25,7 +25,7 @@ const UPDATE_RELEASES: UpdateRelease[] = [
       'Pass L and Pass R are now Door L and Door R',
       'Turning a linked room keeps its link; Unlink closes any door the link opened',
       'Elevator entrances on a one-door room now use just that door',
-      'New Bridge tile, and a gold circle on the North Palace icon',
+      'New Bridge tile, a gold border on the North Palace icon, and cleaner 3 and 6 on the Palace 3 and 6 icons',
       'Controls now has a Palace maps box',
     ],
   },
