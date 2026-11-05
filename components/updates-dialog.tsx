@@ -15,6 +15,13 @@ type UpdateRelease = {
 // Newest first. Add a new release at the top to publish new notes.
 const UPDATE_RELEASES: UpdateRelease[] = [
   {
+    id: '2026-11-05-quick-place',
+    date: '11/05/26',
+    lines: [
+      'Left click an empty map square to place the last icon you picked, and left click a placed icon to pick it up for the next square, so you do not have to open the menu every time',
+    ],
+  },
+  {
     id: '2026-11-04-palace-maps-2',
     date: '11/04/26',
     intro: 'Palace maps are better, with reconstructed palaces in mind. Changes below:',

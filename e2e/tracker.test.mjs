@@ -88,6 +88,39 @@ describe('the page', () => {
   })
 })
 
+describe('overworld squares', () => {
+  it('puts the last picked icon on an empty square with a left click', async () => {
+    const squares = page.locator('.overworld-cell:not(.palace-cell)')
+    // Nothing picked yet: a click on an empty square does nothing.
+    await squares.nth(61).click()
+    const before = Object.keys((await savedRun())?.overworldCells ?? {}).length
+    assert.equal(before, 1) // only the starting palace
+    await squares.nth(50).click({ button: 'right' })
+    await page.locator('.overworld-menu img[src*="mountain"]').first().click()
+    await squares.nth(62).click()
+    await page.waitForTimeout(300)
+    const cells = (await savedRun()).overworldCells ?? {}
+    assert.equal(Object.values(cells).filter((id) => id === 'mountain').length, 2)
+    assert.equal(Object.keys(cells).length, before + 2)
+  })
+})
+
+describe('picking a placed icon', () => {
+  it('a left click on a placed icon makes it the one an empty square gets', async () => {
+    const squares = page.locator('.overworld-cell:not(.palace-cell)')
+    await squares.nth(50).click({ button: 'right' })
+    await page.locator('.overworld-menu img[src*="mountain"]').first().click()
+    await squares.nth(50).click({ button: 'right' })
+    await page.locator('.overworld-menu img[src*="forest"]').first().click()
+    // Click the mountain-less way: pick the forest again via a plain click, then place.
+    await squares.nth(50).click()
+    await squares.nth(63).click()
+    await page.waitForTimeout(300)
+    const cells = (await savedRun()).overworldCells ?? {}
+    assert.equal(Object.values(cells).filter((id) => id === 'forest').length, 2)
+  })
+})
+
 describe('small screens', () => {
   it('fits the board inside a phone-width window', async () => {
     await page.setViewportSize({ width: 375, height: 812 })

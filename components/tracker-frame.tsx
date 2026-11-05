@@ -1421,6 +1421,8 @@ const CONTROL_GROUPS: {
     rows: [
       { input: 'Right click', effect: 'Open the icon menu for a square' },
       { input: 'Left click (menu)', effect: 'Place that icon on the square' },
+      { input: 'Left click (empty)', effect: 'Place the last icon you picked or clicked' },
+      { input: 'Left click (icon)', effect: 'Pick that icon to place again' },
       { input: 'Drag an icon', effect: 'Move it to another square' },
       { input: 'Shift click P/J/F/T', effect: 'Pick up a copy to place' },
       { input: 'Middle click', effect: 'Remove an icon, or toggle move mode' },
@@ -1919,6 +1921,8 @@ export function TrackerFrame() {
   }, [highlightKeys])
   // The right-click icon menu, and the square it will place onto.
   const [mapMenu, setMapMenu] = useState<MapMenu | null>(null)
+  // The icon last picked from the menu; a left click on an empty square puts it down.
+  const [lastMapIcon, setLastMapIcon] = useState<string | null>(null)
   const mapMenuRef = useRef<HTMLDivElement | null>(null)
   const mapMenuOpenerRef = useRef<HTMLButtonElement | null>(null)
   // A right click opens the menu without the keyboard, so closing it must not hand
@@ -2094,6 +2098,9 @@ export function TrackerFrame() {
         return
       }
 
+      // Released without having moved: a plain click on a placed icon picks it up
+      // as the one the next empty square receives.
+      if (pendingMapDragRef.current) setLastMapIcon(pendingMapDragRef.current.icon)
       pendingMapDragRef.current = null
 
       if (!heldIcon?.from) {
@@ -2964,6 +2971,7 @@ export function TrackerFrame() {
     }
 
     const { cellKey } = mapMenu
+    if (iconId) setLastMapIcon(iconId)
     markPalaceContinent(cellKey, iconId ?? undefined)
     setOverworldCells((current) => {
       const next = { ...current }
@@ -4921,6 +4929,18 @@ export function TrackerFrame() {
 
                                 if (!mapMove) {
                                   const placed = overworldCells[cellKey]
+
+                                  if (!placed) {
+                                    // An empty square takes the last icon picked from the menu.
+                                    if (lastMapIcon && !mapMenu) {
+                                      markPalaceContinent(cellKey, lastMapIcon)
+                                      setOverworldCells((current) => ({
+                                        ...current,
+                                        [cellKey]: lastMapIcon,
+                                      }))
+                                    }
+                                    return
+                                  }
 
                                   if (placed) {
                                     // Also stops the browser's own image drag.
