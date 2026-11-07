@@ -15,6 +15,14 @@ type UpdateRelease = {
 // Newest first. Add a new release at the top to publish new notes.
 const UPDATE_RELEASES: UpdateRelease[] = [
   {
+    id: '2026-11-07-town-tags',
+    date: '11/07/26',
+    lines: [
+      "Item collection now shows where an item is waiting: palace numbers as before, and a town's two letters when the item is in a town: Ra (Rauru), Ru (Ruto), Sa (Saria), Md (Mido), Na (Nabooru), Da (Darunia), Nk (New Kasuto), Ok (Old Kasuto)",
+      "The fountain counts as Nabooru (Na), and Granny's Basement and Spell Tower count as New Kasuto (Nk)",
+    ],
+  },
+  {
     id: '2026-11-05-quick-place',
     date: '11/05/26',
     lines: [

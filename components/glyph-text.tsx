@@ -54,6 +54,12 @@ const GLYPH_BITMAPS: Record<string, string> = {
   Y: '6666663c18181800',
   Z: 'fe0e1c3870e0fe00',
   '-': '0000003c00000000',
+  /* Drawn rather than traced: the sheet is capitals only. These lowercase letters
+     (only those the town tags need) are built to the capitals' own metrics. */
+  a: '00007c067ec67e00',
+  d: '06067ec6c6c67e00',
+  k: 'c0c0c6ccf8ccc600',
+  u: '0000c6c6c6c67e00',
   /* Drawn rather than traced: the sheet has no slash, and a tally like "3/6"
      needs one. Built to the digits' own metrics so it sets with them - six rows
      tall like `0`, and inside the same columns 1 to 5 - which is why it steps 2px
@@ -92,11 +98,12 @@ type GlyphTextProps = {
   /** Screen pixels per glyph pixel. 3 keeps a two-letter mark inside a 56px icon. */
   scale?: number
   className?: string
+  /** Keeps lowercase letters instead of setting everything in capitals. */
+  keepCase?: boolean
 }
 
-export function GlyphText({ children, scale = 3, className }: GlyphTextProps) {
-  const glyphs = children
-    .toUpperCase()
+export function GlyphText({ children, scale = 3, className, keepCase = false }: GlyphTextProps) {
+  const glyphs = (keepCase ? children : children.toUpperCase())
     .split('')
     .map((char, index) => ({ path: GLYPH_PATHS.get(char), key: `${char}-${index}` }))
     .filter((glyph) => glyph.path)

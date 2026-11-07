@@ -76,6 +76,28 @@ const towns: { name: string; src: string; tip?: string }[] = [
   { name: 'Old Kasuto', src: '/images/towns/old-kasuto.png' },
 ]
 
+// Two-letter tags for the collection row, so an item waiting in a town reads like a palace number.
+const TOWN_LABELS: Record<string, string> = {
+  Rauru: 'Ra',
+  Ruto: 'Ru',
+  Saria: 'Sa',
+  Mido: 'Md',
+  Nabooru: 'Na',
+  Darunia: 'Da',
+  'New Kasuto': 'Nk',
+  'Old Kasuto': 'Ok',
+}
+// Overworld checks that are really inside a town: the fountain is Nabooru's, and
+// the basement and the tower are in New Kasuto.
+const TOWN_LABELS_BY_LOCATION: Record<string, string> = {
+  'location-Fountain': TOWN_LABELS.Nabooru,
+  "location-Granny's Basement": TOWN_LABELS['New Kasuto'],
+  'location-Spell Tower': TOWN_LABELS['New Kasuto'],
+}
+const TOWN_NAMES_BY_LABEL = Object.fromEntries(
+  Object.entries(TOWN_LABELS).map(([name, label]) => [label, name]),
+)
+
 // The seven palace bosses sit in two columns pushed to opposite edges: four on
 // the left, three on the right.
 const palaceColumns = [
@@ -2681,6 +2703,22 @@ export function TrackerFrame() {
       }
     }
 
+    // An item waiting in a town shows the town's letters the same way, unless a
+    // palace already claims it.
+    for (const [slotKey, itemId] of Object.entries(slotItems)) {
+      const town = slotKey.startsWith('town-')
+        ? TOWN_LABELS[slotKey.slice('town-'.length)]
+        : TOWN_LABELS_BY_LOCATION[slotKey]
+
+      if (!town || !itemId || collected[slotKey]) {
+        continue
+      }
+
+      if (!byItem.has(itemId)) {
+        byItem.set(itemId, town)
+      }
+    }
+
     return byItem
   }, [collected, slotItems])
 
@@ -2728,7 +2766,7 @@ export function TrackerFrame() {
 
     return (
       <button
-        aria-label={`${entry.name}${isCollected ? ', collected' : ', not collected'}${palaceNumber ? `, in palace ${palaceNumber}` : mark ? `, marked ${mark}` : ''}. Right click to cycle the location.`}
+        aria-label={`${entry.name}${isCollected ? ', collected' : ', not collected'}${palaceNumber ? `, in ${/^\d/.test(palaceNumber) ? `palace ${palaceNumber}` : (TOWN_NAMES_BY_LABEL[palaceNumber] ?? palaceNumber)}` : mark ? `, marked ${mark}` : ''}. Right click to cycle the location.`}
         aria-pressed={isCollected}
         className={`${isCollected ? 'collection-slot collection-slot-collected' : 'collection-slot'}${highlightKeys.has(slotKey) ? ' tracker-highlight' : ''}`}
         data-quest-town={QUEST_ITEM_TOWNS[entry.id]}
@@ -2757,7 +2795,7 @@ export function TrackerFrame() {
       >
         <ItemArt item={entry} />
         {mark ? (
-          <GlyphText className="icon-mark-glyph" scale={3}>
+          <GlyphText className="icon-mark-glyph" keepCase scale={3}>
             {mark}
           </GlyphText>
         ) : null}

@@ -121,6 +121,29 @@ describe('picking a placed icon', () => {
   })
 })
 
+describe('item collection', () => {
+  it('names the town an item is waiting in', async () => {
+    await page.locator('[aria-label^="Rauru item"]').click({ button: 'right' })
+    await page.locator('[aria-label^="Choose an item"]').getByRole('button', { name: /^Hammer/ }).first().click()
+    const slot = page.locator('.collection-slot[aria-label^="Hammer"]')
+    assert.match((await slot.getAttribute('aria-label')) ?? '', /in Rauru/)
+    assert.equal(await slot.locator('.glyph-text').count(), 1)
+  })
+
+  it('tags the fountain as Nabooru and the basement and tower as New Kasuto', async () => {
+    const choose = async (location, item) => {
+      await page.locator(`[aria-label^="${location}"]`).first().click({ button: 'right' })
+      await page.locator('[aria-label^="Choose an item"]').getByRole('button', { name: new RegExp(`^${item}`) }).first().click()
+    }
+    await choose('Fountain', 'Hammer')
+    await choose("Granny's Basement:", 'Glove')
+    await choose('Spell Tower', 'Candle')
+    const label = (item) => page.locator(`.collection-slot[aria-label^="${item}"]`).getAttribute('aria-label')
+    assert.match((await label('Hammer')) ?? '', /in Nabooru/)
+    assert.match((await label('Glove')) ?? '', /in New Kasuto/)
+  })
+})
+
 describe('small screens', () => {
   it('fits the board inside a phone-width window', async () => {
     await page.setViewportSize({ width: 375, height: 812 })
