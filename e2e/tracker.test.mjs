@@ -136,11 +136,13 @@ describe('item collection', () => {
       await page.locator('[aria-label^="Choose an item"]').getByRole('button', { name: new RegExp(`^${item}`) }).first().click()
     }
     await choose('Fountain', 'Hammer')
+    await choose('Saria Table', 'Boots')
     await choose("Granny's Basement:", 'Glove')
     await choose('Spell Tower', 'Candle')
     const label = (item) => page.locator(`.collection-slot[aria-label^="${item}"]`).getAttribute('aria-label')
     assert.match((await label('Hammer')) ?? '', /in Nabooru/)
     assert.match((await label('Glove')) ?? '', /in New Kasuto/)
+    assert.match((await label('Boots')) ?? '', /in Saria/)
   })
 })
 

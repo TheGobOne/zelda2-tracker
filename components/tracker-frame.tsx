@@ -87,10 +87,11 @@ const TOWN_LABELS: Record<string, string> = {
   'New Kasuto': 'Nk',
   'Old Kasuto': 'Ok',
 }
-// Overworld checks that are really inside a town: the fountain is Nabooru's, and
-// the basement and the tower are in New Kasuto.
+// Overworld checks that are really inside a town: the table is Saria's, the fountain
+// is Nabooru's, and the basement and the tower are in New Kasuto.
 const TOWN_LABELS_BY_LOCATION: Record<string, string> = {
   'location-Fountain': TOWN_LABELS.Nabooru,
+  'location-Saria Table': TOWN_LABELS.Saria,
   "location-Granny's Basement": TOWN_LABELS['New Kasuto'],
   'location-Spell Tower': TOWN_LABELS['New Kasuto'],
 }
