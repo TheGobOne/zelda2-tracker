@@ -15,6 +15,14 @@ type UpdateRelease = {
 // Newest first. Add a new release at the top to publish new notes.
 const UPDATE_RELEASES: UpdateRelease[] = [
   {
+    id: '2026-11-14-blockers',
+    date: '11/14/26',
+    lines: [
+      'Palace blocker wheel now steps through Glove, Fairy, Jump, Glove or Fairy or Jump (slashes across the three icons), Glove and Jump (a plus between the two icons), and Flute. Boots, Hammer, Glove or Fairy, and Jump or Fairy are gone, so a palace saved with one of those shows no blocker',
+      'New Spell icon',
+    ],
+  },
+  {
     id: '2026-11-07-town-tags',
     date: '11/07/26',
     lines: [

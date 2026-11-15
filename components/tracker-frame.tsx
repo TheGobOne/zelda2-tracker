@@ -914,24 +914,89 @@ const TOWN_MARKS = ['', 'W', 'E']
  * choice between two things the tracker already has art for, and the art reads
  * faster at this size than any word would.
  */
-const BLOCKS: { id: string; name: string; src: string[] }[] = [
+/**
+ * `join` sets the seam marks drawn over a stack: "/" when either sprite opens the
+ * palace, "+" when both are needed.
+ */
+const BLOCKS: { id: string; name: string; src: string[]; join?: '/' | '+' }[] = [
   { id: '', name: '', src: [] },
   { id: 'glove', name: 'Glove', src: ['/images/items/glove.png'] },
   { id: 'fairy', name: 'Fairy', src: ['/images/spells/fairy.png'] },
-  {
-    id: 'glove-fairy',
-    name: 'Glove or Fairy',
-    src: ['/images/items/glove.png', '/images/spells/fairy.png'],
-  },
   { id: 'jump', name: 'Jump', src: ['/images/spells/jump.png'] },
   {
-    id: 'jump-fairy',
-    name: 'Jump or Fairy',
-    src: ['/images/spells/jump.png', '/images/spells/fairy.png'],
+    id: 'glove-fairy-jump',
+    name: 'Glove or Fairy or Jump',
+    join: '/',
+    src: [
+      '/images/items/glove.png',
+      '/images/spells/fairy.png',
+      '/images/spells/jump.png',
+    ],
   },
-  { id: 'boots', name: 'Boots', src: ['/images/items/boots.png'] },
-  { id: 'hammer', name: 'Hammer', src: ['/images/items/hammer.png'] },
+  {
+    id: 'glove-jump',
+    name: 'Glove and Jump',
+    join: '+',
+    src: ['/images/items/glove.png', '/images/spells/jump.png'],
+  },
+  { id: 'flute', name: 'Flute', src: ['/images/items/flute.png'] },
 ]
+
+/**
+ * A blocker's sprites stacked top to bottom, with lines drawn over the seams.
+ * "/" seams mean either sprite opens the palace; a "+" in the middle means both
+ * are needed.
+ */
+function BlockStack({
+  block,
+  size,
+}: {
+  block: (typeof BLOCKS)[number]
+  size: number
+}) {
+  const count = block.src.length
+  const seams = Array.from(
+    { length: count - 1 },
+    // Pushed slightly outward from an even split, so the middle sprite gets some room.
+    (_, index) => 50 + ((100 * (index + 1)) / count - 50) * 1.12,
+  )
+  return (
+    <span className="block-stack">
+      {block.src.map((src) => (
+        <Image alt="" height={size} key={src} src={src} width={size} />
+      ))}
+      {block.join === '+' ? (
+        <span aria-hidden="true" className="block-stack-plus" />
+      ) : count > 1 ? (
+        <svg
+          aria-hidden="true"
+          className="block-stack-lines"
+          preserveAspectRatio="none"
+          viewBox="0 0 100 100"
+        >
+          {seams.flatMap((y) => [
+            <line
+              className="block-stack-shadow"
+              key={`s-${y}`}
+              x1="0"
+              x2="100"
+              y1={y + 14}
+              y2={y - 14}
+            />,
+            <line
+              className="block-stack-mark"
+              key={`m-${y}`}
+              x1="0"
+              x2="100"
+              y1={y + 14}
+              y2={y - 14}
+            />,
+          ])}
+        </svg>
+      ) : null}
+    </span>
+  )
+}
 
 /** Turns a slot key into the heading shown in the item menu. */
 function slotLabel(slotKey: string) {
@@ -2591,9 +2656,7 @@ export function TrackerFrame() {
               Sizing is all in the stylesheet, which knows each slot size. */}
           {block ? (
             <span aria-hidden="true" className="slot-block">
-              {block.src.map((src) => (
-                <Image alt="" height={16} key={src} src={src} width={16} />
-              ))}
+              <BlockStack block={block} size={16} />
             </span>
           ) : null}
           {isCollected ? (
@@ -3870,15 +3933,7 @@ export function TrackerFrame() {
                           />
                           {block ? (
                             <span aria-hidden="true" className="boss-block">
-                              {block.src.map((src) => (
-                                <Image
-                                  alt=""
-                                  height={16}
-                                  key={src}
-                                  src={src}
-                                  width={16}
-                                />
-                              ))}
+                              <BlockStack block={block} size={16} />
                             </span>
                           ) : null}
                           {/* A blocked boss carries its plates down the icon's left

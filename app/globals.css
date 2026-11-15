@@ -1188,6 +1188,79 @@
    them is darker still, so there was nothing for a thin line to separate. The plate
    gives the sprite a field of its own, which is what lets it sit directly over the
    boss art now without the two running together. */
+.block-stack {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: #050505;
+  /* One border around the whole stack; the sprites' own rings would draw
+     horizontal lines across every seam. */
+  box-shadow: 0 0 0 1px #f2b21c;
+}
+
+.boss-block .block-stack img,
+.slot-block .block-stack img {
+  box-shadow: none;
+}
+
+.block-stack-plus {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 11px;
+  height: 11px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  filter: drop-shadow(1px 0 0 #050505) drop-shadow(-1px 0 0 #050505)
+    drop-shadow(0 1px 0 #050505) drop-shadow(0 -1px 0 #050505);
+}
+
+.block-stack-plus::before,
+.block-stack-plus::after {
+  content: '';
+  position: absolute;
+  background: #f2b21c;
+}
+
+.block-stack-plus::before {
+  left: 4px;
+  top: 0;
+  width: 3px;
+  height: 11px;
+}
+
+.block-stack-plus::after {
+  left: 0;
+  top: 4px;
+  width: 11px;
+  height: 3px;
+}
+
+.block-stack-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* Clipped to the stack so the slashes stop at the border instead of crossing it. */
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.block-stack-lines line {
+  vector-effect: non-scaling-stroke;
+  stroke-linecap: square;
+}
+
+.block-stack-shadow {
+  stroke: #050505;
+  stroke-width: 4;
+}
+
+.block-stack-mark {
+  stroke: #f2b21c;
+  stroke-width: 1.5;
+}
+
 .boss-block img {
   display: block;
   width: 21px;
