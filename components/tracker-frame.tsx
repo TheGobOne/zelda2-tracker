@@ -1478,6 +1478,7 @@ const CONTROL_GROUPS: {
     rows: [
       { input: 'Left click', effect: 'Mark the item collected' },
       { input: 'Right click', effect: 'Choose or change the item' },
+      { input: 'Right click (menu)', effect: 'Place the item and mark it collected' },
       { input: 'Middle click', effect: 'Clear the slot' },
       { input: 'Scroll', effect: 'Cycle what blocks the slot' },
     ],
@@ -1489,6 +1490,7 @@ const CONTROL_GROUPS: {
     rows: [
       { input: 'Left click', effect: 'Mark the item collected' },
       { input: 'Right click', effect: 'Choose or change the item' },
+      { input: 'Right click (menu)', effect: 'Place the item and mark it collected' },
       { input: 'Middle click', effect: 'Clear the slot' },
     ],
   },
@@ -3250,6 +3252,7 @@ export function TrackerFrame() {
     title: string,
     onPick: (itemId: string) => void,
     onClose: () => void,
+    onPickCollected?: (itemId: string) => void,
   ) {
     const renderOption = (entry: (typeof allPickables)[number]) => (
       <button
@@ -3257,6 +3260,14 @@ export function TrackerFrame() {
         className="item-picker-option"
         key={entry.id}
         onClick={() => onPick(entry.id)}
+        // Right click places the item and marks it collected in one go.
+        onContextMenu={(event) => {
+          if (!onPickCollected) {
+            return
+          }
+          event.preventDefault()
+          onPickCollected(entry.id)
+        }}
         type="button"
       >
         <ItemArt item={entry} />
@@ -3529,6 +3540,12 @@ export function TrackerFrame() {
 
   function assignItem(slotKey: string, itemId: string) {
     setSlotItems((current) => ({ ...current, [slotKey]: itemId }))
+    setOpenSlot(null)
+  }
+
+  function assignItemCollected(slotKey: string, itemId: string) {
+    setSlotItems((current) => ({ ...current, [slotKey]: itemId }))
+    setCollected((current) => ({ ...current, [slotKey]: true }))
     setOpenSlot(null)
   }
 
@@ -5349,6 +5366,7 @@ export function TrackerFrame() {
                   slotLabel(openSlot),
                   (itemId) => assignItem(openSlot, itemId),
                   () => setOpenSlot(null),
+                  (itemId) => assignItemCollected(openSlot, itemId),
                 )
               : null}
             {mapItemPickerCell ? (
