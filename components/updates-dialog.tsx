@@ -15,6 +15,13 @@ type UpdateRelease = {
 // Newest first. Add a new release at the top to publish new notes.
 const UPDATE_RELEASES: UpdateRelease[] = [
   {
+    id: '2026-11-18-menu-right-click',
+    date: '11/18/26',
+    lines: [
+      'Right click an item in the open item menu to place it and mark it collected in one step',
+    ],
+  },
+  {
     id: '2026-11-14-blockers',
     date: '11/14/26',
     lines: [
