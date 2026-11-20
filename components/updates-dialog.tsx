@@ -15,6 +15,14 @@ type UpdateRelease = {
 // Newest first. Add a new release at the top to publish new notes.
 const UPDATE_RELEASES: UpdateRelease[] = [
   {
+    id: '2026-11-19-fire-icon',
+    date: '11/19/26',
+    lines: [
+      'New Fire spell icon',
+      'Scroll the Fire icon in the collection panel to swap between the new and old art',
+    ],
+  },
+  {
     id: '2026-11-18-menu-right-click',
     date: '11/18/26',
     lines: [
