@@ -11,6 +11,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from 'react'
 import { createPortal } from 'react-dom'
 import { GlyphText } from '@/components/glyph-text'
@@ -1021,7 +1022,42 @@ function slotLabel(slotKey: string) {
  * the count. No separator between them: at this size a slash cost more room than
  * the sprites it divided, and four items in four corners already read as a set.
  */
+// Fire has two looks and scrolling it in the collection panel swaps them. A
+// small store outside React so every ItemArt that draws Fire changes together.
+const FIRE_ICON_KEY = 'z2r-fire-icon'
+const FIRE_ICON_SRC = { new: '/images/spells/fire.png', old: '/images/spells/fire-old.png' }
+const fireIconListeners = new Set<() => void>()
+
+function readFireIcon(): 'new' | 'old' {
+  try {
+    return window.localStorage.getItem(FIRE_ICON_KEY) === 'old' ? 'old' : 'new'
+  } catch {
+    return 'new'
+  }
+}
+
+function toggleFireIcon() {
+  try {
+    window.localStorage.setItem(FIRE_ICON_KEY, readFireIcon() === 'old' ? 'new' : 'old')
+  } catch {
+    // Storage blocked: the swap just does not stick.
+  }
+  fireIconListeners.forEach((listener) => listener())
+}
+
+function useFireIcon() {
+  return useSyncExternalStore(
+    (listener) => {
+      fireIconListeners.add(listener)
+      return () => fireIconListeners.delete(listener)
+    },
+    readFireIcon,
+    () => 'new' as const,
+  )
+}
+
 function ItemArt({ item }: { item: (typeof allPickables)[number] }) {
+  const fireIcon = useFireIcon()
   if (Array.isArray(item.src)) {
     // Only the junk check carries a centre sprite, so the field is read off the
     // entry rather than being required of every multi-sprite item.
@@ -1049,7 +1085,8 @@ function ItemArt({ item }: { item: (typeof allPickables)[number] }) {
 
   // Asks for the sprite's full resolution so the larger menu boxes stay crisp;
   // CSS decides the drawn size in each context.
-  return <Image alt={item.name} height={64} src={item.src} width={64} />
+  const src = item.id === 'fire-spell' ? FIRE_ICON_SRC[fireIcon] : item.src
+  return <Image alt={item.name} height={64} src={src} width={64} />
 }
 
 type Handle = {
@@ -2561,6 +2598,21 @@ export function TrackerFrame() {
     return () => grid.removeEventListener('wheel', handleWheel)
   }, [])
 
+  // Scrolling Fire in the collection panel swaps its icon. Document level and
+  // non-passive so the page does not scroll while it swaps.
+  useEffect(() => {
+    function handleFireWheel(event: WheelEvent) {
+      const target = event.target as HTMLElement | null
+      if (event.deltaY === 0 || !target?.closest?.('[data-fire-icon]')) {
+        return
+      }
+      event.preventDefault()
+      toggleFireIcon()
+    }
+    document.addEventListener('wheel', handleFireWheel, { passive: false })
+    return () => document.removeEventListener('wheel', handleFireWheel)
+  }, [])
+
   /** One item holder. Left click marks collected, right click opens the menu,
    *  middle click empties it. Shared by the town and palace grids. */
   /**
@@ -2835,6 +2887,7 @@ export function TrackerFrame() {
         aria-label={`${entry.name}${isCollected ? ', collected' : ', not collected'}${palaceNumber ? `, in ${/^\d/.test(palaceNumber) ? `palace ${palaceNumber}` : (TOWN_NAMES_BY_LABEL[palaceNumber] ?? palaceNumber)}` : mark ? `, marked ${mark}` : ''}. Right click to cycle the location.`}
         aria-pressed={isCollected}
         className={`${isCollected ? 'collection-slot collection-slot-collected' : 'collection-slot'}${highlightKeys.has(slotKey) ? ' tracker-highlight' : ''}`}
+        data-fire-icon={entry.id === 'fire-spell' ? '' : undefined}
         data-quest-town={QUEST_ITEM_TOWNS[entry.id]}
         key={entry.id}
         onClick={() => {
