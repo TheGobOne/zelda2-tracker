@@ -1056,8 +1056,64 @@ function useFireIcon() {
   )
 }
 
+// The Archipelago option swaps the junk check's five-sprite box for one icon.
+// Same small store pattern as the Fire icon above.
+const ARCHIPELAGO_KEY = 'z2r-archipelago'
+const archipelagoListeners = new Set<() => void>()
+
+function readArchipelago() {
+  try {
+    return window.localStorage.getItem(ARCHIPELAGO_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+function toggleArchipelago() {
+  try {
+    window.localStorage.setItem(ARCHIPELAGO_KEY, readArchipelago() ? '0' : '1')
+  } catch {
+    // Storage blocked: the option just does not stick.
+  }
+  archipelagoListeners.forEach((listener) => listener())
+}
+
+function useArchipelago() {
+  return useSyncExternalStore(
+    (listener) => {
+      archipelagoListeners.add(listener)
+      return () => archipelagoListeners.delete(listener)
+    },
+    readArchipelago,
+    () => false,
+  )
+}
+
+function ArchipelagoOption() {
+  const isArchipelago = useArchipelago()
+  return (
+    <button
+      aria-checked={isArchipelago}
+      className="tracker-menu-option tracker-menu-option-bordered"
+      onClick={toggleArchipelago}
+      role="menuitemcheckbox"
+      type="button"
+    >
+      <span
+        aria-hidden="true"
+        className={`tracker-menu-check${isArchipelago ? ' is-checked' : ''}`}
+      />
+      Archipelago
+    </button>
+  )
+}
+
 function ItemArt({ item }: { item: (typeof allPickables)[number] }) {
   const fireIcon = useFireIcon()
+  const isArchipelago = useArchipelago()
+  if (isArchipelago && item.id === 'junk') {
+    return <Image alt={item.name} height={64} src="/images/items/archipelago.png" width={64} />
+  }
   if (Array.isArray(item.src)) {
     // Only the junk check carries a centre sprite, so the field is read off the
     // entry rather than being required of every multi-sprite item.
@@ -4281,6 +4337,8 @@ export function TrackerFrame() {
                             />
                             Landscape
                           </button>
+
+                          <ArchipelagoOption />
 
                           <button
                             className="tracker-menu-option tracker-menu-option-bordered"
