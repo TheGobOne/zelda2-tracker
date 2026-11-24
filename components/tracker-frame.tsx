@@ -1108,11 +1108,22 @@ function ArchipelagoOption() {
   )
 }
 
+/** Icons that replace an item's art while the Archipelago option is on. */
+const ARCHIPELAGO_ART: Record<string, string> = {
+  bluejar: '/images/items/archipelago-red.png',
+  smallkey: '/images/items/archipelago-orange.png',
+  junk: '/images/items/archipelago-white.png',
+}
+
 function ItemArt({ item }: { item: (typeof allPickables)[number] }) {
   const fireIcon = useFireIcon()
   const isArchipelago = useArchipelago()
-  if (isArchipelago && item.id === 'junk') {
-    return <Image alt={item.name} height={64} src="/images/items/archipelago.png" width={64} />
+  // With the Archipelago option on, these three pickups swap to their own icons:
+  // the blue jar goes red, the small key goes orange, and the junk check (the
+  // five small items) becomes one white icon.
+  const archipelagoSrc = isArchipelago ? ARCHIPELAGO_ART[item.id] : undefined
+  if (archipelagoSrc) {
+    return <Image alt={item.name} height={64} src={archipelagoSrc} width={64} />
   }
   if (Array.isArray(item.src)) {
     // Only the junk check carries a centre sprite, so the field is read off the
